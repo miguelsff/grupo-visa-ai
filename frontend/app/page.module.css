@@ -113,6 +113,7 @@
 .previewLabel { color:var(--secondary); font-size:10px; font-weight:800; letter-spacing:.08em; }
 .preview h3 { font-size:15px; line-height:1.4; margin:8px 0 2px; }
 .preview .destination { color:var(--secondary); font-size:12px; margin-bottom:12px; }
+.preview .objective { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin:0 0 10px; font-size:12px; }
 .preview details { border-top:1px solid var(--border); padding-top:10px; }
 .preview summary { color:var(--accent); font-weight:700; cursor:pointer; }
 .preview .previewDescription { white-space:pre-wrap; margin:10px 0; }
