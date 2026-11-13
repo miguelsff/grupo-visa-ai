@@ -160,7 +160,13 @@ El equipo utiliza Gitflow para organizar el desarrollo y las versiones.
 - Trabaja en una rama por tarea. Incluye la clave del ticket en el nombre cuando exista.
 - No trabajes directamente sobre `main` ni `develop`.
 - Abre los pull requests de funcionalidades contra `develop`.
-- Integra mediante pull requests con revisión de otro integrante y las verificaciones aplicables aprobadas.
+- La creación y el merge de PR son automáticos, sin aprobaciones ni verificaciones obligatorias en `main` y `develop`.
+- El workflow `.github/workflows/gitflow.yml` reconcilia las ramas mediante `.github/scripts/gitflow.cjs`.
+- Publicar una `feature/*` abre e integra su PR hacia `develop`. Publicar una `release/<version>` o `hotfix/*` abre e integra primero hacia `main` y después hacia `develop`.
+- Los hotfix también se integran en las ramas `release/*` activas. Una rama de release está activa mientras existe en el remoto.
+- Publica una rama `release/*` o `hotfix/*` solo cuando quieras iniciar sus merges. El primer push los ejecuta inmediatamente.
+- Los conflictos y los borradores explícitos conservan el origen y requieren resolución antes de reejecutar el workflow.
+- Las pruebas siguen siendo necesarias antes de publicar la aplicación en Railway, aunque no bloquean los merges de GitHub.
 - Resuelve los conflictos en la rama de trabajo y vuelve a ejecutar las verificaciones afectadas.
 - Durante una `release`, limita los cambios a correcciones, documentación y preparación de la versión.
 - Al integrar una `release` o un `hotfix` en `main`, etiqueta la versión con el formato `v<version>`.

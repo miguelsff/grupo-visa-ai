@@ -1,5 +1,9 @@
 # Grupo VISA AI
 
+El repositorio utiliza [Gitflow automático](docs/gitflow_automatico.md): crea e
+integra PR de funcionalidades, releases y hotfix sin aprobaciones ni checks
+obligatorios. La publicación en Railway requiere verificar la entrega.
+
 Asistente local para preparar un borrador OCD mediante conversación, conocimiento
 Qdrant y validaciones Python V-01, V-02 y V-03. No crea tickets ni ejecuta cambios.
 
