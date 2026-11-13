@@ -10,7 +10,10 @@ def integration_status(settings: Settings) -> list[IntegrationStatus]:
     )
     services = [
         ("OpenAI", bool(settings.openai_api_key)),
-        ("Jira", atlassian_configured),
+        (
+            "Jira",
+            bool(settings.jira_base_url and settings.jira_email and settings.jira_api_token),
+        ),
         ("Confluence", atlassian_configured),
     ]
     return [
@@ -23,7 +26,13 @@ def integration_status(settings: Settings) -> list[IntegrationStatus]:
                 else (
                     "Falta OPENAI_API_KEY para inferencia y embeddings de consulta."
                     if name == "OpenAI"
-                    else "Atlassian se configura en ingesta. Este endpoint no verifica su estado."
+                    else (
+                        "Faltan credenciales Jira del backend. "
+                        "Este endpoint no verifica su conexión."
+                        if name == "Jira"
+                        else "Atlassian se configura en ingesta. "
+                        "Este endpoint no verifica su estado."
+                    )
                 )
             ),
         )
