@@ -110,7 +110,6 @@ export default function Home() {
           {sending && <div role="status" aria-live="polite" className={styles.loading}><div className={styles.aiAvatar}><img className={styles.aiAvatarImage} src="/nexoops-chatbot.png" alt=""/></div><div className={styles.loadingText}>{loadingLabel}<div className={styles.loadingTrack}/></div></div>}
         </div>
         <div className={styles.composer}>
-          <div className={styles.quickPrompts}>{["¿Qué planes exige OCD-C02?", "¿Qué datos requiere un pase de microservicios?"].map(text => <button key={text} disabled={restoring || sending} onClick={() => { void ask(text); }}>{text}</button>)}</div>
           <form onSubmit={submit}><div className={styles.inputRow}>
             <textarea aria-label="Tu mensaje" aria-busy={sending} value={message} maxLength={12000} required rows={2} disabled={restoring || sending} onChange={e => setMessage(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void ask(message); } }} placeholder="Describe el cambio que quieres preparar…"/>
             <button className={styles.send} type="submit" aria-label="Enviar mensaje" disabled={restoring || sending || !message.trim()}><ArrowUp/></button>
