@@ -25,7 +25,8 @@ para construir las imágenes. Copia `.env.example` a `.env`. Configura:
 | Variable | Uso |
 | --- | --- |
 | `APP_PORT` | Puerto local publicado solo en `127.0.0.1`; por defecto 8000. |
-| `OCD_DEMO_PASSWORD` | Contraseña del usuario `demo` de `app`. Obligatoria en Railway y opcional en Compose local. |
+| `OCD_DEMO_USERNAME` | Usuario Basic de demostración de `app`; por defecto `demo`. |
+| `OCD_DEMO_PASSWORD` | Contraseña Basic de demostración de `app`. Obligatoria en Railway y opcional en Compose local. |
 | `MONGODB_URI` | Conexión privada de `app` para registrar cada mensaje aceptado en `ocd.preguntas`. Compose usa su servicio MongoDB y Railway usa una credencial propia de la aplicación. |
 | `OPENAI_API_KEY` | Embeddings de ingesta/consulta e inferencia del backend. |
 | `OPENAI_MODEL` | Modelo de conversación; decisión actual `gpt-6-luna`. |
@@ -66,7 +67,7 @@ conexiones externas ni que exista una generación publicada.
 ## Chat en dos turnos HTTP
 
 En Railway, abre el dominio HTTPS de `app` e inicia sesión con el usuario
-`demo` y la contraseña de `OCD_DEMO_PASSWORD`. Escribe la consulta en el chat.
+el usuario de `OCD_DEMO_USERNAME` y la contraseña de `OCD_DEMO_PASSWORD`. Escribe la consulta en el chat.
 La página envía `POST /api/chat` al mismo dominio y conserva la cookie del
 borrador. También puedes usar Swagger en `/docs`. En un cliente HTTP configura autenticación Basic y conserva
 la cookie `ocd_session` entre turnos para continuar el mismo borrador.
