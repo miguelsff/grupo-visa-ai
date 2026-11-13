@@ -41,6 +41,25 @@ services:
       - qdrant_data:/qdrant/storage
     # Solo accesible desde la red de Compose; no publicar 6333 ni 6334.
 
+  ingesta:
+    build:
+      context: .
+      dockerfile: ingesta/Dockerfile
+      target: runtime
+    restart: unless-stopped
+    init: true
+    environment:
+      <<: *knowledge-environment
+      TZ: America/Lima
+      ATLASSIAN_BASE_URL: ${ATLASSIAN_BASE_URL:-https://grupo-visai.atlassian.net}
+      ATLASSIAN_EMAIL: ${ATLASSIAN_EMAIL:-}
+      ATLASSIAN_API_TOKEN: ${ATLASSIAN_API_TOKEN:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    volumes:
+      - ingesta_state:/state
+    depends_on:
+      - qdrant
+
   tests:
     profiles: [test]
     build:
@@ -52,3 +71,4 @@ services:
 volumes:
   sqlite_data:
   qdrant_data:
+  ingesta_state:
