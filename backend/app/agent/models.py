@@ -88,6 +88,19 @@ class ValidationResult(StrictModel):
     reference: Citation
 
 
+class JiraPreview(StrictModel):
+    project_key: str
+    issue_type: str
+    title: str
+    description: str
+    pending: list[str]
+
+
+class JiraPublication(StrictModel):
+    key: str
+    url: str
+
+
 class ChatResponse(StrictModel):
     revision: int
     status: Literal["reviewed", "unavailable", "pending"]
@@ -98,6 +111,8 @@ class ChatResponse(StrictModel):
     sources: list[Citation] = Field(default_factory=list)
     questions: list[str] = Field(default_factory=list)
     error: str | None = None
+    preview: JiraPreview | None = None
+    publication: JiraPublication | None = None
 
 
 class ServiceUnavailable(Exception):
