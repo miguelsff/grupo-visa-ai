@@ -23,8 +23,20 @@ def minimum_question(draft: Draft) -> str | None:
     return None
 
 
+def production_destination(draft: Draft) -> bool:
+    return draft.value("comun", "ambiente_objetivo").casefold() in {
+        "producción",
+        "produccion",
+        "prod",
+    }
+
+
 def prepare_preview(draft: Draft, validations: list[ValidationResult]) -> JiraPreview | None:
-    if minimum_question(draft) or any(item.status == "ERROR" for item in validations):
+    if (
+        not production_destination(draft)
+        or minimum_question(draft)
+        or any(item.status == "ERROR" for item in validations)
+    ):
         return None
     name = _service_name(draft)
     version = draft.value("microservicio", "version_objetivo")

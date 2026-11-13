@@ -22,6 +22,15 @@ class NaturalMicroserviceModel(FakeModel):
                         message_id=message.id,
                     )
                 )
+                facts.append(
+                    ExtractedFact(
+                        scope="comun",
+                        name="ambiente_objetivo",
+                        value="producción",
+                        quote="producción",
+                        message_id=message.id,
+                    )
+                )
             for scope, name, value in (
                 ("microservicio", "microservicio", "Pedidos"),
                 ("microservicio", "microservicio", "Cobros"),
@@ -55,6 +64,7 @@ def test_two_turn_preview_and_revised_correction_survive_restart(settings, knowl
         ]
         assert first["preview"] is None
         assert "microservicio.microservicio" not in first["draft"]["facts"]
+        assert first["draft"]["facts"]["comun.ambiente_objetivo"]["quote"] == "producción"
         cookie = client.cookies.get("ocd_session")
         second = client.post(
             "/api/chat",
@@ -73,6 +83,7 @@ def test_two_turn_preview_and_revised_correction_survive_restart(settings, knowl
         assert second["draft"]["facts"]["comun.objetivo"]["quote"] == (
             "Corrige la duplicación de pedidos."
         )
+        assert second["draft"]["facts"]["comun.ambiente_objetivo"]["value"] == "producción"
         assert client.get("/api/chat/revisions/1").json()["preview"] is None
 
     with TestClient(create_app(settings, model=model, knowledge=knowledge)) as client:
@@ -104,6 +115,7 @@ def test_complete_first_turn_previews_without_question(settings, knowledge):
         ).json()
         assert result["revision"] == 1
         assert result["preview"]["title"] == "Pase a producción de Pedidos 1.9.0"
+        assert result["draft"]["facts"]["comun.ambiente_objetivo"]["value"] == "producción"
         assert result["questions"] == []
 
 
@@ -114,6 +126,7 @@ def test_contradictory_version_blocks_preview_until_corrected(settings, knowledg
             json={
                 "message": "categoria=microservicio\n"
                 "microservicio.microservicio=Cobros\n"
+                "comun.ambiente_objetivo=producción\n"
                 "microservicio.version_actual=1.0\n"
                 "microservicio.version_objetivo=1.0\n"
                 "microservicio.publica_version_diferente=sí"
@@ -143,3 +156,37 @@ def test_generic_service_name_cannot_open_preview(settings, knowledge):
         ).json()
         assert result["preview"] is None
         assert result["questions"] == ["¿Qué microservicio vas a pasar?"]
+
+
+def test_certification_destination_keeps_documentary_flow(settings, knowledge):
+    with TestClient(create_app(settings, model=FakeModel(), knowledge=knowledge)) as client:
+        result = client.post(
+            "/api/chat",
+            json={
+                "message": "categoria=microservicio\n"
+                "microservicio.microservicio=Inventario\n"
+                "microservicio.version_objetivo=4.0\n"
+                "comun.ambiente_objetivo=certificación"
+            },
+        ).json()
+        assert result["status"] == "reviewed"
+        assert result["preview"] is None
+        assert "Pase a producción" not in result["answer"]
+        assert result["draft"]["facts"]["comun.ambiente_objetivo"]["value"] == (
+            "certificación"
+        )
+
+
+def test_missing_destination_never_creates_production_preview(settings, knowledge):
+    with TestClient(create_app(settings, model=FakeModel(), knowledge=knowledge)) as client:
+        result = client.post(
+            "/api/chat",
+            json={
+                "message": "categoria=microservicio\n"
+                "microservicio.microservicio=Inventario\n"
+                "microservicio.version_objetivo=4.0"
+            },
+        ).json()
+        assert result["status"] == "reviewed"
+        assert result["preview"] is None
+        assert "Pase a producción" not in result["answer"]

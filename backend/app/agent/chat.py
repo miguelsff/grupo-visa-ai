@@ -18,7 +18,7 @@ from app.agent.conversation import (
 from app.agent.facts import grounded, redact
 from app.agent.models import Category, ChatResponse, Citation, Extraction, ServiceUnavailable
 from app.agent.store import ChatStore
-from app.agent.ticket_preview import minimum_question, prepare_preview
+from app.agent.ticket_preview import minimum_question, prepare_preview, production_destination
 from app.agent.validation import validar_ocd
 from app.integrations.openai import Orchestrator
 from app.knowledge.models import Knowledge, Record
@@ -143,7 +143,13 @@ class ChatService:
             result.questions = [f"Indica {field}." for field in absent]
             contradictions = [v for v in result.validations if v.status == "ERROR"]
             result.questions.extend(f"Revisa {v.rule_id}: {v.detail}" for v in contradictions)
-            if result.draft.categories == ["microservicio"]:
+            if result.draft.categories == ["microservicio"] and (
+                production_destination(result.draft)
+                or (
+                    not result.draft.value("comun", "ambiente_objetivo")
+                    and minimum_question(result.draft)
+                )
+            ):
                 question = minimum_question(result.draft)
                 if question:
                     result.questions = [question]
