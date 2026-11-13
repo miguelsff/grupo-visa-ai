@@ -92,6 +92,9 @@ async function chatRequest(options: RequestInit): Promise<ChatResponse> {
     if (failure instanceof Error && /aborted|abort/i.test(failure.message)) {
       throw new Error("La consulta fue interrumpida. Inténtalo nuevamente.");
     }
+    if (failure instanceof TypeError && /fetch/i.test(failure.message)) {
+      throw new Error("No se pudo conectar con el servicio. Verifica el despliegue y vuelve a intentar.");
+    }
     throw failure;
   } finally {
     clearTimeout(timeout);
