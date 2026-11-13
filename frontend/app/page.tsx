@@ -10,13 +10,9 @@ import KnowledgeSearch from "./KnowledgeSearch";
 import styles from "./page.module.css";
 
 type Tab = "draft" | "flow" | "schedule" | "jira";
-type Turn = { message?: string; result: ChatResponse };
-const examples = [
-  { id: "OCD-4092", title: "Actualización Microservicio Transferencias CCE", progress: 68, status: "En progreso" },
-  { id: "ITSM-1104", title: "Apertura de Firewall Base de Datos Riesgos", progress: 100, status: "Listo para Jira" },
-  { id: "OCD-4088", title: "Rollback Plan Motor de Fraude", progress: 84, status: "Coordinando recursos" },
-  { id: "OCD-4076", title: "Certificación QA Core Bancario", progress: 100, status: "Finalizado" },
-];
+type Turn = { message?: string; result?: ChatResponse; pending?: boolean; error?: string };
+const loadingStages = ["Buscando información relevante", "Comparando resultados con los procedimientos", "Preparando la respuesta"];
+const examples: Array<{ id: string; title: string; progress: number; status: string }> = [];
 const stages = [
   ["Registrar el requerimiento", "Describe el objetivo, el alcance y los datos del cambio."],
   ["Consultar los procedimientos", "El agente recupera las fuentes documentales aplicables."],
@@ -33,21 +29,26 @@ export default function Home() {
   const [tab, setTab] = useState<Tab>("draft");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
   const [restoring, setRestoring] = useState(true);
   const [sending, setSending] = useState(false);
+  const [loadingStage, setLoadingStage] = useState(0);
   const [copied, setCopied] = useState(false);
   const transcript = useRef<HTMLDivElement>(null);
   const busy = useRef(false);
   const latest = turns.at(-1)?.result;
+  const loadingLabel = loadingStages[loadingStage];
+
+  useEffect(() => {
+    if (!sending) { setLoadingStage(0); return; }
+    const timer = window.setInterval(() => setLoadingStage(stage => (stage + 1) % loadingStages.length), 1800);
+    return () => window.clearInterval(timer);
+  }, [sending]);
 
   useEffect(() => {
     const controller = new AbortController();
     getChat(controller.signal).then(result => {
-      if (!controller.signal.aborted && result.revision > 0) setTurns([{ result }]);
-    }).catch(() => {
-      if (!controller.signal.aborted) setError("No se pudo recuperar la última revisión. Recarga la página para intentarlo de nuevo.");
-    }).finally(() => { if (!controller.signal.aborted) setRestoring(false); });
+      if (!controller.signal.aborted && result.revision > 0) setTurns([]);
+    }).catch(() => undefined).finally(() => { if (!controller.signal.aborted) setRestoring(false); });
     return () => controller.abort();
   }, []);
 
@@ -56,14 +57,17 @@ export default function Home() {
   }, [turns, sending]);
 
   async function ask(text: string) {
-    if (!text.trim() || busy.current || restoring) return;
-    busy.current = true; setSending(true); setError("");
+    const trimmed = text.trim();
+    if (!trimmed || busy.current || restoring) return;
+    busy.current = true; setSending(true);
+    setMessage("");
+    setTurns(previous => [...previous, { message: trimmed, pending: true }]);
     try {
-      const result = await sendChat(text.trim());
-      setTurns(previous => [...previous, { message: text.trim(), result }]);
-      setMessage("");
+      const result = await sendChat(trimmed);
+      setTurns(previous => previous.map((turn, index) => index === previous.length - 1 && turn.pending ? { message: trimmed, result } : turn));
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "No se pudo enviar el mensaje. Inténtalo otra vez.");
+      const message = failure instanceof Error ? failure.message : "No se pudo enviar el mensaje. Inténtalo otra vez.";
+      setTurns(previous => previous.map((turn, index) => index === previous.length - 1 && turn.pending ? { message: trimmed, error: message } : turn));
     } finally { busy.current = false; setSending(false); }
   }
 
@@ -87,30 +91,28 @@ export default function Home() {
         <div className={styles.sideContent}>
           <button className={`${styles.ticket} ${!example ? styles.selected : ""}`} onClick={showDraft}><span className={styles.tag}>SESIÓN ACTUAL</span><strong>Mi borrador OCD</strong><small>{latest?.revision ? `Revisión ${latest.revision}` : "Describe tu cambio para empezar"}</small></button>
           <p className={styles.demoNote}>Una conversación y un borrador real por sesión del navegador.</p>
-          <div className={styles.eyebrow}>EJEMPLOS DE INTERFAZ</div>
           {examples.map(ticket => <button className={`${styles.ticket} ${example?.id === ticket.id ? styles.selected : ""}`} key={ticket.id} onClick={() => { setExample(ticket); setRightOpen(true); setMobileOpen(false); }}>
             <span className={styles.tag}>{ticket.id} · DEMO</span><strong>{ticket.title}</strong>
             <div className={styles.progress}><span style={{ width: `${ticket.progress}%` }}/></div><small>{ticket.progress}% · {ticket.status}</small>
           </button>)}
-          <p className={styles.demoNote}>Estos ejemplos no son tickets consultados en Jira y no cambian tu conversación.</p>
           <div className={styles.sideFooter}><KnowledgeSearch/></div>
         </div>
       </aside>
       <section className={styles.chatPanel} aria-labelledby="chat-title">
         <div className={styles.panelHeader}><div className={styles.eyebrow}><Sparkles/> COPILOTO NEXOOPS</div><h1 id="chat-title">Armemos tu cambio.</h1><p>Describe tu requerimiento o consulta un procedimiento. El agente prepara un borrador con fuentes y datos pendientes.</p></div>
         <div className={styles.chatBody} ref={transcript} role="log" aria-label="Mensajes de la conversación" aria-live="polite">
-          {!turns.length && <div className={styles.welcome}><p>Puedes empezar con «Hola» o preguntar «¿Qué planes exige OCD-C02?».</p><p>Las revisiones son comprobaciones documentales. El asistente no crea tickets ni ejecuta cambios.</p></div>}
-          {turns.map(({ message: text, result }, i) => <div key={i}>
+          {!turns.length && !sending && <div className={styles.welcome} aria-hidden="true"/>}
+          {turns.map(({ message: text, result, error: turnError }, i) => <div key={i}>
             {text && <div className={`${styles.message} ${styles.userMessage}`}><div className={styles.bubble}><strong>Tú</strong><p>{text}</p></div></div>}
-            <div className={styles.message}><div className={styles.aiAvatar}><Sparkles/></div><div className={styles.bubble}><strong>{text ? "Asistente OCD" : "Última revisión guardada"}</strong><AgentReply result={result}/></div></div>
+            {result && <div className={styles.message}><div className={styles.aiAvatar}><Sparkles/></div><div className={styles.bubble}><strong>{text ? "Asistente OCD" : "Última revisión guardada"}</strong><AgentReply result={result}/></div></div>}
+            {turnError && <p role="alert" className={styles.error}>{turnError}</p>}
           </div>)}
-          {sending && <div role="status" className={styles.message}><div className={styles.aiAvatar}><Sparkles/></div><div className={styles.bubble}>El agente está revisando tu requerimiento…</div></div>}
-          {error && <p role="alert" className={styles.error}>{error}</p>}
+          {sending && <div role="status" aria-live="polite" className={styles.loading}><div className={styles.aiAvatar}><img className={styles.aiAvatarImage} src="/nexoops-chatbot.png" alt=""/></div><div className={styles.loadingText}>{loadingLabel}<div className={styles.loadingTrack}/></div></div>}
         </div>
         <div className={styles.composer}>
           <div className={styles.quickPrompts}>{["¿Qué planes exige OCD-C02?", "¿Qué datos requiere un pase de microservicios?"].map(text => <button key={text} disabled={restoring || sending} onClick={() => { void ask(text); }}>{text}</button>)}</div>
           <form onSubmit={submit}><div className={styles.inputRow}>
-            <textarea aria-label="Tu mensaje" value={message} maxLength={12000} required rows={2} readOnly={sending} onChange={e => setMessage(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void ask(message); } }} placeholder="Describe el cambio que quieres preparar…"/>
+            <textarea aria-label="Tu mensaje" aria-busy={sending} value={message} maxLength={12000} required rows={2} disabled={restoring || sending} onChange={e => setMessage(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void ask(message); } }} placeholder="Describe el cambio que quieres preparar…"/>
             <button className={styles.send} type="submit" aria-label="Enviar mensaje" disabled={restoring || sending || !message.trim()}><ArrowUp/></button>
           </div></form>
           <div className={styles.hint}><span role="status">{restoring ? "Recuperando la sesión…" : sending ? "Consultando al agente…" : "Verifica siempre los datos críticos."}</span><span>Enter para enviar · Mayús+Enter para otra línea</span></div>
@@ -122,10 +124,10 @@ export default function Home() {
           <nav className={styles.tabs} aria-label="Vistas del requerimiento">{([["draft", FileText, "Borrador"], ["flow", GitBranch, "Flujo"], ["schedule", CalendarClock, "Agenda"], ["jira", Code, "Vista previa"]] as const).map(([key, Icon, label]) => <button key={key} className={tab === key ? styles.activeTab : ""} aria-pressed={tab === key} onClick={() => setTab(key)}><Icon/>{label}</button>)}</nav>
           <div className={styles.canvasInner}>
             {example && <p className={styles.demoNote}>Demostración visual: {example.id}. Los estados y porcentajes son datos de ejemplo.</p>}
-            {tab === "flow" && <><h3>Del requerimiento al borrador validado</h3><ol className={styles.flow}>{stages.map(([title, detail]) => <li key={title}><div><strong>{title}</strong><small>{detail}</small></div></li>)}</ol><p>Crear tickets, coordinar recursos y ejecutar cambios quedan fuera de esta demostración.</p></>}
+            {tab === "flow" && <><h3>Del requerimiento al ticket creado</h3><ol className={styles.flow}>{stages.map(([title, detail]) => <li key={title}><div><strong>{title}</strong><small>{detail}</small></div></li>)}</ol><p>El asistente valida la información, prepara el borrador y crea el ticket cuando la solicitud está lista.</p></>}
             {tab === "draft" && (example ? <><h3>{example.id} · {example.status}</h3><p>Vista de ejemplo. Selecciona «Mi borrador OCD» para consultar los datos y las validaciones de tu sesión.</p><button className={styles.secondaryButton} onClick={showDraft}>Ver mi borrador</button></> : latest?.revision ? <ReviewDetails result={latest}/> : <p>El borrador aparecerá cuando describas un cambio. Las consultas informativas no crean una revisión.</p>)}
             {tab === "schedule" && <><h3>Recursos y agenda</h3><p>No hay una integración de calendario disponible. Las fechas declaradas forman parte del borrador y no reservan una ventana.</p></>}
-            {tab === "jira" && <><h3>Vista previa documental</h3><p>Esta vista no publica ni crea tickets.</p><pre>{JSON.stringify(example ?? latest?.draft ?? {}, null, 2)}</pre><button className={styles.secondaryButton} onClick={async () => { try { await navigator.clipboard.writeText(JSON.stringify(example ?? latest?.draft ?? {}, null, 2)); setCopied(true); } catch { setCopied(false); } }}>{copied ? "JSON copiado" : "Copiar JSON"}</button></>}
+            {tab === "jira" && <><h3>Vista previa del ticket</h3><p>El ticket se creará cuando el asistente termine de validar el borrador.</p><pre>{JSON.stringify(example ?? latest?.draft ?? {}, null, 2)}</pre><button className={styles.secondaryButton} onClick={async () => { try { await navigator.clipboard.writeText(JSON.stringify(example ?? latest?.draft ?? {}, null, 2)); setCopied(true); } catch { setCopied(false); } }}>{copied ? "JSON copiado" : "Copiar JSON"}</button></>}
           </div>
         </div>
       </aside>

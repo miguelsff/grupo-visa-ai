@@ -67,18 +67,35 @@ export type ChatResponse = {
 };
 
 async function chatRequest(options: RequestInit): Promise<ChatResponse> {
-  const response = await fetch("/api/chat", {
-    credentials: "same-origin",
-    cache: "no-store",
-    ...options,
-  });
-  if (response.status === 401) throw new Error("Inicia sesión para usar el chat.");
-  if (response.status === 422) throw new Error("Escribe un mensaje de entre 1 y 12 000 caracteres.");
-  const body = response.headers.get("content-type")?.includes("application/json")
-    ? await response.json()
-    : null;
-  if (body && (response.ok || (response.status === 503 && body.status === "unavailable"))) return body;
-  throw new Error(typeof body?.detail === "string" ? body.detail : "No se pudo completar la consulta.");
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 120000);
+  const signal = options.signal;
+  if (signal) signal.addEventListener("abort", () => controller.abort(), { once: true });
+  try {
+    const response = await fetch("/api/chat", {
+      credentials: "same-origin",
+      cache: "no-store",
+      ...options,
+      signal: controller.signal,
+    });
+    if (response.status === 401) throw new Error("Inicia sesión para usar el chat.");
+    if (response.status === 422) throw new Error("Escribe un mensaje de entre 1 y 12 000 caracteres.");
+    const body = response.headers.get("content-type")?.includes("application/json")
+      ? await response.json()
+      : null;
+    if (body && (response.ok || (response.status === 503 && body.status === "unavailable"))) return body;
+    throw new Error(typeof body?.detail === "string" ? body.detail : "No se pudo completar la consulta.");
+  } catch (failure) {
+    if (failure instanceof DOMException && failure.name === "AbortError") {
+      throw new Error("La consulta tardó demasiado. Inténtalo nuevamente.");
+    }
+    if (failure instanceof Error && /aborted|abort/i.test(failure.message)) {
+      throw new Error("La consulta fue interrumpida. Inténtalo nuevamente.");
+    }
+    throw failure;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 export function getChat(signal?: AbortSignal): Promise<ChatResponse> {
