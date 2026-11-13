@@ -18,6 +18,7 @@ from app.agent.conversation import (
 from app.agent.facts import grounded, redact
 from app.agent.models import Category, ChatResponse, Citation, Extraction, ServiceUnavailable
 from app.agent.store import ChatStore
+from app.agent.ticket_preview import minimum_question, prepare_preview
 from app.agent.validation import validar_ocd
 from app.integrations.openai import Orchestrator
 from app.knowledge.models import Knowledge, Record
@@ -142,7 +143,24 @@ class ChatService:
             result.questions = [f"Indica {field}." for field in absent]
             contradictions = [v for v in result.validations if v.status == "ERROR"]
             result.questions.extend(f"Revisa {v.rule_id}: {v.detail}" for v in contradictions)
-            result.answer, _ = self._compose(message, result, result.sources, reviewing=True)
+            if result.draft.categories == ["microservicio"]:
+                question = minimum_question(result.draft)
+                if question:
+                    result.questions = [question]
+                    result.answer = question
+                elif contradictions:
+                    result.questions = [f"Aclara {v.rule_id}: {v.detail}" for v in contradictions]
+                    result.answer = result.questions[0]
+                else:
+                    result.preview = prepare_preview(result.draft, result.validations)
+                    assert result.preview is not None
+                    result.questions = []
+                    result.answer = (
+                        f"Preparé la vista previa de la Tarea SCRUM: {result.preview.title}. "
+                        "Los datos desconocidos figuran como pendientes."
+                    )
+            else:
+                result.answer, _ = self._compose(message, result, result.sources, reviewing=True)
         except (ServiceUnavailable, ValidationError, KeyError, TypeError) as error:
             if result is None:
                 # Mantener mensajes sin extraer para reintentarlos en el próximo turno.
