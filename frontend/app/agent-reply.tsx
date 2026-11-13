@@ -6,13 +6,17 @@ const labels = {
   ERROR: "Error", NO_VERIFICABLE: "No verificable",
 };
 
+export function hasDetails(result: ChatResponse) {
+  return result.sources.length > 0 || Object.keys(result.draft.facts).length > 0 || result.questions.length > 0 || result.validations.length > 0;
+}
+
 export function ReviewDetails({ result }: { result: ChatResponse }) {
   const facts = Object.entries(result.draft.facts);
   return <div className={styles.details}>
     {!!result.sources.length && <details><summary>Fuentes ({result.sources.length})</summary>
       <ul>{result.sources.map(source => <li key={source.point_id}>
         <a href={source.url} target="_blank" rel="noreferrer">{source.title}</a>
-        <small>{source.code} · versión {source.version} · {source.locator}</small>
+        <small>{source.code} · {source.origin} · versión {source.version} · {source.locator}</small>
         <p>{source.excerpt}</p>
       </li>)}</ul>
     </details>}
@@ -36,6 +40,5 @@ export function ReviewDetails({ result }: { result: ChatResponse }) {
 export default function AgentReply({ result }: { result: ChatResponse }) {
   return <><p>{result.answer}</p>
     {result.error && <p role="alert" className={styles.error}>{result.error}</p>}
-    <ReviewDetails result={result}/>
   </>;
 }
