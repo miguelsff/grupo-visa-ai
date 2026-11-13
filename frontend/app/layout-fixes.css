@@ -1,0 +1,31 @@
+.app .workspace{display:grid;height:calc(100dvh - 72px);min-height:0;overflow:hidden;grid-template-columns:235px minmax(0,1fr) minmax(0,1.05fr)}
+.app .workspace.right-closed{grid-template-columns:235px minmax(0,1fr) 48px}
+.app .workspace.left-closed{grid-template-columns:48px minmax(0,1fr) minmax(0,1.05fr)}
+.app .workspace.left-closed.right-closed{grid-template-columns:48px minmax(0,1fr) 48px}
+.app .sidebar,.app .chat-panel,.app .canvas-panel{min-height:0;overflow:hidden}
+.app .sidebar:not(.collapsed),.app .canvas-panel:not(.collapsed){overflow-y:auto}
+.app .sidebar.collapsed{padding:20px 7px}
+.app .sidebar.collapsed .side-title{padding:0;justify-content:center}
+.app .sidebar.collapsed .side-title span,.app .sidebar.collapsed nav,.app .sidebar.collapsed .search,.app .sidebar.collapsed .tickets-heading,.app .sidebar.collapsed .ticket-list,.app .sidebar.collapsed .side-bottom{display:none}
+.app .canvas-panel.collapsed .canvas-head{padding:18px 8px;justify-content:center}
+.app .canvas-panel.collapsed .canvas-head>div,.app .canvas-panel.collapsed .tabs,.app .canvas-panel.collapsed .stepper,.app .canvas-panel.collapsed .schedule,.app .canvas-panel.collapsed .jira-view{display:none}
+.app .chat-body{min-height:0;overflow-y:auto}
+.app .composer{flex:none}
+.app .side-title button,.app .canvas-head .share{min-width:28px;min-height:28px;border-radius:6px}
+.app .side-title button:hover,.app .canvas-head .share:hover{background:#262e42;color:#fff}
+.app{--bg:#07131b;--line:#1d3a46;--indigo:#067bb2;--cyan:#00b8c8;--green:#14c58d;--amber:#ffb648;background:#07131b}
+.app .topbar{background:#0b202a;border-color:#215060}
+.app .brand-mark{background:#00a8b8;box-shadow:none}
+.app .brand strong span{color:#42d7d4}
+.app .sidebar{background:#091923}
+.app .chat-panel{background:#0b1b25}
+.app .canvas-panel{background:#0d202b}
+.app .nav-active,.app .ticket.selected{background:#12313e;border-color:#286274;color:#d4f8fa!important}
+.app .bubble{background:#102b38;border-color:#295061;color:#dbeef2}
+.app .sources{background:#0b2530;border-color:#28677a}
+.app .step-state.edit,.app .generate{background:#123e4c;border-color:#17788e;color:#67e5e6}
+.app .send,.app .align-btn,.app .publish{background:#008fb2;color:white}
+.app button{transition:background-color .16s ease,color .16s ease,transform .16s ease}
+.app button:hover{filter:brightness(1.14)}
+@media(max-width:1100px){.app .workspace,.app .workspace.right-closed{grid-template-columns:210px minmax(0,1fr) 48px}.app .workspace.left-closed,.app .workspace.left-closed.right-closed{grid-template-columns:48px minmax(0,1fr) 48px}.app .canvas-panel{display:block}}
+@media(max-width:700px){.app .workspace,.app .workspace.right-closed{grid-template-columns:minmax(0,1fr) 42px}.app .workspace.left-closed,.app .workspace.left-closed.right-closed{grid-template-columns:minmax(0,1fr) 42px}.app .sidebar{display:none}.app .canvas-panel:not(.collapsed){position:fixed;inset:72px 0 0 0;z-index:20}.app .chat-panel{min-width:0}}
