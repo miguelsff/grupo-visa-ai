@@ -24,6 +24,7 @@ try {
     if ($health.status -ne 'ok' -or $health.sqlite -ne 'ok') { throw 'Salud local no disponible' }
     Invoke-AcceptanceDocker @('exec', '-T', 'ingesta', 'ocd-ingestar')
     Invoke-AcceptanceDocker @('exec', '-T', 'app', 'python', '/acceptance/probe.py', 'first')
+    Invoke-AcceptanceDocker @('exec', '-T', 'app', 'python', '/acceptance/probe.py', 'publication')
     Invoke-AcceptanceDocker @('exec', '-T', 'ingesta', 'ocd-ingestar')
     Invoke-AcceptanceDocker @('exec', '-T', 'app', 'python', '/acceptance/probe.py', 'chat')
     & docker @composeArgs exec -T ingesta ocd-ingestar

@@ -7,11 +7,32 @@ from conftest import FakeKnowledge, FakeModel
 from fastapi.testclient import TestClient
 
 from app.agent.chat import ChatService
-from app.agent.models import Draft, Extraction, SelectedCategory, ServiceUnavailable, UserMessage
+from app.agent.models import (
+    ChatResponse,
+    Draft,
+    Extraction,
+    SelectedCategory,
+    ServiceUnavailable,
+    UserMessage,
+)
 from app.agent.store import ChatStore
 from app.config import Settings
 from app.database import Database
 from app.main import create_app
+
+
+def test_chat_response_accepts_older_revision_without_jira_fields() -> None:
+    previous = ChatResponse(
+        revision=1,
+        status="reviewed",
+        answer="Borrador revisado.",
+        draft=Draft(),
+    )
+    restored = ChatResponse.model_validate_json(
+        previous.model_dump_json(exclude={"preview", "publication"})
+    )
+    assert restored.preview is None
+    assert restored.publication is None
 
 
 def test_hello_health_and_legacy_records_survive(settings: Settings, model, knowledge) -> None:

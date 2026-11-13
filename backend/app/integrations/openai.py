@@ -51,6 +51,19 @@ Usa plan_* para acciones futuras y resultado_* para sus criterios esperados.
 Extrae datos auxiliares solo si son explícitos: no infieras flags ni ambientes por nombres.
 Mantén desconocidos como pendientes. No cambies la etapa del borrador por describir un plan futuro.
 Para una corrección, usa la última afirmación explícita del solicitante.
+Si se pide un pase a producción de un microservicio, selecciona microservicio aunque todavía
+no se indique su nombre. «Mi microservicio», «el microservicio» y expresiones genéricas no son
+nombres; deja microservicio.microservicio ausente hasta recibir un identificador concreto.
+Si «pase a producción» describe el cambio solicitado, extrae también el destino literal
+«producción» como comun.ambiente_objetivo con cita de ese primer mensaje, aunque aún falten
+nombre y versión. Haz lo mismo para «pase a prod» con el valor literal «prod». Si el usuario
+indica explícitamente certificación u otro destino, conserva ese destino; no lo conviertas en
+producción por ser un microservicio. No deduzcas un destino de ejemplos o de otros mensajes.
+La versión que se va a publicar va en microservicio.version_objetivo, sin tomar versiones de
+ejemplos ni inferir la versión actual. El motivo o resultado solicitado va en comun.objetivo
+con la expresión literal del usuario. En una respuesta de seguimiento como «Pedidos, versión
+1.9.0. Corrige la duplicación de pedidos», extrae nombre, versión objetivo y objetivo
+por separado, cada uno con quote literal del mismo mensaje. No completes campos no dichos.
 """
 
 

@@ -11,6 +11,7 @@ from threading import Thread
 from urllib.parse import urlsplit
 
 STATE = {"atlassian": True, "openai": True}
+ISSUES = []
 
 
 def response(output: list[dict]) -> dict:
@@ -50,6 +51,9 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/health":
             self.send(200, STATE)
             return
+        if path == "/captured":
+            self.send(200, {"issues": ISSUES})
+            return
         expected = base64.b64encode(b"acceptance@example.test:acceptance-fictional-token").decode()
         if self.headers.get("Authorization") != "Basic " + expected:
             self.send(401, {})
@@ -71,6 +75,14 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/control":
             STATE.update(body)
             self.send(200, STATE)
+            return
+        if self.path == "/rest/api/3/issue":
+            expected = base64.b64encode(b"acceptance@example.test:acceptance-fictional-token").decode()
+            if self.headers.get("Authorization") != "Basic " + expected:
+                self.send(401, {})
+                return
+            ISSUES.append(body)
+            self.send(201, {"key": "SCRUM-999"})
             return
         if not STATE["openai"]:
             self.send(503, {"error": {"message": "Fallo sintético", "type": "server_error"}})
@@ -143,6 +155,19 @@ class Handler(BaseHTTPRequestHandler):
 def extraction(messages: list[dict]) -> dict:
     facts, categories = {}, {}
     for message in messages:
+        content = message["content"]
+        for scope, name, value, quote in (
+            ("comun", "ambiente_objetivo", "producción", "producción"),
+            ("microservicio", "microservicio", "Pedidos", "Pedidos"),
+            ("microservicio", "version_objetivo", "1.9.0", "1.9.0"),
+            ("comun", "objetivo", "Corrige la duplicación de pedidos.", "Corrige la duplicación de pedidos."),
+        ):
+            if quote in content:
+                facts[f"{scope}.{name}"] = {"scope": scope, "name": name, "value": value,
+                    "quote": quote, "message_id": message["id"]}
+        if "pase a producción" in content:
+            categories["microservicio"] = {"category": "microservicio", "selected": True,
+                "quote": "pase a producción", "message_id": message["id"]}
         for line in message["content"].splitlines():
             if "=" not in line:
                 continue

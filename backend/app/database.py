@@ -49,6 +49,22 @@ class Database:
                     revision INTEGER NOT NULL, response TEXT NOT NULL,
                     created_at TEXT NOT NULL, PRIMARY KEY(session_id, revision)
                 );
+                CREATE TABLE IF NOT EXISTS jira_publications (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session_id TEXT NOT NULL,
+                    revision INTEGER NOT NULL,
+                    marker TEXT NOT NULL UNIQUE,
+                    status TEXT NOT NULL CHECK(
+                        status IN ('posting', 'uncertain', 'confirmed', 'rejected')
+                    ),
+                    issue_key TEXT, issue_url TEXT,
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY(session_id, revision)
+                        REFERENCES chat_revisions(session_id, revision)
+                );
+                CREATE UNIQUE INDEX IF NOT EXISTS jira_publications_active
+                    ON jira_publications(session_id, revision)
+                    WHERE status IN ('posting', 'uncertain', 'confirmed');
             """)
 
     def available(self) -> None:

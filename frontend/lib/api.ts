@@ -34,6 +34,16 @@ export type ChatCitation = KnowledgeMatch & {
   locator: string;
 };
 
+export type JiraPreview = {
+  project_key: string;
+  issue_type: string;
+  title: string;
+  description: string;
+  pending: string[];
+};
+
+export type JiraPublication = { key: string; url: string };
+
 type Category = "microservicio" | "azure" | "red" | "identidad";
 
 export type ChatResponse = {
@@ -64,6 +74,8 @@ export type ChatResponse = {
   sources: ChatCitation[];
   questions: string[];
   error: string | null;
+  preview?: JiraPreview | null;
+  publication?: JiraPublication | null;
 };
 
 async function chatRequest(options: RequestInit): Promise<ChatResponse> {
@@ -112,6 +124,36 @@ export function sendChat(message: string, signal?: AbortSignal): Promise<ChatRes
     body: JSON.stringify({ message }),
     signal,
   });
+}
+
+export async function publishChatRevision(revision: number): Promise<JiraPublication> {
+  if (!Number.isSafeInteger(revision) || revision < 1) {
+    throw new Error("Selecciona una revisión válida para publicar.");
+  }
+  try {
+    const response = await fetch(`/api/chat/revisions/${revision}/publish`, {
+      method: "POST",
+      credentials: "same-origin",
+      cache: "no-store",
+      signal: AbortSignal.timeout(8000),
+    });
+    const body = response.headers.get("content-type")?.includes("application/json")
+      ? await response.json()
+      : null;
+    if (response.ok) return body as JiraPublication;
+    if (response.status === 401) throw new Error("Inicia sesión para publicar el borrador.");
+    if (response.status === 404) throw new Error("No se encontró la revisión solicitada.");
+    throw new Error(
+      typeof body?.detail === "string"
+        ? body.detail
+        : `No se pudo publicar la revisión (${response.status}).`,
+    );
+  } catch (failure) {
+    if (failure instanceof DOMException && failure.name === "TimeoutError") {
+      throw new Error("La publicación tardó demasiado. Inténtalo nuevamente.");
+    }
+    throw failure;
+  }
 }
 
 export async function request<T>(path: string, options?: RequestInit): Promise<T> {

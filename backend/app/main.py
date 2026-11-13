@@ -12,12 +12,14 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.agent.chat import ChatService, KnowledgeReader
-from app.agent.models import ChatResponse, ServiceUnavailable
+from app.agent.models import ChatResponse, JiraPublication, ServiceUnavailable
+from app.agent.publication import JiraPublisher, PublicationPending, PublicationService
 from app.agent.service import say_hello
-from app.agent.store import ChatStore
+from app.agent.store import ChatStore, PublicationInProgress, PublicationNotAvailable
 from app.auth import require_demo_login
 from app.config import Settings
 from app.database import Database
+from app.integrations.jira import JiraClient, JiraRejectedError
 from app.integrations.openai import OpenAIIntegration, Orchestrator
 from app.integrations.questions import QuestionLog, QuestionLogUnavailable
 from app.integrations.status import integration_status
@@ -40,6 +42,7 @@ def create_app(
     *,
     model: Orchestrator | None = None,
     knowledge: KnowledgeReader | None = None,
+    jira: JiraPublisher | None = None,
 ) -> FastAPI:
     configuration = settings or Settings.from_environment()
     database = Database(configuration.database_path)
@@ -135,7 +138,10 @@ def create_app(
                 raise HTTPException(
                     503, "No se pudo confirmar el registro de la pregunta."
                 ) from None
-        return chat_response(request, body)
+        try:
+            return chat_response(request, body)
+        except PublicationInProgress as error:
+            raise HTTPException(status_code=409, detail=str(error)) from error
 
     @application.get("/api/chat", response_model=ChatResponse)
     def get_chat(request: Request) -> JSONResponse:
@@ -146,6 +152,44 @@ def create_app(
         if revision < 1:
             raise HTTPException(status_code=404, detail="La revisión no existe en esta sesión.")
         return chat_response(request, revision=revision)
+
+    @application.post(
+        "/api/chat/revisions/{revision}/publish", response_model=JiraPublication, status_code=201
+    )
+    def publish_revision(request: Request, revision: int) -> JSONResponse:
+        session_id = store.existing_session(request.cookies.get("ocd_session"))
+        if session_id is None:
+            raise HTTPException(404, "La revisión no existe en esta sesión.")
+        saved = store.confirmed_publication(session_id, revision)
+        if saved is not None:
+            return JSONResponse(
+                status_code=200,
+                content=saved.model_dump(),
+                headers={"Cache-Control": "no-store"},
+            )
+        try:
+            if jira is None:
+                with JiraClient(configuration) as remote:
+                    publication, created = PublicationService(store, remote).publish(
+                        session_id, revision
+                    )
+            else:
+                publication, created = PublicationService(store, jira).publish(
+                    session_id, revision
+                )
+        except PublicationNotAvailable as error:
+            raise HTTPException(409, str(error)) from error
+        except PublicationPending as error:
+            raise HTTPException(503, str(error)) from error
+        except JiraRejectedError as error:
+            raise HTTPException(422, str(error)) from error
+        except ValueError as error:
+            raise HTTPException(503, "La integración Jira no está configurada.") from error
+        return JSONResponse(
+            status_code=201 if created else 200,
+            content=publication.model_dump(),
+            headers={"Cache-Control": "no-store"},
+        )
 
     @application.get("/api/integrations", response_model=list[IntegrationStatus])
     def integrations() -> list[IntegrationStatus]:

@@ -125,7 +125,7 @@ def test_followup_uses_explicit_session_fact(settings, knowledge):
         assert client.get("/api/chat").json() == initial
 
 
-def test_draft_with_facts_and_empty_synthesis_explains_next_step(settings, knowledge):
+def test_draft_with_facts_and_empty_synthesis_preserves_evidence_in_preview(settings, knowledge):
     class Empty(FakeModel):
         def compose(self, message, evidence, *, reviewing):
             return Synthesis(claims=[])
@@ -138,9 +138,17 @@ def test_draft_with_facts_and_empty_synthesis_explains_next_step(settings, knowl
         )
         result = client.post("/api/chat", json={"message": values}).json()
         assert result["status"] == "reviewed"
-        for detail in ("Publicar pedidos", "pedidos-demo", "1.0", "2.0", "producción"):
-            assert detail in result["answer"]
-        assert "objetivo" in result["answer"] and "[MO-OCD-000, OCD-C01]" in result["answer"]
+        assert result["preview"]["title"] == "Pase a producción de pedidos-demo 2.0"
+        assert "objetivo" in result["preview"]["pending"]
+        for key, value in {
+            "comun.titulo": "Publicar pedidos",
+            "microservicio.microservicio": "pedidos-demo",
+            "microservicio.version_actual": "1.0",
+            "microservicio.version_objetivo": "2.0",
+            "comun.ambiente_objetivo": "producción",
+        }.items():
+            assert result["draft"]["facts"][key]["value"] == value
+        assert result["sources"]
         assert any(
             v["rule_id"] == "OCD-C01" and "comun.objetivo" in v["missing"]
             for v in result["validations"]

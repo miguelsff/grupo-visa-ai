@@ -22,7 +22,8 @@ Consulta la [evidencia y sus límites](docs/verificacion_t4.md#ingesta-real-y-ve
 La búsqueda HTTP usa Qdrant; SQLite conserva saludos, sesiones, mensajes y revisiones.
 La carga FTS5 queda como código legado sin uso en rutas. El frontend sirve el chat
 y la búsqueda de procedimientos desde el mismo origen que la API.
-El alcance local termina con el borrador validado, sin crear tickets. En Railway se verificaron los tres servicios, la ingesta y las citas en la red privada.
+T1–T4 terminaron con el borrador validado, sin crear tickets. La etapa posterior
+incorpora vista previa y publicación explícita de una Tarea Jira en SCRUM. En Railway se verificaron los tres servicios, la ingesta y las citas en la red privada; esa evidencia no verifica escritura Jira.
 Antes de extender capacidades, verifica estos estados en el código.
 
 ## Arquitectura y responsabilidades
@@ -83,6 +84,7 @@ Estas reglas se aplican a las integraciones implementadas y sus extensiones:
 - Limita las lecturas a las páginas y tickets configurados.
 - El alcance local T1–T3 solo lee Atlassian. No crear tickets ni implementar `crear_ticket`.
 - Conserva `buscar_conocimiento` y `validar_ocd`, las preguntas y el borrador.
+- La publicación vigente usa `POST /api/chat/revisions/{revision}/publish` y el destino autorizado SCRUM/Tarea (10003). Conserva la vista previa, pertenencia a sesión e idempotencia; prueba la escritura con dobles.
 - Ejecuta V-01, V-02 y V-03 en el backend: completitud condicional, consistencia técnica y trazabilidad del procedimiento.
 - Conserva los estados `CUMPLE`, `FALTA_INFORMACION`, `ERROR` y `NO_VERIFICABLE`.
 - Presenta el borrador, las fuentes, los faltantes y los resultados; no infieras permisos ni ejecución real.

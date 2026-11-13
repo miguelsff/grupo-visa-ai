@@ -5,16 +5,16 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="contexto-title" value="MVP OCD | Contexto local | Estado T1–T4 | 13 nov 2026" style="text;html=0;align=left;fontSize=24;fontStyle=1;" vertex="1" parent="1">
+        <mxCell id="contexto-title" value="MVP OCD | Contexto local | Publicación de demostración | 13 nov 2026" style="text;html=0;align=left;fontSize=24;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="20" width="1200" height="65" />
         </mxCell>
         <mxCell id="user" value="Usuario&#10;Describe el cambio&#10;y responde preguntas" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="250" width="235" height="135" />
         </mxCell>
-        <mxCell id="system" value="Asistente OCD&#10;Responde consultas con evidencia&#10;Prepara y valida borradores&#10;Solicita los datos que faltan" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+        <mxCell id="system" value="Asistente OCD&#10;Responde con evidencia&#10;Prepara y valida borradores&#10;Publica con acción explícita" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="430" y="235" width="380" height="165" />
         </mxCell>
-        <mxCell id="atl" value="Atlassian (solo lectura)&#10;5 páginas y 20 tickets&#10;Lectura REST verificada" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+        <mxCell id="atl" value="Atlassian&#10;Lectura REST verificada&#10;Jira SCRUM / Tarea&#10;Escritura: verificar aparte" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="990" y="130" width="250" height="135" />
         </mxCell>
         <mxCell id="ai" value="OpenAI&#10;Embeddings y Responses API&#10;Consulta real verificada" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
@@ -23,7 +23,7 @@
         <mxCell id="ctx1" value="HTTP local" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="user" target="system">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="ctx2" value="Lectura T2" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;exitX=1;exitY=0.25;" edge="1" parent="1" source="system" target="atl">
+        <mxCell id="ctx2" value="Lectura / publicación" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;exitX=1;exitY=0.25;" edge="1" parent="1" source="system" target="atl">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
         <mxCell id="ctx3" value="SDK oficial" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;exitX=1;exitY=0.75;" edge="1" parent="1" source="system" target="ai">
@@ -46,7 +46,7 @@
         <mxCell id="browser" value="Navegador&#10;Next.js exportado&#10;127.0.0.1:8000" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="150" width="230" height="125" />
         </mxCell>
-        <mxCell id="app" value="app: FastAPI + estáticos&#10;Python 3.14 / un worker&#10;Agente + Qdrant / chat HTTP&#10;Sin credenciales Atlassian" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+        <mxCell id="app" value="app: FastAPI + estáticos&#10;Python 3.14 / un worker&#10;Agente + Qdrant / chat HTTP&#10;Credenciales Jira de publicación" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="430" y="120" width="370" height="180" />
         </mxCell>
         <mxCell id="sqlite" value="sqlite_data&#10;/data/ocd.sqlite3&#10;Saludos, sesiones y revisiones" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
@@ -126,7 +126,7 @@
         <mxCell id="con4" value="Recuperar T3" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="alias" target="rules">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="con-note" value="SQLite: estado. Qdrant: conocimiento. Revisiones: fuentes, extractos y generación física.&#10;Alias incierto: reconciliar. Sin ingesta en backend ni escritura Jira; no copiar ejemplos." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
+        <mxCell id="con-note" value="SQLite: estado y publicación. Qdrant: conocimiento. Revisiones: fuentes y generación física.&#10;Alias o publicación inciertos: reconciliar. Sin ingesta en backend; no copiar ejemplos." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="685" width="1200" height="80" />
         </mxCell>
       </root>

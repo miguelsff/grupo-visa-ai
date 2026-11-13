@@ -16,6 +16,11 @@ class Settings:
     atlassian_base_url: str = ""
     atlassian_email: str = ""
     atlassian_api_token: str = ""
+    jira_base_url: str = "https://grupo-visai.atlassian.net"
+    jira_email: str = ""
+    jira_api_token: str = field(default="", repr=False)
+    jira_project_key: str = "SCRUM"
+    jira_issue_type_id: str = "10003"
     qdrant_url: str = "http://qdrant:6333"
     qdrant_alias: str = "ocd_actual"
     embedding_model: str = "text-embedding-3-small"
@@ -47,6 +52,13 @@ class Settings:
             atlassian_base_url=os.environ.get("ATLASSIAN_BASE_URL", "").strip(),
             atlassian_email=os.environ.get("ATLASSIAN_EMAIL", "").strip(),
             atlassian_api_token=os.environ.get("ATLASSIAN_API_TOKEN", "").strip(),
+            jira_base_url=os.environ.get(
+                "JIRA_BASE_URL", "https://grupo-visai.atlassian.net"
+            ).strip(),
+            jira_email=os.environ.get("JIRA_EMAIL", "").strip(),
+            jira_api_token=os.environ.get("JIRA_API_TOKEN", "").strip(),
+            jira_project_key=os.environ.get("JIRA_PROJECT_KEY", "SCRUM").strip(),
+            jira_issue_type_id=os.environ.get("JIRA_ISSUE_TYPE_ID", "10003").strip(),
             qdrant_url=os.environ.get("QDRANT_URL", "http://qdrant:6333"),
             qdrant_alias=os.environ.get("QDRANT_ALIAS", "ocd_actual"),
             embedding_model=os.environ.get("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"),

@@ -12,9 +12,16 @@ services:
       <<: *acceptance-environment
       OPENAI_MODEL: gpt-6-luna
       PYTHONPATH: /app
+      JIRA_BASE_URL: https://grupo-visai.atlassian.net
+      JIRA_EMAIL: acceptance@example.test
+      JIRA_API_TOKEN: acceptance-fictional-token
+      JIRA_PROJECT_KEY: SCRUM
+      JIRA_ISSUE_TYPE_ID: "10003"
+      SSL_CERT_FILE: /trust/cert.pem
     depends_on: [doubles, qdrant]
     volumes:
       - ./scripts/acceptance/probe.py:/acceptance/probe.py:ro
+      - trust:/trust:ro
   ingesta:
     environment:
       <<: *acceptance-environment

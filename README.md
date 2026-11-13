@@ -5,7 +5,8 @@ integra PR de funcionalidades, releases y hotfix sin aprobaciones ni checks
 obligatorios. La publicación en Railway requiere verificar la entrega.
 
 Asistente local para preparar un borrador OCD mediante conversación, conocimiento
-Qdrant y validaciones Python V-01, V-02 y V-03. No crea tickets ni ejecuta cambios.
+Qdrant y validaciones Python V-01, V-02 y V-03. Permite publicar una vista previa
+confirmada como Tarea Jira; no ejecuta cambios de infraestructura.
 
 T1 integra Qdrant y el contrato; T2 implementa ingesta independiente, CLI y cron;
 T3 implementa sesiones, extracción mediante Responses API y revisión persistente.
@@ -14,8 +15,8 @@ El 13 de noviembre de 2026, la ingesta real publicó 83 puntos en Qdrant a parti
 En una consulta de microservicios coincidieron las 24 citas del agente y las referencias de sus 19 validaciones con los puntos publicados.
 Consulta la [evidencia de la ingesta real y el cotejo de citas](docs/verificacion_t4.md#ingesta-real-y-verificación-de-citas).
 La interfaz NexoOPS permite conversar con el agente y buscar procedimientos.
-Mantiene un borrador real por sesión. Los tickets de ejemplo y las vistas de agenda
-y vista previa son demostraciones; no consultan ni crean tickets Jira.
+Mantiene un borrador real por sesión. Los tickets de ejemplo y la agenda son demostraciones.
+La vista previa del chat corresponde a la revisión guardada y permite publicarla.
 
 ## Configurar y ejecutar
 
@@ -32,11 +33,14 @@ para construir las imágenes. Copia `.env.example` a `.env`. Configura:
 | `OPENAI_MODEL` | Modelo de conversación; decisión actual `gpt-6-luna`. |
 | `ATLASSIAN_BASE_URL` | Origen HTTPS autorizado: `https://grupo-visai.atlassian.net`. |
 | `ATLASSIAN_EMAIL`, `ATLASSIAN_API_TOKEN` | Solo ingesta; permiso de lectura sobre las 25 fuentes autorizadas. |
+| `JIRA_BASE_URL` | Destino autorizado `https://grupo-visai.atlassian.net`. |
+| `JIRA_EMAIL`, `JIRA_API_TOKEN` | Credenciales de publicación del backend; Compose recurre a las credenciales de ingesta si se omiten. |
+| `JIRA_PROJECT_KEY`, `JIRA_ISSUE_TYPE_ID` | Destino fijado a `SCRUM` y tipo Tarea `10003`. |
 | `QDRANT_ALIAS` | Contrato v1: `ocd_actual`. |
 | `OPENAI_EMBEDDING_MODEL` | Contrato v1: `text-embedding-3-small`, 1536 dimensiones/Cosine. |
 
-No guardar credenciales en Git ni usar `NEXT_PUBLIC_*`. El backend no recibe
-credenciales Atlassian: consulta el corpus ya publicado. Sin clave OpenAI o sin
+No guardar credenciales en Git ni usar `NEXT_PUBLIC_*`. El backend consulta el
+corpus ya publicado y usa credenciales Jira para publicar. Sin clave OpenAI o sin
 primera carga válida, chat/búsqueda devuelven 503; salud y saludo siguen disponibles.
 
 Desde la raíz:
@@ -53,6 +57,19 @@ Abre [la aplicación local](http://127.0.0.1:8000) y
 Supercronic ejecuta `ocd-ingestar` cada día a las 03:00 `America/Lima`.
 El bloqueo compartido evita cargas solapadas. Una máquina apagada no recupera
 horarios omitidos: ejecuta la CLI manualmente. Consulta la [guía de ingesta](ingesta/README.md).
+
+Para revisar la candidata integrada en el proyecto local de demostración, con el
+archivo de entorno ya configurado y sin ejecutar una ingesta adicional:
+
+```powershell
+$env:APP_PORT = '3001'
+docker compose -p ocd-demo-preview --env-file C:/Desarrollo/grupo-visa-ai/.env up -d --build --wait app
+```
+
+Abre [la candidata](http://localhost:3001). Escribe «Quiero hacer un pase a producción de mi microservicio.»;
+cuando pregunte por servicio y versión, responde «Pedidos, versión 1.9.0. Corrige
+la duplicación de pedidos.». Revisa la vista previa y los pendientes antes de decidir
+si publicas. El botón de publicación usa las credenciales Jira configuradas en `app`.
 
 ```powershell
 docker compose up -d --force-recreate --wait
@@ -112,6 +129,7 @@ No se reutilizan identificadores ni evidencias de tickets históricos como datos
 | `POST /api/chat` | Recibe `{"message":"..."}` y devuelve `answer`, el borrador y la evidencia aplicable al turno. Un fallo al registrar la pregunta o consultar una dependencia puede devolver 503. |
 | `GET /api/chat` | Última revisión de la sesión, incluida una revisión indisponible. |
 | `GET /api/chat/revisions/{revision}` | Revisión histórica de la misma sesión, conservada aunque fallen servicios o cambie el alias. |
+| `POST /api/chat/revisions/{revision}/publish` | Publica la vista previa vigente de la sesión como Tarea SCRUM; devuelve clave y enlace. Una repetición confirmada recupera el resultado. |
 | `GET /api/integrations` | Presencia de configuración del proceso backend; no prueba conexiones ni inspecciona el entorno de ingesta. |
 
 Si falla Atlassian, la consulta y el chat siguen usando la última colección válida,
@@ -173,6 +191,10 @@ powershell -NoProfile -File scripts/Test-QdrantPersistence.ps1
 La aceptación T4 no requiere credenciales reales: HTTPS Atlassian usa un certificado
 y snapshots de prueba; OpenAI usa respuestas y vectores sintéticos. Qdrant, la CLI,
 Responses SDK, FastAPI, cookies, SQLite y recreación de contenedores sí se ejecutan.
+El mismo proyecto aislado comprueba el pase de Pedidos 1.9.0 y la publicación
+HTTP contra Jira simulado, con credenciales y certificado ficticios. Comprueba el
+contenido ADF, la clave, el enlace y la recuperación sin duplicar el POST. No verifica
+la escritura ni los permisos del Jira real.
 El script elimina exclusivamente su propio proyecto `ocd-t4-<UUID>` y sus volúmenes.
 El frontend se construye mediante el Dockerfile normal con TypeScript y Next.js;
 no se copian archivos compilados del proyecto principal.

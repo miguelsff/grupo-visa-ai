@@ -1,12 +1,32 @@
-"""Sesiones opacas y revisiones inmutables con combinación atómica de hechos."""
+"""Sesiones opacas, revisiones y reclamos atómicos de publicación."""
 
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from hashlib import sha256
 from secrets import token_urlsafe
+from typing import Literal
+from uuid import uuid4
 
 from app.agent.facts import SENSITIVE_MARKER
-from app.agent.models import ChatResponse, Draft, Extraction, UserMessage
+from app.agent.models import ChatResponse, Draft, Extraction, JiraPublication, UserMessage
 from app.database import Database
+
+
+class PublicationNotAvailable(Exception):
+    """La revisión no pertenece a la sesión o no está lista para publicar."""
+
+
+class PublicationInProgress(Exception):
+    """Una publicación pendiente impide cambiar la revisión vigente."""
+
+
+@dataclass(frozen=True)
+class PublicationClaim:
+    action: Literal["create", "reconcile", "confirmed"]
+    marker: str
+    preview_title: str = ""
+    preview_description: str = ""
+    publication: JiraPublication | None = None
 
 
 class ChatStore:
@@ -14,18 +34,24 @@ class ChatStore:
         self.database = database
 
     def session(self, cookie: str | None) -> tuple[str, str | None]:
-        if cookie and len(cookie) <= 128:
-            session_id = sha256(cookie.encode()).hexdigest()
-            with self.database.connect() as connection:
-                if connection.execute(
-                    "SELECT 1 FROM chat_sessions WHERE id=?", (session_id,)
-                ).fetchone():
-                    return session_id, None
+        session_id = self.existing_session(cookie)
+        if session_id is not None:
+            return session_id, None
         token = token_urlsafe(32)
         session_id = sha256(token.encode()).hexdigest()
         with self.database.connect() as connection:
             connection.execute("INSERT INTO chat_sessions(id) VALUES (?)", (session_id,))
         return session_id, token
+
+    def existing_session(self, cookie: str | None) -> str | None:
+        if not cookie or len(cookie) > 128:
+            return None
+        session_id = sha256(cookie.encode()).hexdigest()
+        with self.database.connect() as connection:
+            found = connection.execute(
+                "SELECT 1 FROM chat_sessions WHERE id=?", (session_id,)
+            ).fetchone()
+        return session_id if found else None
 
     def append(self, session_id: str, content: str) -> None:
         with self.database.connect() as connection:
@@ -65,6 +91,14 @@ class ChatStore:
         # La extracción ocurre fuera de esta transacción. Se combina con la última revisión.
         with self.database.connect() as connection:
             connection.execute("BEGIN IMMEDIATE")
+            active = connection.execute(
+                "SELECT 1 FROM jira_publications WHERE session_id=? AND revision="
+                "(SELECT revision FROM chat_sessions WHERE id=?) "
+                "AND status IN ('posting', 'uncertain')",
+                (session_id, session_id),
+            ).fetchone()
+            if active:
+                raise PublicationInProgress("Verificando publicación… Vuelve a intentarlo después.")
             row = connection.execute(
                 "SELECT response FROM chat_revisions WHERE session_id=? "
                 "ORDER BY revision DESC LIMIT 1",
@@ -136,3 +170,111 @@ class ChatStore:
                 "UPDATE chat_revisions SET response=? WHERE session_id=? AND revision=?",
                 (result.model_dump_json(), session_id, result.revision),
             )
+
+    def confirmed_publication(self, session_id: str, revision: int) -> JiraPublication | None:
+        """Recupera un ticket confirmado vigente sin requerir conexión con Jira."""
+        with self.database.connect() as connection:
+            row = connection.execute(
+                "SELECT p.issue_key, p.issue_url FROM jira_publications AS p "
+                "JOIN chat_sessions AS s ON s.id=p.session_id AND s.revision=p.revision "
+                "WHERE p.session_id=? AND p.revision=? AND p.status='confirmed'",
+                (session_id, revision),
+            ).fetchone()
+        if row is None:
+            return None
+        return JiraPublication(key=row["issue_key"], url=row["issue_url"])
+
+    def claim_publication(self, session_id: str, revision: int) -> PublicationClaim:
+        with self.database.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            latest = connection.execute(
+                "SELECT revision FROM chat_sessions WHERE id=?", (session_id,)
+            ).fetchone()
+            if latest is None or latest[0] != revision or revision < 1:
+                raise PublicationNotAvailable("La revisión no es la vigente de esta sesión.")
+            row = connection.execute(
+                "SELECT response FROM chat_revisions WHERE session_id=? AND revision=?",
+                (session_id, revision),
+            ).fetchone()
+            if row is None:
+                raise PublicationNotAvailable("La revisión no existe en esta sesión.")
+            response = ChatResponse.model_validate_json(row[0])
+            preview = response.preview
+            if (
+                response.status != "reviewed"
+                or preview is None
+                or preview.project_key != "SCRUM"
+                or preview.issue_type != "Tarea"
+                or not preview.title.strip()
+                or not preview.description.strip()
+            ):
+                raise PublicationNotAvailable(
+                    "La revisión vigente no tiene una vista previa publicable."
+                )
+            attempt = connection.execute(
+                "SELECT marker, status, issue_key, issue_url FROM jira_publications "
+                "WHERE session_id=? AND revision=? ORDER BY id DESC LIMIT 1",
+                (session_id, revision),
+            ).fetchone()
+            if attempt is not None:
+                if attempt["status"] == "confirmed":
+                    return PublicationClaim(
+                        "confirmed",
+                        attempt["marker"],
+                        publication=JiraPublication(
+                            key=attempt["issue_key"], url=attempt["issue_url"]
+                        ),
+                    )
+                if attempt["status"] in ("posting", "uncertain"):
+                    return PublicationClaim("reconcile", attempt["marker"])
+            marker = f"ocd-{uuid4().hex}"
+            connection.execute(
+                "INSERT INTO jira_publications(session_id, revision, marker, status, created_at) "
+                "VALUES (?, ?, ?, 'posting', ?)",
+                (session_id, revision, marker, datetime.now(UTC).isoformat()),
+            )
+            return PublicationClaim(
+                "create", marker, preview_title=preview.title,
+                preview_description=preview.description,
+            )
+
+    def publication_uncertain(self, marker: str) -> None:
+        with self.database.connect() as connection:
+            connection.execute(
+                "UPDATE jira_publications SET status='uncertain' "
+                "WHERE marker=? AND status='posting'", (marker,),
+            )
+
+    def publication_rejected(self, marker: str) -> None:
+        with self.database.connect() as connection:
+            connection.execute(
+                "UPDATE jira_publications SET status='rejected' "
+                "WHERE marker=? AND status='posting'", (marker,),
+            )
+
+    def publication_confirmed(self, marker: str, publication: JiraPublication) -> JiraPublication:
+        with self.database.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            row = connection.execute(
+                "SELECT session_id, revision, status, issue_key, issue_url "
+                "FROM jira_publications WHERE marker=?", (marker,),
+            ).fetchone()
+            if row is None or row["status"] == "rejected":
+                raise PublicationNotAvailable("El intento de publicación no está disponible.")
+            if row["status"] == "confirmed":
+                return JiraPublication(key=row["issue_key"], url=row["issue_url"])
+            response_row = connection.execute(
+                "SELECT response FROM chat_revisions WHERE session_id=? AND revision=?",
+                (row["session_id"], row["revision"]),
+            ).fetchone()
+            response = ChatResponse.model_validate_json(response_row[0])
+            response.publication = publication
+            connection.execute(
+                "UPDATE chat_revisions SET response=? WHERE session_id=? AND revision=?",
+                (response.model_dump_json(), row["session_id"], row["revision"]),
+            )
+            connection.execute(
+                "UPDATE jira_publications SET status='confirmed', issue_key=?, issue_url=? "
+                "WHERE marker=?", (publication.key, publication.url, marker),
+            )
+        return publication

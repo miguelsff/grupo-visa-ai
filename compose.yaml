@@ -23,6 +23,11 @@ services:
       OCD_DEMO_PASSWORD: ${OCD_DEMO_PASSWORD:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6-luna}
+      JIRA_BASE_URL: ${JIRA_BASE_URL:-https://grupo-visai.atlassian.net}
+      JIRA_EMAIL: ${JIRA_EMAIL:-${ATLASSIAN_EMAIL:-}}
+      JIRA_API_TOKEN: ${JIRA_API_TOKEN:-${ATLASSIAN_API_TOKEN:-}}
+      JIRA_PROJECT_KEY: ${JIRA_PROJECT_KEY:-SCRUM}
+      JIRA_ISSUE_TYPE_ID: ${JIRA_ISSUE_TYPE_ID:-10003}
     volumes:
       - sqlite_data:/data
     networks:
