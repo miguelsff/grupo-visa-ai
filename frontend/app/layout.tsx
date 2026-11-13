@@ -3,14 +3,10 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Grupo VISA AI · Hola mundo",
-  description: "Comprobación de la base local del asistente OCD.",
+  title: "NexoOPS · Asistente OCD",
+  description: "Prepara borradores OCD y consulta sus fuentes documentales.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  return (
-    <html lang="es">
-      <body>{children}</body>
-    </html>
-  );
+  return <html lang="es"><body>{children}</body></html>;
 }

@@ -6,16 +6,24 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Annotated
 
-from fastapi import FastAPI, Query, Request
+import httpx
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.agent.chat import ChatService, KnowledgeReader
+from app.agent.models import ChatResponse, ServiceUnavailable
 from app.agent.service import say_hello
+from app.agent.store import ChatStore
+from app.auth import require_demo_login
 from app.config import Settings
 from app.database import Database
+from app.integrations.openai import OpenAIIntegration, Orchestrator
+from app.integrations.questions import QuestionLog, QuestionLogUnavailable
 from app.integrations.status import integration_status
-from app.knowledge.loader import load_documents
+from app.knowledge.qdrant import QdrantKnowledge
 from app.schemas import (
+    ChatRequest,
     Greeting,
     HealthResponse,
     HelloRequest,
@@ -27,18 +35,35 @@ from app.schemas import (
 logger = logging.getLogger(__name__)
 
 
-def create_app(settings: Settings | None = None) -> FastAPI:
+def create_app(
+    settings: Settings | None = None,
+    *,
+    model: Orchestrator | None = None,
+    knowledge: KnowledgeReader | None = None,
+) -> FastAPI:
     configuration = settings or Settings.from_environment()
     database = Database(configuration.database_path)
+    store = ChatStore(database)
+    integration = OpenAIIntegration(configuration)
+    client = httpx.Client(base_url=configuration.qdrant_url, timeout=configuration.external_timeout)
+    reader = knowledge or QdrantKnowledge(configuration, integration, client)
+    chat = ChatService(store, model or integration, reader)
+    questions = QuestionLog(configuration.mongodb_uri) if configuration.mongodb_uri else None
 
     @asynccontextmanager
     async def lifespan(application: FastAPI) -> AsyncIterator[None]:
-        documents = load_documents(configuration.knowledge_dir)
-        database.initialize(documents)
-        logger.info("Base local preparada: %s documentos.", len(documents))
-        yield
+        database.initialize()
+        try:
+            yield
+        finally:
+            integration.close()
+            client.close()
+            if questions is not None:
+                questions.close()
 
-    application = FastAPI(title="Grupo VISA AI · Etapa 1", version="0.1.0", lifespan=lifespan)
+    application = FastAPI(title="Grupo VISA AI · OCD local", version="0.3.0", lifespan=lifespan)
+    if configuration.demo_password:
+        require_demo_login(application, configuration.demo_password)
 
     @application.exception_handler(sqlite3.Error)
     async def database_error(request: Request, error: sqlite3.Error) -> JSONResponse:
@@ -47,14 +72,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             status_code=503, content={"detail": "La base local no está disponible."}
         )
 
+    @application.head("/api/health", response_model=HealthResponse, include_in_schema=False)
     @application.get("/api/health", response_model=HealthResponse)
     def health() -> HealthResponse | JSONResponse:
-        documents, greetings = database.counts()
+        database.available()
         frontend_ready = (configuration.frontend_dir / "index.html").is_file()
         result = HealthResponse(
             frontend="ok" if frontend_ready else "missing",
-            document_count=documents,
-            greeting_count=greetings,
         )
         if not frontend_ready:
             return JSONResponse(status_code=503, content=result.model_dump())
@@ -74,7 +98,54 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def search_knowledge(
         q: Annotated[str, Query(min_length=1, max_length=200)],
     ) -> list[KnowledgeMatch]:
-        return database.search(q)
+        try:
+            return reader.search(q)
+        except ServiceUnavailable as error:
+            raise HTTPException(status_code=503, detail=str(error)) from error
+
+    def chat_response(
+        request: Request, body: ChatRequest | None = None, revision: int | None = None
+    ) -> JSONResponse:
+        session_id, token = store.session(request.cookies.get("ocd_session"))
+        result = chat.handle(session_id, body.message) if body else store.get(session_id, revision)
+        if revision is not None and result.revision == 0:
+            raise HTTPException(status_code=404, detail="La revisión no existe en esta sesión.")
+        response = JSONResponse(
+            status_code=503 if result.status == "unavailable" and body else 200,
+            content=result.model_dump(mode="json"),
+        )
+        response.headers["Cache-Control"] = "no-store"
+        if token:
+            response.set_cookie(
+                "ocd_session",
+                token,
+                httponly=True,
+                samesite="strict",
+                secure=configuration.on_railway or request.url.scheme == "https",
+                path="/api/chat",
+            )
+        return response
+
+    @application.post("/api/chat", response_model=ChatResponse)
+    def post_chat(body: ChatRequest, request: Request) -> JSONResponse:
+        if questions is not None:
+            try:
+                questions.record(body.message)
+            except QuestionLogUnavailable:
+                raise HTTPException(
+                    503, "No se pudo confirmar el registro de la pregunta."
+                ) from None
+        return chat_response(request, body)
+
+    @application.get("/api/chat", response_model=ChatResponse)
+    def get_chat(request: Request) -> JSONResponse:
+        return chat_response(request)
+
+    @application.get("/api/chat/revisions/{revision}", response_model=ChatResponse)
+    def get_revision(request: Request, revision: int) -> JSONResponse:
+        if revision < 1:
+            raise HTTPException(status_code=404, detail="La revisión no existe en esta sesión.")
+        return chat_response(request, revision=revision)
 
     @application.get("/api/integrations", response_model=list[IntegrationStatus])
     def integrations() -> list[IntegrationStatus]:

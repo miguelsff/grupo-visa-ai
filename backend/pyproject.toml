@@ -2,13 +2,14 @@
 name = "grupo-visa-ai-backend"
 version = "0.1.0"
 description = "Base local del asistente OCD"
-requires-python = ">=3.14"
+requires-python = ">=3.14,<3.15"
 dependencies = [
     "fastapi>=0.115,<1",
     "uvicorn>=0.34,<1",
     "pydantic>=2.10,<3",
     "httpx>=0.28,<1",
     "openai>=2,<4",
+    "pymongo>=4.14,<5",
 ]
 
 [project.optional-dependencies]

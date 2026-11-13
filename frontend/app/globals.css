@@ -1,17 +1,9 @@
-:root {
-  color-scheme: light;
-  font-family: Arial, Helvetica, sans-serif;
-  color: #172c4c;
-  background: #f2f5fa;
-}
-
 * { box-sizing: border-box; }
-body { margin: 0; }
-button, input { font: inherit; }
+body { margin: 0; font-family: Manrope, Arial, sans-serif; background: #f4f7fb; }
+button, input, textarea { font: inherit; }
+button, a, summary { -webkit-tap-highlight-color: transparent; }
 button { cursor: pointer; }
-button:disabled { cursor: wait; }
-a { color: #174ec9; }
-button:focus-visible, input:focus-visible, a:focus-visible {
-  outline: 3px solid #ba6c08;
-  outline-offset: 4px;
-}
+button:disabled { cursor: default; opacity: .55; }
+a { color: inherit; }
+button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2px solid #0058b8; outline-offset: 3px; }
+svg { width: 18px; height: 18px; flex-shrink: 0; }

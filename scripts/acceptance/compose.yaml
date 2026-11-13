@@ -1,0 +1,43 @@
+# Usar exclusivamente scripts/Test-Aceptacion.ps1 con proyecto ocd-t4-<UUID>.
+x-acceptance-environment: &acceptance-environment
+  OPENAI_API_KEY: acceptance-fictional-key
+  OPENAI_BASE_URL: http://doubles:8080/v1
+  QDRANT_URL: http://qdrant:6333
+  QDRANT_ALIAS: ocd_actual
+  OPENAI_EMBEDDING_MODEL: text-embedding-3-small
+  OPENAI_EMBEDDING_DIMENSIONS: "1536"
+services:
+  app:
+    environment:
+      <<: *acceptance-environment
+      OPENAI_MODEL: gpt-6-luna
+      PYTHONPATH: /app
+    depends_on: [doubles, qdrant]
+    volumes:
+      - ./scripts/acceptance/probe.py:/acceptance/probe.py:ro
+  ingesta:
+    environment:
+      <<: *acceptance-environment
+      ATLASSIAN_EMAIL: acceptance@example.test
+      ATLASSIAN_API_TOKEN: acceptance-fictional-token
+      ATLASSIAN_BASE_URL: https://grupo-visai.atlassian.net
+      SSL_CERT_FILE: /trust/cert.pem
+    volumes:
+      - trust:/trust:ro
+    depends_on: [doubles, qdrant]
+  doubles:
+    build:
+      context: .
+      dockerfile: scripts/acceptance/Dockerfile
+    volumes:
+      - trust:/trust
+    networks:
+      default:
+        aliases: [grupo-visai.atlassian.net]
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+volumes:
+  trust:

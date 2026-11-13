@@ -11,7 +11,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     DATABASE_PATH=/data/ocd.sqlite3 \
-    KNOWLEDGE_DIR=/app/knowledge \
     FRONTEND_DIR=/app/static
 WORKDIR /app
 COPY backend/requirements.txt ./requirements.txt
@@ -21,7 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt \
     && mkdir /data \
     && chown app:app /data
 COPY backend/app/ ./app/
-COPY docs/modelos_operativos/ ./knowledge/
+COPY scripts/acceptance/verify_conversation.py /opt/ocd/verify_conversation.py
 COPY --from=frontend /build/frontend/out/ ./static/
 USER app
 EXPOSE 8000

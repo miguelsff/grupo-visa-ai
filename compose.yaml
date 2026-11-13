@@ -1,5 +1,11 @@
 name: grupo-visa-ai
 
+x-knowledge-environment: &knowledge-environment
+  QDRANT_URL: http://qdrant:6333
+  QDRANT_ALIAS: ${QDRANT_ALIAS:-ocd_actual}
+  OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
+  OPENAI_EMBEDDING_DIMENSIONS: "1536"
+
 services:
   app:
     build:
@@ -8,17 +14,22 @@ services:
     ports:
       - "127.0.0.1:${APP_PORT:-8000}:8000"
     environment:
+      <<: *knowledge-environment
       DATABASE_PATH: /data/ocd.sqlite3
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongodb:27017/ocd}
       KNOWLEDGE_DIR: /app/knowledge
       FRONTEND_DIR: /app/static
+      OCD_DEMO_PASSWORD: ${OCD_DEMO_PASSWORD:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6-luna}
-      ATLASSIAN_BASE_URL: ${ATLASSIAN_BASE_URL:-https://grupo-visai.atlassian.net}
-      ATLASSIAN_EMAIL: ${ATLASSIAN_EMAIL:-}
-      ATLASSIAN_API_TOKEN: ${ATLASSIAN_API_TOKEN:-}
-      JIRA_PROJECT_KEY: ${JIRA_PROJECT_KEY:-SCRUM}
     volumes:
       - sqlite_data:/data
+    networks:
+      - default
+      - preguntas
+    depends_on:
+      mongodb:
+        condition: service_healthy
     init: true
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
@@ -26,6 +37,45 @@ services:
       timeout: 5s
       start_period: 10s
       retries: 3
+
+  mongodb:
+    image: mongo:8.0@sha256:d97fea17ccb8d004cd137be8dab54d70d0df11be69c9f422aefe4484c8414ab7
+    restart: unless-stopped
+    networks:
+      - preguntas
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "quit(db.runCommand({ping:1}).ok === 1 ? 0 : 1)"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  qdrant:
+    image: qdrant/qdrant:v1.16.3@sha256:0425e3e03e7fd9b3dc95c4214546afe19de2eb2e28ca621441a56663ac6e1f46
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+    # Solo accesible desde la red de Compose; no publicar 6333 ni 6334.
+
+  ingesta:
+    build:
+      context: .
+      dockerfile: ingesta/Dockerfile
+      target: runtime
+    restart: unless-stopped
+    init: true
+    environment:
+      <<: *knowledge-environment
+      TZ: America/Lima
+      ATLASSIAN_BASE_URL: ${ATLASSIAN_BASE_URL:-https://grupo-visai.atlassian.net}
+      ATLASSIAN_EMAIL: ${ATLASSIAN_EMAIL:-}
+      ATLASSIAN_API_TOKEN: ${ATLASSIAN_API_TOKEN:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    volumes:
+      - ingesta_state:/state
+    depends_on:
+      - qdrant
 
   tests:
     profiles: [test]
@@ -36,4 +86,11 @@ services:
       KNOWLEDGE_DIR: /app/knowledge
 
 volumes:
+  mongo_data:
   sqlite_data:
+  qdrant_data:
+  ingesta_state:
+
+networks:
+  preguntas:
+    internal: true

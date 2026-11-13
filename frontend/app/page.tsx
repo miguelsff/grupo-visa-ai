@@ -1,152 +1,134 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import { request } from "../lib/api";
-import type { Greeting, Health, HelloResponse, Integration, KnowledgeMatch } from "../lib/api";
+import { ArrowUp, CalendarClock, ChevronLeft, ChevronRight, Code, FileText, GitBranch, Menu, Moon, Sparkles, Sun } from "lucide-react";
+import { getChat, sendChat } from "../lib/api";
+import type { ChatResponse } from "../lib/api";
+import AgentReply, { ReviewDetails } from "./agent-reply";
+import KnowledgeSearch from "./KnowledgeSearch";
 import styles from "./page.module.css";
 
-export default function Home() {
-  const [health, setHealth] = useState<Health | null>(null);
-  const [greetings, setGreetings] = useState<Greeting[]>([]);
-  const [integrations, setIntegrations] = useState<Integration[]>([]);
-  const [name, setName] = useState("Equipo VISA");
-  const [query, setQuery] = useState("microservicios");
-  const [matches, setMatches] = useState<KnowledgeMatch[] | null>(null);
-  const [reply, setReply] = useState("");
-  const [error, setError] = useState("");
-  const [searchError, setSearchError] = useState("");
-  const [sending, setSending] = useState(false);
-  const [searching, setSearching] = useState(false);
+type Tab = "draft" | "flow" | "schedule" | "jira";
+type Turn = { message?: string; result: ChatResponse };
+const examples = [
+  { id: "OCD-4092", title: "Actualización Microservicio Transferencias CCE", progress: 68, status: "En progreso" },
+  { id: "ITSM-1104", title: "Apertura de Firewall Base de Datos Riesgos", progress: 100, status: "Listo para Jira" },
+  { id: "OCD-4088", title: "Rollback Plan Motor de Fraude", progress: 84, status: "Coordinando recursos" },
+  { id: "OCD-4076", title: "Certificación QA Core Bancario", progress: 100, status: "Finalizado" },
+];
+const stages = [
+  ["Registrar el requerimiento", "Describe el objetivo, el alcance y los datos del cambio."],
+  ["Consultar los procedimientos", "El agente recupera las fuentes documentales aplicables."],
+  ["Completar los datos", "Las preguntas mantienen pendientes los datos desconocidos."],
+  ["Revisar el borrador", "V-01, V-02 y V-03 comprueban completitud, consistencia y trazabilidad."],
+];
 
-  const refresh = useCallback(async () => {
-    const [status, hello, external] = await Promise.all([
-      request<Health>("/health"),
-      request<HelloResponse>("/hello"),
-      request<Integration[]>("/integrations"),
-    ]);
-    setHealth(status);
-    setGreetings(hello.greetings);
-    setIntegrations(external);
+export default function Home() {
+  const [dark, setDark] = useState(false);
+  const [leftOpen, setLeftOpen] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [rightOpen, setRightOpen] = useState(false);
+  const [example, setExample] = useState<(typeof examples)[number] | null>(null);
+  const [tab, setTab] = useState<Tab>("draft");
+  const [turns, setTurns] = useState<Turn[]>([]);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [restoring, setRestoring] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const transcript = useRef<HTMLDivElement>(null);
+  const busy = useRef(false);
+  const latest = turns.at(-1)?.result;
+
+  useEffect(() => {
+    const controller = new AbortController();
+    getChat(controller.signal).then(result => {
+      if (!controller.signal.aborted && result.revision > 0) setTurns([{ result }]);
+    }).catch(() => {
+      if (!controller.signal.aborted) setError("No se pudo recuperar la última revisión. Recarga la página para intentarlo de nuevo.");
+    }).finally(() => { if (!controller.signal.aborted) setRestoring(false); });
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
-    refresh().catch(() => setError("No fue posible conectar con la API. Vuelve a comprobar la conexión."));
-  }, [refresh]);
+    if (transcript.current) transcript.current.scrollTop = transcript.current.scrollHeight;
+  }, [turns, sending]);
 
-  async function sendHello(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSending(true);
-    setError("");
-    setReply("");
+  async function ask(text: string) {
+    if (!text.trim() || busy.current || restoring) return;
+    busy.current = true; setSending(true); setError("");
     try {
-      const greeting = await request<Greeting>("/hello", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
-      });
-      setReply(greeting.message);
-      await refresh();
+      const result = await sendChat(text.trim());
+      setTurns(previous => [...previous, { message: text.trim(), result }]);
+      setMessage("");
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "No fue posible guardar el saludo.");
-    } finally {
-      setSending(false);
-    }
+      setError(failure instanceof Error ? failure.message : "No se pudo enviar el mensaje. Inténtalo otra vez.");
+    } finally { busy.current = false; setSending(false); }
   }
 
-  async function search(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSearching(true);
-    setSearchError("");
-    try {
-      setMatches(await request<KnowledgeMatch[]>(`/knowledge?q=${encodeURIComponent(query)}`));
-    } catch {
-      setSearchError("No fue posible consultar el conocimiento local. Inténtalo otra vez.");
-    } finally {
-      setSearching(false);
-    }
-  }
+  function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); void ask(message); }
+  function showDraft() { setExample(null); setRightOpen(true); setMobileOpen(false); }
+  const workspace = [styles.workspace, !leftOpen && styles.leftClosed, !rightOpen && styles.rightClosed, mobileOpen && styles.mobileOpen].filter(Boolean).join(" ");
 
-  return (
-    <>
-      <header className={styles.header}>
-        <div className={styles.headerInner}>
-          <a className={styles.brand} href="/" aria-label="Grupo VISA AI, inicio">V<span>·</span>AI</a>
-          <span className={styles.project}>GRUPO VISA AI <span>/</span> ASISTENTE OCD</span>
-          <span className={styles.environment}>ENTORNO LOCAL</span>
+  return <main className={`${styles.app} ${dark ? styles.dark : ""}`}>
+    <header className={styles.topbar}>
+      <div className={styles.brand}>
+        <button className={`${styles.iconButton} ${styles.mobileMenu}`} aria-label="Mostrar requerimientos" aria-expanded={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}><Menu/></button>
+        <div className={styles.brandMark}>N</div><div><strong>NexoOPS</strong><small>GRUPO VISA AI · DEMOSTRACIÓN OCD</small></div>
+      </div>
+      <div className={styles.topActions}><a href="/docs" target="_blank" rel="noreferrer">Explorar API ↗</a>
+        <button className={styles.iconButton} aria-label="Cambiar tema" onClick={() => setDark(!dark)}>{dark ? <Sun/> : <Moon/>}</button>
+      </div>
+    </header>
+    <div className={workspace}>
+      <aside className={styles.sidebar} aria-label="Requerimientos y procedimientos">
+        <div className={styles.sideTitle}><span className={styles.eyebrow}>REQUERIMIENTOS</span><button className={styles.iconButton} aria-label={leftOpen ? "Cerrar panel izquierdo" : "Abrir panel izquierdo"} onClick={() => { setLeftOpen(!leftOpen); setMobileOpen(false); }}>{leftOpen ? <ChevronLeft/> : <ChevronRight/>}</button></div>
+        <div className={styles.sideContent}>
+          <button className={`${styles.ticket} ${!example ? styles.selected : ""}`} onClick={showDraft}><span className={styles.tag}>SESIÓN ACTUAL</span><strong>Mi borrador OCD</strong><small>{latest?.revision ? `Revisión ${latest.revision}` : "Describe tu cambio para empezar"}</small></button>
+          <p className={styles.demoNote}>Una conversación y un borrador real por sesión del navegador.</p>
+          <div className={styles.eyebrow}>EJEMPLOS DE INTERFAZ</div>
+          {examples.map(ticket => <button className={`${styles.ticket} ${example?.id === ticket.id ? styles.selected : ""}`} key={ticket.id} onClick={() => { setExample(ticket); setRightOpen(true); setMobileOpen(false); }}>
+            <span className={styles.tag}>{ticket.id} · DEMO</span><strong>{ticket.title}</strong>
+            <div className={styles.progress}><span style={{ width: `${ticket.progress}%` }}/></div><small>{ticket.progress}% · {ticket.status}</small>
+          </button>)}
+          <p className={styles.demoNote}>Estos ejemplos no son tickets consultados en Jira y no cambian tu conversación.</p>
+          <div className={styles.sideFooter}><KnowledgeSearch/></div>
         </div>
-      </header>
-      <main className={styles.main}>
-        <section className={styles.hero} aria-labelledby="title">
-          <p className={styles.eyebrow}>ETAPA 01 · BASE DEL PROYECTO</p>
-          <h1 id="title">Todo empieza con un<br /><span>hola mundo.</span></h1>
-          <p className={styles.intro}>Una base conectada para construir el asistente OCD.<br />Prueba la interfaz, la API y el almacenamiento local.</p>
-          <p className={styles.stack}>NEXT.JS <span>→</span> FASTAPI <span>→</span> SQLITE</p>
-        </section>
-
-        <section className={styles.statusGrid} aria-label="Estado de los componentes">
-          {[
-            ["01", "Interfaz", "Next.js + TypeScript", health?.frontend === "ok"],
-            ["02", "API", "Python + FastAPI", health?.backend === "ok"],
-            ["03", "Persistencia", "SQLite + FTS5", health?.sqlite === "ok"],
-          ].map(([number, label, technology, ready]) => (
-            <article key={String(label)} className={styles.statusCard}>
-              <span className={styles.cardNumber}>{number}</span>
-              <div><h2>{label}</h2><p>{technology}</p></div>
-              <span className={`${styles.badge} ${ready ? styles.ready : styles.waiting}`}>
-                {ready ? "Disponible" : error ? "Sin conexión" : "Comprobando"}
-              </span>
-            </article>
-          ))}
-        </section>
-
-        <div className={styles.columns}>
-          <section className={styles.panel} aria-labelledby="hello-title">
-            <p className={styles.panelLabel}>PRUEBA DE CONEXIÓN</p>
-            <h2 id="hello-title">Envía tu primer saludo</h2>
-            <p className={styles.description}>La API responde y guarda el saludo en la base local.</p>
-            <form onSubmit={sendHello} className={styles.form}>
-              <label htmlFor="name">¿Cómo te llamas?</label>
-              <div className={styles.inputRow}>
-                <input id="name" value={name} onChange={(event) => setName(event.target.value)} required maxLength={80} autoComplete="given-name" />
-                <button disabled={sending || !name.trim()} type="submit">{sending ? "Enviando…" : "Enviar saludo"}</button>
-              </div>
-            </form>
-            <div role="status" className={styles.reply}>{reply || "Tu respuesta aparecerá aquí."}</div>
-            {error && <div role="alert" className={styles.error}><p>{error}</p><button type="button" onClick={() => { setError(""); refresh().catch(() => setError("La API sigue sin responder. Revisa los contenedores.")); }}>Comprobar conexión</button></div>}
-            <div className={styles.historyHeader}><h3>Últimos saludos</h3><span>{health?.greeting_count ?? "—"} guardados</span></div>
-            {greetings.length === 0 ? <p className={styles.empty}>Todavía no hay saludos. Empieza con el tuyo.</p> : (
-              <ul className={styles.history}>
-                {greetings.map((greeting) => <li key={greeting.id}><span className={styles.avatar} aria-hidden="true">{greeting.name.charAt(0).toUpperCase()}</span><div><strong>{greeting.name}</strong><p>{greeting.message}</p></div></li>)}
-              </ul>
-            )}
-          </section>
-
-          <div className={styles.sideColumn}>
-            <section className={styles.panel} aria-labelledby="knowledge-title">
-              <p className={styles.panelLabel}>CONOCIMIENTO LOCAL</p>
-              <h2 id="knowledge-title">Modelos operativos</h2>
-              <p className={styles.description}>{health ? `${health.document_count} documentos` : "Documentos"} del repositorio, disponibles para búsqueda textual.</p>
-              <form onSubmit={search} className={styles.form}>
-                <label htmlFor="query">Busca un procedimiento</label>
-                <div className={styles.inputRow}><input id="query" value={query} onChange={(event) => setQuery(event.target.value)} required maxLength={200} /><button disabled={searching || !query.trim()} type="submit">{searching ? "Buscando…" : "Buscar"}</button></div>
-              </form>
-              {searchError && <p className={styles.error} role="alert">{searchError}</p>}
-              <div aria-live="polite">
-                {matches && <p className={styles.resultCount}>{matches.length} documentos encontrados</p>}
-                {matches && <ul className={styles.results}>{matches.map((match) => <li key={match.code}><a href={match.url} target="_blank" rel="noreferrer">{match.code} · versión {match.version}</a><p>{match.title}</p></li>)}</ul>}
-              </div>
-            </section>
-            <section className={styles.integrations} aria-labelledby="integration-title">
-              <h2 id="integration-title">Siguiente etapa</h2>
-              <p>El agente y las conexiones externas se incorporarán sobre esta base.</p>
-              <ul>{integrations.map((integration) => <li key={integration.name}><strong>{integration.name}</strong><span title={integration.detail}>{integration.status === "configured" ? "Por verificar" : "Pendiente"}</span></li>)}</ul>
-              <p className={styles.note}>Esta prueba funciona sin credenciales externas.</p>
-            </section>
+      </aside>
+      <section className={styles.chatPanel} aria-labelledby="chat-title">
+        <div className={styles.panelHeader}><div className={styles.eyebrow}><Sparkles/> COPILOTO NEXOOPS</div><h1 id="chat-title">Armemos tu cambio.</h1><p>Describe tu requerimiento o consulta un procedimiento. El agente prepara un borrador con fuentes y datos pendientes.</p></div>
+        <div className={styles.chatBody} ref={transcript} role="log" aria-label="Mensajes de la conversación" aria-live="polite">
+          {!turns.length && <div className={styles.welcome}><p>Puedes empezar con «Hola» o preguntar «¿Qué planes exige OCD-C02?».</p><p>Las revisiones son comprobaciones documentales. El asistente no crea tickets ni ejecuta cambios.</p></div>}
+          {turns.map(({ message: text, result }, i) => <div key={i}>
+            {text && <div className={`${styles.message} ${styles.userMessage}`}><div className={styles.bubble}><strong>Tú</strong><p>{text}</p></div></div>}
+            <div className={styles.message}><div className={styles.aiAvatar}><Sparkles/></div><div className={styles.bubble}><strong>{text ? "Asistente OCD" : "Última revisión guardada"}</strong><AgentReply result={result}/></div></div>
+          </div>)}
+          {sending && <div role="status" className={styles.message}><div className={styles.aiAvatar}><Sparkles/></div><div className={styles.bubble}>El agente está revisando tu requerimiento…</div></div>}
+          {error && <p role="alert" className={styles.error}>{error}</p>}
+        </div>
+        <div className={styles.composer}>
+          <div className={styles.quickPrompts}>{["¿Qué planes exige OCD-C02?", "¿Qué datos requiere un pase de microservicios?"].map(text => <button key={text} disabled={restoring || sending} onClick={() => { void ask(text); }}>{text}</button>)}</div>
+          <form onSubmit={submit}><div className={styles.inputRow}>
+            <textarea aria-label="Tu mensaje" value={message} maxLength={12000} required rows={2} readOnly={sending} onChange={e => setMessage(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void ask(message); } }} placeholder="Describe el cambio que quieres preparar…"/>
+            <button className={styles.send} type="submit" aria-label="Enviar mensaje" disabled={restoring || sending || !message.trim()}><ArrowUp/></button>
+          </div></form>
+          <div className={styles.hint}><span role="status">{restoring ? "Recuperando la sesión…" : sending ? "Consultando al agente…" : "Verifica siempre los datos críticos."}</span><span>Enter para enviar · Mayús+Enter para otra línea</span></div>
+        </div>
+      </section>
+      <aside className={`${styles.canvasPanel} ${rightOpen ? "" : styles.collapsed}`} aria-label="Detalle OCD">
+        <div className={styles.canvasHead}><div><span className={styles.eyebrow}>{example ? "EJEMPLO DE INTERFAZ" : "BORRADOR DE TU SESIÓN"}</span><h2>{example?.title ?? "Tu solicitud OCD"}</h2></div><button className={styles.iconButton} aria-label={rightOpen ? "Cerrar panel OCD" : "Abrir panel OCD"} aria-expanded={rightOpen} onClick={() => setRightOpen(!rightOpen)}>{rightOpen ? <ChevronRight/> : <ChevronLeft/>}</button></div>
+        <div className={styles.canvasContent}>
+          <nav className={styles.tabs} aria-label="Vistas del requerimiento">{([["draft", FileText, "Borrador"], ["flow", GitBranch, "Flujo"], ["schedule", CalendarClock, "Agenda"], ["jira", Code, "Vista previa"]] as const).map(([key, Icon, label]) => <button key={key} className={tab === key ? styles.activeTab : ""} aria-pressed={tab === key} onClick={() => setTab(key)}><Icon/>{label}</button>)}</nav>
+          <div className={styles.canvasInner}>
+            {example && <p className={styles.demoNote}>Demostración visual: {example.id}. Los estados y porcentajes son datos de ejemplo.</p>}
+            {tab === "flow" && <><h3>Del requerimiento al borrador validado</h3><ol className={styles.flow}>{stages.map(([title, detail]) => <li key={title}><div><strong>{title}</strong><small>{detail}</small></div></li>)}</ol><p>Crear tickets, coordinar recursos y ejecutar cambios quedan fuera de esta demostración.</p></>}
+            {tab === "draft" && (example ? <><h3>{example.id} · {example.status}</h3><p>Vista de ejemplo. Selecciona «Mi borrador OCD» para consultar los datos y las validaciones de tu sesión.</p><button className={styles.secondaryButton} onClick={showDraft}>Ver mi borrador</button></> : latest?.revision ? <ReviewDetails result={latest}/> : <p>El borrador aparecerá cuando describas un cambio. Las consultas informativas no crean una revisión.</p>)}
+            {tab === "schedule" && <><h3>Recursos y agenda</h3><p>No hay una integración de calendario disponible. Las fechas declaradas forman parte del borrador y no reservan una ventana.</p></>}
+            {tab === "jira" && <><h3>Vista previa documental</h3><p>Esta vista no publica ni crea tickets.</p><pre>{JSON.stringify(example ?? latest?.draft ?? {}, null, 2)}</pre><button className={styles.secondaryButton} onClick={async () => { try { await navigator.clipboard.writeText(JSON.stringify(example ?? latest?.draft ?? {}, null, 2)); setCopied(true); } catch { setCopied(false); } }}>{copied ? "JSON copiado" : "Copiar JSON"}</button></>}
           </div>
         </div>
-        <footer className={styles.footer}><span>GRUPO VISA AI</span><span>Base local · Docker Compose · Etapa 1</span><a href="/docs" target="_blank" rel="noreferrer">Explorar la API ↗</a></footer>
-      </main>
-    </>
-  );
+      </aside>
+    </div>
+  </main>;
 }
