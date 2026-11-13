@@ -6,8 +6,9 @@ Qdrant y validaciones Python V-01, V-02 y V-03. No crea tickets ni ejecuta cambi
 T1 integra Qdrant y el contrato; T2 implementa ingesta independiente, CLI y cron;
 T3 implementa sesiones, extracción mediante Responses API y revisión persistente.
 T4 reúne la aceptación de extremo a extremo y corrige los fallos de integración.
-Las conexiones autenticadas con OpenAI y Atlassian reales no están verificadas.
-La evidencia con dobles se detalla en [verificación T4](docs/verificacion_t4.md).
+El 13 de noviembre de 2026, la ingesta real publicó 83 puntos en Qdrant a partir de cinco páginas de Confluence y veinte tickets de Jira.
+En una consulta de microservicios coincidieron las 24 citas del agente y las referencias de sus 19 validaciones con los puntos publicados.
+Consulta la [evidencia de la ingesta real y el cotejo de citas](docs/verificacion_t4.md#ingesta-real-y-verificación-de-citas).
 La interfaz estática conserva la pantalla de saludo y búsqueda; el chat se usa por HTTP.
 
 ## Configurar y ejecutar

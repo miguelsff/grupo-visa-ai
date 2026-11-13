@@ -19,7 +19,8 @@ conserva las propuestas anteriores de creación Jira y Railway.
 | Supercronic 03:00 America/Lima y bloqueo compartido | Implementado T2; disparo probado con horario temporal. |
 | Responses API, herramientas, preguntas, sesiones y V-01/02/03 | Implementado T3; acceso al chat por HTTP. |
 | Aceptación integrada | T4: Qdrant real y REST dobles; evidencia en `docs/verificacion_t4.md`. |
-| Servicios externos autenticados y calidad semántica real | No verificados. |
+| Servicios externos autenticados | Lectura REST de Confluence y Jira, embeddings y Responses API verificados en Compose local. |
+| Procedencia y relevancia | Las citas de una consulta coinciden con Qdrant. La evaluación general de relevancia sigue pendiente. |
 | Creación Jira, infraestructura remota y Railway | Fuera del alcance local. |
 
 T4 identificó y corrigió la diferencia entre las condiciones publicadas por T2
@@ -142,6 +143,7 @@ Railway exige revisar autenticación, servicios, volúmenes, permisos y costos.
 | T1 | Qdrant real, alias/vector/payload persistidos al recrear; histórico `docs/verificacion_t1.md`. |
 | T2 | pytest/Ruff, CLI, cron temporal, carga íntegra, bloqueo, idempotencia y fallos; `ingesta/VERIFICACION.md`. |
 | T3/T4 | Dos turnos HTTP con cookie, 26 reglas/25 fuentes, citas reales del índice, fallos y recreación; `docs/verificacion_t4.md`. |
+| Prueba con servicios externos reales | [Ingesta manual de 83 puntos y cotejo de 24 citas y 19 referencias de validación](verificacion_t4.md#ingesta-real-y-verificación-de-citas). |
 
 Comandos reproducibles desde raíz:
 
@@ -152,11 +154,9 @@ docker compose --profile test run --build --rm tests
 docker compose --profile test run --build --rm tests ruff check --no-cache app tests
 ```
 
-T4 utiliza Qdrant real y REST dobles: snapshots Atlassian, HTTPS local con certificado
-temporal, SDK OpenAI real contra respuestas/vectores sintéticos. No usa credenciales
-reales, volúmenes principales ni fuentes frontend modificadas. No acredita semántica
-real, acceso REST autenticado ni ejecución del cron a las 03:00 en una fecha real.
-La interfaz de chat y las conexiones reales siguen sin aceptación.
+La prueba automatizada T4 usa Qdrant real y servidores de prueba para Atlassian y OpenAI.
+La prueba posterior utilizó las API externas reales para la carga manual y un turno de chat HTTP.
+Siguen pendientes la aceptación de una interfaz de chat y la observación del cron de las 03:00 de Lima.
 
 ## Referencias
 
@@ -169,6 +169,6 @@ La interfaz de chat y las conexiones reales siguen sin aceptación.
 Diagrama editable: [MVP_OCD_Arquitectura.drawio](MVP_OCD_Arquitectura.drawio).
 Vistas: Contexto local, Servicios locales y Contrato de conocimiento.
 Vista previa: [MVP_OCD_Arquitectura.png](MVP_OCD_Arquitectura.png).
-Amarillo indica servicio externo sin aceptación real, no implementación pendiente.
+El amarillo identifica los servicios externos.
 
 Regenerar la vista PNG en Windows con `uv run --no-project --with pillow python scripts/render_architecture.py`.

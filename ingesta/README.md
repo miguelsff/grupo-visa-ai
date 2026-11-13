@@ -110,8 +110,8 @@ invoca la CLI real contra ese Qdrant aislado.
 Los snapshots y el inyector `tests/cron_support` solo se copian a la imagen de
 pruebas. La imagen `runtime` contiene únicamente código, manifiesto y crontab.
 El [origen de los fixtures](tests/fixtures/README.md) distingue capturas reales de
-respuestas sintéticas. La aceptación con credenciales REST y embeddings reales
-se debe ejecutar por separado; las pruebas no la acreditan.
+respuestas sintéticas. La [ejecución manual con credenciales reales](../docs/verificacion_t4.md#ingesta-real-y-verificación-de-citas)
+verificó la lectura de las 25 fuentes autorizadas y la publicación de 83 puntos con embeddings de OpenAI.
 
 Desde `ingesta/`, actualizar los bloqueos:
 

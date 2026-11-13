@@ -14,10 +14,10 @@
         <mxCell id="system" value="MVP OCD local&#10;Saludo + búsqueda Qdrant&#10;Agente y V-01/02/03 implementados&#10;Chat HTTP; sin crear tickets" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="430" y="235" width="380" height="165" />
         </mxCell>
-        <mxCell id="atl" value="Atlassian (solo lectura)&#10;5 páginas / 20 ejemplos&#10;REST real no verificado" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+        <mxCell id="atl" value="Atlassian (solo lectura)&#10;5 páginas y 20 tickets&#10;Lectura REST verificada" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="990" y="130" width="250" height="135" />
         </mxCell>
-        <mxCell id="ai" value="OpenAI&#10;Embeddings + Responses&#10;Servicio real no verificado" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+        <mxCell id="ai" value="OpenAI&#10;Embeddings y Responses API&#10;Consulta real verificada" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="990" y="420" width="250" height="135" />
         </mxCell>
         <mxCell id="ctx1" value="HTTP local" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="user" target="system">
@@ -29,7 +29,7 @@
         <mxCell id="ctx3" value="SDK oficial" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;exitX=1;exitY=0.75;" edge="1" parent="1" source="system" target="ai">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="ctx-note" value="Alcance: borrador, fuentes, preguntas y verificaciones; sin ejecutar infraestructura.&#10;Railway aplazado. Amarillo = servicio externo no verificado." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
+        <mxCell id="ctx-note" value="El agente prepara el borrador, cita las fuentes y solicita los datos pendientes.&#10;El amarillo identifica los servicios externos. Railway sigue aplazado." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="650" width="1200" height="100" />
         </mxCell>
       </root>
@@ -40,7 +40,7 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="local-title" value="MVP OCD | Servicios locales | T1–T3 implementados / aceptación T4 con dobles" style="text;html=0;align=left;fontSize=24;fontStyle=1;" vertex="1" parent="1">
+        <mxCell id="local-title" value="MVP OCD | Servicios locales | Ingesta y consulta en Docker Compose" style="text;html=0;align=left;fontSize=24;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="20" width="1200" height="65" />
         </mxCell>
         <mxCell id="browser" value="Navegador&#10;Next.js exportado&#10;127.0.0.1:8000" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
@@ -76,7 +76,7 @@
         <mxCell id="local5" value="Volumen propio" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="qdrant" target="qvolume">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="local-note" value="T4: Qdrant real y dobles REST. Conexiones externas reales sin verificar.&#10;FTS5 fuera de las rutas HTTP. Node.js 24 solo compila; no hay servidor Next.js." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
+        <mxCell id="local-note" value="La ingesta manual publicó 83 puntos en Qdrant el 13 de noviembre de 2026.&#10;La consulta de pedidos-demo devolvió 24 citas y 19 validaciones con referencias verificadas en esa colección." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="685" width="1200" height="80" />
         </mxCell>
       </root>

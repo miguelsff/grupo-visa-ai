@@ -114,7 +114,7 @@ textos legibles, flechas y nodos sin recortes. Para regenerarla en Windows:
 uv run --no-project --with pillow python scripts/render_architecture.py
 ```
 
-## Límites y evidencia separada
+## Alcance de la prueba automatizada con dobles
 
 Qdrant, SQLite, Docker, Supercronic, SDK OpenAI, HTTPX y HTTP de la aplicación son
 reales en estas pruebas. Atlassian/OpenAI son servidores dobles y las credenciales
@@ -138,5 +138,38 @@ memoria pasó `PRAGMA integrity_check` y conservó los registros de las tablas a
 Después de ejecutar `docker compose up --build -d --wait` en el proyecto principal,
 se comprobaron nuevamente la integridad del volumen y los saludos previos.
 La API local y Qdrant respondieron a sus comprobaciones de disponibilidad.
-El proyecto principal espera la primera ingesta con credenciales reales. Antes de
-publicar `ocd_actual`, una consulta documental devuelve HTTP 503.
+Antes de la primera carga, la consulta documental del proyecto principal devolvió HTTP 503.
+
+## Ingesta real y verificación de citas
+
+El 13 de noviembre de 2026 se ejecutó `docker compose exec -T ingesta ocd-ingestar`
+en el proyecto Compose principal con el código de `a19ceed`. La CLI leyó cinco páginas
+de Confluence y veinte tickets de Jira por REST, y obtuvo los embeddings de OpenAI.
+Terminó con código de salida `0` y registró:
+
+```text
+INFO Carga publicada run=16c4db78e62040a59ad06825ea8e7db1 puntos=83
+```
+
+Al terminar la carga, el alias `ocd_actual` apuntaba a `ocd_16c4db78e62040a59ad06825ea8e7db1`.
+La colección contenía 26 reglas, 32 campos, 20 ejemplos y 5 fragmentos de contexto.
+
+**Consulta al agente.** Se envió a `POST /api/chat` una solicitud para publicar
+`pedidos-demo` de la versión 1.0 a la 2.0 en producción. Con OpenAI Responses API,
+el backend devolvió HTTP `200`, revisión `1` y estado `reviewed`. El borrador pidió,
+entre otros datos, el repositorio. De las 19 validaciones aplicables, 13 devolvieron
+`FALTA_INFORMACION`, 4 devolvieron `CUMPLE` y 2 devolvieron `NO_VERIFICABLE`.
+
+**Comprobación de procedencia.** La respuesta identificó la misma colección física que el alias.
+Se leyó cada punto por su `point_id` en esa colección y se comparó el extracto con `payload.text`.
+También se compararon el ID de la fuente, la clave del registro, el código documental o de ticket, la URL y la versión.
+Coincidieron **24 de 24 citas** de `sources` y **19 de 19 referencias** de `validations`.
+Las citas correspondieron a siete fuentes: el índice común, el modelo de microservicios y los cinco ejemplos de `SCRUM-5` a `SCRUM-9`.
+
+| Regla | Fuente y versión en Confluence | `point_id` en Qdrant | Resultado |
+| --- | --- | --- | --- |
+| `OCD-C01` | [MO-OCD-000, v1](https://grupo-visai.atlassian.net/wiki/spaces/DDS/pages/66048/DEMO+OCD+-+ndice+y+reglas+comunes) | `aaf42080-a1b4-54a2-847c-93a5f7774605` | `FALTA_INFORMACION` |
+| `MIC-R01` | [MO-MIC-001, v1](https://grupo-visai.atlassian.net/wiki/spaces/DDS/pages/294922/MO-MIC-001+-+Pase+a+producci+n+de+microservicios+DEMO) | `df10f269-b18b-5bf5-b85d-3a650ee4fa14` | `FALTA_INFORMACION` |
+
+La coincidencia acredita la procedencia de las citas en este caso. Siguen pendientes la
+evaluación de relevancia con varias consultas y la observación del cron real a las 03:00 de Lima.

@@ -105,7 +105,7 @@ Las pruebas de persistencia de contenedores deben usar un volumen temporal propi
 La copia/restauración del volumen principal fue comprobada antes de T3, según la
 instrucción recibida. T3 no ejecuta una migración sobre ese volumen durante sus pruebas.
 
-La aceptación con OpenAI real y una colección publicada por T2 sigue pendiente.
+La [prueba posterior con OpenAI y Qdrant](../docs/verificacion_t4.md#ingesta-real-y-verificación-de-citas) verificó las citas y las referencias de validación del chat HTTP.
 Esta tarea no cambia frontend, Compose ni la documentación general.
 La integración debe actualizar las vistas de arquitectura y el estado documentado.
 El frontend debe consumir el chat y adaptar los tipos/indicadores de salud al contrato
@@ -118,5 +118,4 @@ Verificaciones ejecutadas el 13 de noviembre de 2026:
 - Contenedor ejecutado como UID 10001, sin `/app/knowledge`.
 - Saludo, sesión, revisión fallida y mensaje recuperados al recrear dos contenedores
   sobre un volumen temporal propio. El volumen temporal se eliminó al terminar.
-- La aceptación real de inferencia y recuperación semántica queda pendiente de T2
-  y de las credenciales. No se verificó una interfaz de chat en esta tarea.
+- T3 ejercitó la API mediante dobles. La interfaz de chat quedó fuera de estas pruebas.

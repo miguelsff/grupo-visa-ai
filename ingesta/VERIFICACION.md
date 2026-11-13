@@ -38,7 +38,9 @@ y espera publicación y diario completos. El horario productivo de cinco campos
 
 ## Límites
 
-La CLI no se ejecutó con credenciales REST reales ni generó embeddings pagados.
+Durante T2, la CLI utilizó dobles para Atlassian y OpenAI. La
+[verificación posterior con servicios reales](../docs/verificacion_t4.md#ingesta-real-y-verificación-de-citas)
+registró la colección publicada y las citas verificadas.
 Las capturas reales de Atlassian acreditan el contraste documental; la adaptación
 de su sobre no acredita una conexión HTTPX autenticada en producción. Los tests
 de OpenAI acreditan el uso del SDK y del contrato, no la calidad semántica real.
