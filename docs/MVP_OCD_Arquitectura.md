@@ -13,7 +13,7 @@ conserva las propuestas anteriores de creación Jira y Railway.
 
 | Capacidad | Estado en el código |
 | --- | --- |
-| Next.js estático, FastAPI y saludo SQLite | Implementado; interfaz de saludo y búsqueda conservada. |
+| Next.js estático y FastAPI | La página principal muestra la conversación y la búsqueda de procedimientos. |
 | Cinco copias Markdown y cargador FTS5 | Legado sin uso en rutas HTTP de conocimiento. |
 | Qdrant interno y contrato v1 | Implementado T1; persistencia histórica documentada por separado. |
 | CLI, HTTPX Atlassian, embeddings y publicación atómica | Implementado T2. |
@@ -160,7 +160,8 @@ docker compose --profile test run --build --rm tests ruff check --no-cache app t
 
 La prueba automatizada T4 usa Qdrant real y servidores de prueba para Atlassian y OpenAI.
 La prueba posterior utilizó las API externas reales para la carga manual y un turno de chat HTTP.
-Siguen pendientes la aceptación de una interfaz de chat y la observación del cron de las 03:00 de Lima.
+La interfaz usa `POST /api/chat` para enviar mensajes y `GET /api/chat` para
+recuperar la última revisión al abrir la página. La observación del cron de las 03:00 de Lima sigue pendiente.
 
 ## Referencias
 

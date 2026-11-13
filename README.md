@@ -9,7 +9,7 @@ T4 reúne la aceptación de extremo a extremo y corrige los fallos de integraci�
 El 13 de noviembre de 2026, la ingesta real publicó 83 puntos en Qdrant a partir de cinco páginas de Confluence y veinte tickets de Jira.
 En una consulta de microservicios coincidieron las 24 citas del agente y las referencias de sus 19 validaciones con los puntos publicados.
 Consulta la [evidencia de la ingesta real y el cotejo de citas](docs/verificacion_t4.md#ingesta-real-y-verificación-de-citas).
-La interfaz estática conserva la pantalla de saludo y búsqueda; el chat se usa por HTTP.
+La página principal permite conversar con el agente y buscar procedimientos.
 
 ## Configurar y ejecutar
 
@@ -59,9 +59,10 @@ conexiones externas ni que exista una generación publicada.
 
 ## Chat en dos turnos HTTP
 
-En Railway, abre `/docs` en el dominio HTTPS de `app` e inicia sesión con el
-usuario `demo` y la contraseña de `OCD_DEMO_PASSWORD`. Usa `POST /api/chat` para
-hacer una pregunta. En un cliente HTTP configura autenticación Basic y conserva
+En Railway, abre el dominio HTTPS de `app` e inicia sesión con el usuario
+`demo` y la contraseña de `OCD_DEMO_PASSWORD`. Escribe la consulta en el chat.
+La página envía `POST /api/chat` al mismo dominio y conserva la cookie del
+borrador. También puedes usar Swagger en `/docs`. En un cliente HTTP configura autenticación Basic y conserva
 la cookie `ocd_session` entre turnos para continuar el mismo borrador.
 `GET /api/health` permite comprobar la disponibilidad sin credenciales.
 
