@@ -19,6 +19,8 @@ click==8.5.1
     # via uvicorn
 colorama==0.4.6 ; sys_platform == 'win32'
     # via pytest
+dnspython==2.9.2
+    # via pymongo
 fastapi==0.162.6
     # via grupo-visa-ai-backend (pyproject.toml)
 h11==0.16.0
@@ -62,6 +64,8 @@ pydantic-core==2.50.4
     # via pydantic
 pygments==2.21.0
     # via pytest
+pymongo==4.20.0
+    # via grupo-visa-ai-backend (pyproject.toml)
 pytest==9.2.0
     # via grupo-visa-ai-backend (pyproject.toml)
 ruff==0.17.5

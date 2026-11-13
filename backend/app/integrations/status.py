@@ -20,7 +20,11 @@ def integration_status(settings: Settings) -> list[IntegrationStatus]:
             detail=(
                 "Credenciales presentes. Conexión pendiente de verificar."
                 if configured
-                else "Conexión prevista para la siguiente etapa."
+                else (
+                    "Falta OPENAI_API_KEY para inferencia y embeddings de consulta."
+                    if name == "OpenAI"
+                    else "Atlassian se configura en ingesta. Este endpoint no verifica su estado."
+                )
             ),
         )
         for name, configured in services
