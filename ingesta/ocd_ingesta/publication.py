@@ -83,7 +83,7 @@ class Publisher:
             raise ValueError("Alias cambió durante la carga")
         try:
             self.qdrant.switch(name, old)
-        except (httpx.TimeoutException, httpx.NetworkError):
+        except httpx.HTTPError:
             # No repetir la mutación: confirmar su destino antes de decidir el resultado.
             if self.qdrant.target() != name:
                 raise

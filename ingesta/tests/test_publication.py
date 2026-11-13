@@ -55,8 +55,9 @@ def test_mismatched_ingestion_run_is_rejected_before_write(qdrant, records, tmp_
 
 
 @pytest.mark.parametrize("applied", [True, False])
+@pytest.mark.parametrize("failure", [httpx.ReadTimeout, httpx.RemoteProtocolError])
 def test_uncertain_alias_result_never_deletes_active(
-    qdrant, records, tmp_path, monkeypatch, applied
+    qdrant, records, tmp_path, monkeypatch, applied, failure
 ):
     publisher = Publisher(qdrant, tmp_path)
     first = publish(publisher, records)
@@ -65,14 +66,14 @@ def test_uncertain_alias_result_never_deletes_active(
     def uncertain(name, old):
         if applied:
             original(name, old)
-        raise httpx.ReadTimeout("Respuesta perdida")
+        raise failure("Respuesta perdida")
 
     monkeypatch.setattr(qdrant, "switch", uncertain)
     if applied:
         pending = publish(publisher, records)
         assert publisher.state["pending"] is None
     else:
-        with pytest.raises(httpx.ReadTimeout):
+        with pytest.raises(failure):
             publish(publisher, records)
         pending = publisher.state["pending"]["candidate"]
     restarted = Publisher(qdrant, tmp_path)

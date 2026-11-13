@@ -27,7 +27,7 @@ class ExtractedFact(StrictModel):
 
 
 class SelectedCategory(StrictModel):
-    selected: bool = True
+    selected: bool
     category: Category
     quote: str
     message_id: int

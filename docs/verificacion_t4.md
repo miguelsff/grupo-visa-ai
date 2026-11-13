@@ -126,6 +126,17 @@ embeddings, calidad semántica real, disparo a las 03:00 en un día real, interf
 visual de chat, creación Jira, ejecución de procedimientos, permisos reales ni
 Railway. El cron observado es temporal y la revisión es documental.
 
-La aplicación principal y sus volúmenes no participan. La copia/restauración
-histórica T1 queda en `docs/verificacion_t1.md`; no se repite una operación sobre
-ese volumen en T4. El orquestador arrancará la aplicación principal al finalizar.
+## Verificación final en la rama de integración
+
+Se repitió el recorrido completo en un proyecto Compose aislado después de cubrir
+la pérdida de conexión durante la publicación y verificar el esquema JSON enviado
+por el SDK de OpenAI. Pasaron 59 pruebas del backend, 36 de ingesta y Ruff en ambos.
+
+Antes del cambio de esquema se creó una copia consistente mediante la API de respaldo
+de SQLite en `/data/backups/pre-ocd-20261113T154826Z.sqlite3`. Su restauración en
+memoria pasó `PRAGMA integrity_check` y conservó los registros de las tablas anteriores.
+Después de ejecutar `docker compose up --build -d --wait` en el proyecto principal,
+se comprobaron nuevamente la integridad del volumen y los saludos previos.
+La API local y Qdrant respondieron a sus comprobaciones de disponibilidad.
+El proyecto principal espera la primera ingesta con credenciales reales. Antes de
+publicar `ocd_actual`, una consulta documental devuelve HTTP 503.

@@ -26,7 +26,7 @@ class QdrantKnowledge:
                 response = self.client.request(method, path, **kwargs)
                 response.raise_for_status()
                 return response.json()["result"]
-            except (httpx.TimeoutException, httpx.NetworkError) as error:
+            except httpx.TransportError as error:
                 if attempt:
                     raise ServiceUnavailable("Qdrant no está disponible.") from error
             except (httpx.HTTPStatusError, ValueError, KeyError) as error:

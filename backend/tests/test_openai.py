@@ -38,6 +38,9 @@ def test_sdk_responses_extracts_and_dispatches_backend_tools(settings):
         assert body["model"] == settings.openai_model
         assert body["store"] is False
         if "text" in body:
+            category = body["text"]["format"]["schema"]["$defs"]["SelectedCategory"]
+            assert "selected" in category["required"]
+            assert "default" not in category["properties"]["selected"]
             return httpx.Response(
                 200,
                 json=response_body(

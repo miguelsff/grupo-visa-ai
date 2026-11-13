@@ -288,7 +288,9 @@ def test_category_can_be_explicitly_removed_without_late_reactivation(settings):
         session,
         Extraction(
             categories=[
-                SelectedCategory(category="red", quote="incluir red", message_id=first[0].id)
+                SelectedCategory(
+                    category="red", selected=True, quote="incluir red", message_id=first[0].id
+                )
             ],
             facts=[],
         ),

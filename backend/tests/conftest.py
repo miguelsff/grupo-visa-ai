@@ -40,7 +40,9 @@ class FakeModel:
                 key, value = line.split("=", 1)
                 if key == "categoria":
                     categories.append(
-                        SelectedCategory(category=value, quote=line, message_id=message.id)
+                        SelectedCategory(
+                            category=value, selected=True, quote=line, message_id=message.id
+                        )
                     )
                 else:
                     scope, name = key.split(".", 1)
