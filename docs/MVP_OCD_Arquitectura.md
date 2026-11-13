@@ -106,6 +106,9 @@ impide consulta/chat del corpus publicado si Qdrant y OpenAI siguen disponibles.
 1. Una cookie opaca HttpOnly/SameSite=strict identifica la sesión. SQLite conserva su hash.
 2. El backend registra el texto del turno en MongoDB tras omitir los patrones de secretos conocidos. Si falla el registro, responde 503 antes de modificar el borrador.
 3. El orquestador distingue saludos, temas ajenos, consultas de información y cambios al borrador. En un cambio, Responses API extrae hechos y categorías con cita literal e ID del mensaje.
+   Si la propuesta falla la validación de evidencia, el backend solicita una segunda extracción.
+   El modelo selecciona el inicio y el fin de cada dato en el mensaje original. Python recupera
+   el texto literal, incluidos sus espacios y signos, y vuelve a validar el lote completo.
 4. La combinación transaccional admite mensajes no procesados, conserva hechos
    más recientes y permite retirar explícitamente categorías. No ejecuta red dentro de escrituras SQLite.
 5. Para revisar un borrador, el agente recupera conocimiento de Qdrant y Python ejecuta V-01, V-02 y V-03. El agente arma la respuesta con lo declarado por el solicitante y la evidencia disponible. Una consulta sin respaldo recibe una respuesta de información insuficiente.

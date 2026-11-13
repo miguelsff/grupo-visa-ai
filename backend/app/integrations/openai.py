@@ -15,8 +15,9 @@ from app.agent.conversation import (
     TurnIntent,
     evidence_data,
 )
-from app.agent.facts import ALLOWED_FIELDS
+from app.agent.facts import ALLOWED_FIELDS, InvalidExtraction, grounded
 from app.agent.models import Draft, Extraction, ServiceUnavailable, UserMessage
+from app.agent.spans import SpanExtraction, index_tokens, materialize
 from app.config import Settings
 
 ToolExecutor = Callable[[str], str]
@@ -41,6 +42,9 @@ No copies ejemplos ni inventes identificadores, valores, evidencias o aprobacion
 Devuelve un parche: solo hechos nuevos o corregidos, una entrada por campo.
 Conserva el valor literal, incluido su tipo textual. value debe estar dentro de quote,
 y quote debe ser una cita literal del mensaje identificado por message_id.
+Copia un fragmento continuo de content y su id de messages. No numeres los mensajes desde uno.
+Conserva mayúsculas, signos y saltos de línea. Un fragmento corto suele bastar.
+No conviertas fechas ni combines fragmentos de mensajes distintos en un valor o cita.
 Usa el borrador solo para entender respuestas de seguimiento; no lo cites como mensaje.
 Usa selected=false solo si el usuario retira explícitamente una categoría del alcance.
 Las categorías se seleccionan por el alcance explícito del cambio y llevan cita literal.
@@ -189,27 +193,27 @@ dudas, devuelve false.
             raise ServiceUnavailable("No se pudo obtener el embedding de consulta.") from error
 
     def extract(self, messages: list[UserMessage], draft: Draft) -> Extraction:
-        content = json.dumps(
-            {"messages": [m.model_dump() for m in messages], "draft": draft.model_dump()},
-            ensure_ascii=False,
-        )
+        data = {"messages": [m.model_dump() for m in messages], "draft": draft.model_dump()}
         allowed = json.dumps({k: sorted(v) for k, v in ALLOWED_FIELDS.items()}, ensure_ascii=False)
+        instructions = EXTRACTION_PROMPT + "\nCampos admitidos por sección: " + allowed
+        patch = self._structured(Extraction, instructions, data, 6000)
         try:
-            response = self._client().responses.parse(
-                model=self.settings.openai_model,
-                store=False,
-                text_format=Extraction,
-                instructions=EXTRACTION_PROMPT + "\nCampos admitidos por sección: " + allowed,
-                input=[{"role": "user", "content": content}],
-                max_output_tokens=6000,
-            )
-            if response.output_parsed is None:
-                raise ServiceUnavailable("El modelo no devolvió hechos con un contrato válido.")
-            return response.output_parsed
-        except (APIError, ValidationError, ValueError) as error:
-            raise ServiceUnavailable(
-                "No se pudo interpretar el mensaje. Puedes reanudar el borrador."
-            ) from error
+            return grounded(patch, messages, draft)
+        except InvalidExtraction as error:
+            data["correccion"] = str(error)
+        index = index_tokens(messages)
+        data["tokens"] = {str(message_id): list(tokens) for message_id, tokens in index.items()}
+        instructions += (
+            "\nPara corregir la extracción, selecciona los fragmentos en tokens. Cada id "
+            "corresponde a un mensaje original. Para cada dato explícito o categoría, "
+            "copia en first y last las etiquetas completas de su primer y último token, "
+            "ambos incluidos. El servidor recupera el texto entre ellos. Elige el tramo "
+            "más corto que exprese el valor. Si un campo reúne origen y destino, selecciona "
+            "la frase que contiene ambos. Para un solo token, usa la misma etiqueta dos veces. "
+            "Devuelve todos los hechos nuevos o corregidos. Omite los que no constan."
+        )
+        spans = self._structured(SpanExtraction, instructions, data, 6000)
+        return grounded(materialize(spans, index), messages, draft)
 
     def tools(self, execute: ToolExecutor) -> None:
         tools = [

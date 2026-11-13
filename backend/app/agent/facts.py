@@ -3,7 +3,7 @@
 import re
 
 from app.agent.catalog import CATEGORY_FIELDS
-from app.agent.models import Draft, Extraction, ServiceUnavailable, UserMessage
+from app.agent.models import Draft, ExtractedFact, Extraction, ServiceUnavailable, UserMessage
 
 COMMON_FIELDS = (
     "titulo objetivo solicitante rol_solicitante responsable rol_responsable etapa ambientes "
@@ -47,20 +47,33 @@ def redact(content: str) -> str:
     return content
 
 
+class InvalidExtraction(ServiceUnavailable):
+    """El modelo debe corregir la extracción antes de guardar los datos del turno."""
+
+
 def grounded(patch: Extraction, messages: list[UserMessage], draft: Draft) -> Extraction:
     contents = {message.id: message.content for message in messages}
+    for fact in patch.facts:
+        if fact.name not in ALLOWED_FIELDS[fact.scope]:
+            raise InvalidExtraction(f"El campo propuesto no está admitido en {fact.scope}.")
     for item in [*patch.categories, *patch.facts]:
         if not item.quote.strip() or item.quote not in contents.get(item.message_id, ""):
-            raise ServiceUnavailable("La extracción no tiene evidencia literal del solicitante.")
+            field = (
+                f"{item.scope}.{item.name}" if isinstance(item, ExtractedFact) else item.category
+            )
+            raise InvalidExtraction(
+                f"La cita de {field} no coincide con el mensaje {item.message_id}."
+            )
     selected = set(draft.categories) | {item.category for item in patch.categories if item.selected}
     for fact in patch.facts:
         if (
-            fact.name not in ALLOWED_FIELDS[fact.scope]
-            or not fact.value.strip()
+            not fact.value.strip()
             or fact.value not in fact.quote
             or (fact.scope != "comun" and fact.scope not in selected)
         ):
-            raise ServiceUnavailable("El modelo propuso un hecho sin respaldo admisible.")
+            raise InvalidExtraction(
+                f"No se pudo validar {fact.scope}.{fact.name} en el mensaje {fact.message_id}."
+            )
     if len({(fact.scope, fact.name) for fact in patch.facts}) != len(patch.facts):
-        raise ServiceUnavailable("La extracción contiene hechos duplicados o contradictorios.")
+        raise InvalidExtraction("La extracción contiene hechos duplicados o contradictorios.")
     return patch
