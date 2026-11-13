@@ -63,7 +63,7 @@ def create_app(
 
     application = FastAPI(title="Grupo VISA AI · OCD local", version="0.3.0", lifespan=lifespan)
     if configuration.demo_password:
-        require_demo_login(application, configuration.demo_password)
+        require_demo_login(application, configuration.demo_username, configuration.demo_password)
 
     @application.exception_handler(sqlite3.Error)
     async def database_error(request: Request, error: sqlite3.Error) -> JSONResponse:

@@ -19,6 +19,7 @@ services:
       MONGODB_URI: ${MONGODB_URI:-mongodb://mongodb:27017/ocd}
       KNOWLEDGE_DIR: /app/knowledge
       FRONTEND_DIR: /app/static
+      OCD_DEMO_USERNAME: ${OCD_DEMO_USERNAME:-demo}
       OCD_DEMO_PASSWORD: ${OCD_DEMO_PASSWORD:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6-luna}

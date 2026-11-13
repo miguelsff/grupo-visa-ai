@@ -8,8 +8,8 @@ from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import JSONResponse, Response
 
 
-def require_demo_login(application: FastAPI, password: str) -> None:
-    expected = b64encode(f"demo:{password}".encode())
+def require_demo_login(application: FastAPI, username: str, password: str) -> None:
+    expected = b64encode(f"{username}:{password}".encode())
 
     @application.middleware("http")
     async def authenticate(request: Request, call_next: RequestResponseEndpoint) -> Response:

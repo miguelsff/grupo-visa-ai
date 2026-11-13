@@ -22,6 +22,7 @@ class Settings:
     embedding_dimensions: int = 1536
     external_timeout: float = 30.0
     on_railway: bool = False
+    demo_username: str = "demo"
     demo_password: str = field(default="", repr=False)
     mongodb_uri: str = field(default="", repr=False)
 
@@ -52,6 +53,7 @@ class Settings:
             embedding_dimensions=int(os.environ.get("OPENAI_EMBEDDING_DIMENSIONS", "1536")),
             external_timeout=float(os.environ.get("EXTERNAL_TIMEOUT_SECONDS", "30")),
             on_railway="RAILWAY_ENVIRONMENT_ID" in os.environ,
+            demo_username=os.environ.get("OCD_DEMO_USERNAME", "demo").strip() or "demo",
             demo_password=os.environ.get("OCD_DEMO_PASSWORD", ""),
             mongodb_uri=os.environ.get("MONGODB_URI", "").strip(),
         )
