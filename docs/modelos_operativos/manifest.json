@@ -1,0 +1,624 @@
+{
+  "status": "PUBLISHED",
+  "purpose": "Conocimiento sintético del agente OCD",
+  "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+  "space": {
+    "id": "65850",
+    "key": "DDS",
+    "name": "Desarrollo de software"
+  },
+  "documentDate": "2026-11-12",
+  "protectedExampleExcluded": true,
+  "index": {
+    "code": "MO-OCD-000",
+    "title": "DEMO OCD - Índice y reglas comunes",
+    "pageId": "66048",
+    "url": "https://grupo-visai.atlassian.net/wiki/spaces/DDS/pages/66048/DEMO+OCD+-+ndice+y+reglas+comunes",
+    "confluenceVersion": 1,
+    "documentVersion": "1.0",
+    "localFile": "README.md",
+    "commonRules": [
+      {
+        "id": "OCD-C01",
+        "ruleClass": "Completitud",
+        "condition": "Título, objetivo, solicitante/rol, responsable/rol, etapa, ambientes, ventana con zona horaria e impacto.",
+        "result": "FALTA_INFORMACION si falta un dato."
+      },
+      {
+        "id": "OCD-C02",
+        "ruleClass": "Trazabilidad",
+        "condition": "Incluir planes de ejecución, pruebas y reversión con resultados esperados.",
+        "result": "FALTA_INFORMACION si falta un plan o criterio."
+      },
+      {
+        "id": "OCD-C03",
+        "ruleClass": "Consistencia",
+        "condition": "Mantener separados certificación y producción; identificar dependencias y su ambiente.",
+        "result": "ERROR si una referencia contradice el ambiente declarado."
+      },
+      {
+        "id": "OCD-C04",
+        "ruleClass": "Trazabilidad",
+        "condition": "Registrar modelo, versión y regla utilizados. Mantener las evidencias faltantes como pendientes.",
+        "result": "NO_VERIFICABLE para ejecuciones sin evidencia accesible."
+      },
+      {
+        "id": "OCD-C05",
+        "ruleClass": "Protección de datos",
+        "condition": "Usar referencias de credenciales y omitir valores sensibles en ticket, chat y registros.",
+        "result": "ERROR ante una exposición detectada; la detección no garantiza ausencia de secretos."
+      },
+      {
+        "id": "OCD-C06",
+        "ruleClass": "Procedencia",
+        "condition": "Usar modelos operativos como reglas y tickets como ejemplos. No copiar datos desconocidos de otro ticket.",
+        "result": "FALTA_INFORMACION cuando el agente necesita un dato del solicitante."
+      }
+    ]
+  },
+  "counts": {
+    "pages": 5,
+    "models": 4,
+    "rules": 26,
+    "relatedJiraTickets": 20
+  },
+  "ingestion": {
+    "status": "NOT_IMPLEMENTED",
+    "recommendedRemoteContentFormat": "html",
+    "reason": "La conversión Markdown de Confluence puede omitir paneles y fechas."
+  },
+  "models": [
+    {
+      "code": "MO-MIC-001",
+      "category": "microservicio",
+      "title": "MO-MIC-001 - Pase a producción de microservicios [DEMO]",
+      "pageId": "294922",
+      "url": "https://grupo-visai.atlassian.net/wiki/spaces/DDS/pages/294922/MO-MIC-001+-+Pase+a+producci+n+de+microservicios+DEMO",
+      "parentPageId": "66048",
+      "confluenceVersion": 1,
+      "documentVersion": "1.0",
+      "localFile": "MO-MIC-001.md",
+      "requiredFields": [
+        {
+          "name": "microservicio",
+          "type": "Texto",
+          "when": "Siempre",
+          "example": "ms-demo-transferencias"
+        },
+        {
+          "name": "repositorio",
+          "type": "URL o referencia",
+          "when": "Siempre",
+          "example": "https://git.example/ocd/ms-demo-transferencias"
+        },
+        {
+          "name": "version_actual / version_objetivo",
+          "type": "Texto",
+          "when": "Siempre",
+          "example": "1.3.0 / 1.3.1"
+        },
+        {
+          "name": "artefacto",
+          "type": "Referencia de imagen o paquete",
+          "when": "Siempre",
+          "example": "acr-demo.example/ms-demo-transferencias:1.3.1"
+        },
+        {
+          "name": "identificador_inmutable",
+          "type": "Digest, hash o ID de compilación",
+          "when": "Antes de ejecutar el despliegue",
+          "example": "PENDIENTE si todavía no está disponible"
+        },
+        {
+          "name": "dependencias",
+          "type": "Lista o NO_APLICA justificado",
+          "when": "Siempre",
+          "example": "Base de datos, cola o API dependiente"
+        },
+        {
+          "name": "cambio_datos / compatibilidad",
+          "type": "Sí/no y explicación",
+          "when": "Si cambia un contrato o datos",
+          "example": "Sin migración de datos para los ejemplos"
+        },
+        {
+          "name": "pruebas_y_reversion",
+          "type": "Pasos y criterios observables",
+          "when": "Siempre",
+          "example": "Idempotencia y recuperación de la versión anterior"
+        }
+      ],
+      "rules": [
+        {
+          "id": "MIC-R01",
+          "ruleClass": "Completitud",
+          "fields": "microservicio, repositorio, versiones, artefacto",
+          "result": "FALTA_INFORMACION si falta un dato obligatorio del baseline.",
+          "mode": "Documental automática"
+        },
+        {
+          "id": "MIC-R02",
+          "ruleClass": "Consistencia",
+          "fields": "version_actual y version_objetivo",
+          "result": "ERROR si son iguales y el cambio afirma publicar una versión diferente.",
+          "mode": "Documental automática"
+        },
+        {
+          "id": "MIC-R03",
+          "ruleClass": "Consistencia",
+          "fields": "artefacto y version_objetivo",
+          "result": "ERROR si el tag o la referencia del artefacto contradice la versión declarada.",
+          "mode": "Documental automática"
+        },
+        {
+          "id": "MIC-R04",
+          "ruleClass": "Trazabilidad",
+          "fields": "pruebas y reversión",
+          "result": "FALTA_INFORMACION si no existe un criterio funcional o una versión/configuración recuperable.",
+          "mode": "Documental automática"
+        },
+        {
+          "id": "MIC-R05",
+          "ruleClass": "Ejecución",
+          "fields": "salud y pruebas de negocio",
+          "result": "NO_VERIFICABLE sin ejecución o evidencia accesible del ambiente objetivo.",
+          "mode": "Técnica mediante evidencia"
+        }
+      ],
+      "examples": [
+        {
+          "draftId": "MIC-01",
+          "key": "SCRUM-5",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-5"
+        },
+        {
+          "draftId": "MIC-02",
+          "key": "SCRUM-6",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-6"
+        },
+        {
+          "draftId": "MIC-03",
+          "key": "SCRUM-7",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-7"
+        },
+        {
+          "draftId": "MIC-04",
+          "key": "SCRUM-8",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-8"
+        },
+        {
+          "draftId": "MIC-05",
+          "key": "SCRUM-9",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-9"
+        }
+      ]
+    },
+    {
+      "code": "MO-AZ-001",
+      "category": "azure",
+      "title": "MO-AZ-001 - Configuración de componentes Azure [DEMO]",
+      "pageId": "131339",
+      "url": "https://grupo-visai.atlassian.net/wiki/spaces/DDS/pages/131339/MO-AZ-001+-+Configuraci+n+de+componentes+Azure+DEMO",
+      "parentPageId": "66048",
+      "confluenceVersion": 1,
+      "documentVersion": "1.0",
+      "localFile": "MO-AZ-001.md",
+      "requiredFields": [
+        {
+          "name": "tipo_servicio / recurso",
+          "type": "Texto",
+          "when": "Siempre",
+          "example": "Container Apps / ca-demo-transferencias"
+        },
+        {
+          "name": "suscripcion / grupo_recursos / region",
+          "type": "Identificadores o marcadores de demo",
+          "when": "Siempre",
+          "example": "SUB-OCD-DEMO / rg-ocd-demo-prod / East US"
+        },
+        {
+          "name": "configuracion_actual",
+          "type": "Valores o explicación de inexistencia",
+          "when": "Siempre",
+          "example": "Réplicas mínimas 1 y máximas 1"
+        },
+        {
+          "name": "configuracion_propuesta",
+          "type": "Valores y unidades",
+          "when": "Siempre",
+          "example": "Réplicas mínimas 1 y máximas 3"
+        },
+        {
+          "name": "dependencias / efecto",
+          "type": "Lista y explicación",
+          "when": "Siempre",
+          "example": "Reinicio, conectividad o mensajes pendientes"
+        },
+        {
+          "name": "referencias_credenciales",
+          "type": "Nombre o referencia; nunca valor",
+          "when": "Si intervienen secretos o certificados",
+          "example": "kv-demo-beneficiarios / conexion-demo"
+        },
+        {
+          "name": "criterio_prueba",
+          "type": "Acción y resultado esperado",
+          "when": "Siempre",
+          "example": "Réplicas observadas dentro del rango previsto"
+        }
+      ],
+      "rules": [
+        {
+          "id": "AZ-R01",
+          "ruleClass": "Completitud",
+          "fields": "servicio, recurso, suscripción, grupo y región",
+          "result": "FALTA_INFORMACION si falta el contexto del recurso objetivo.",
+          "mode": "Documental automática"
+        },
+        {
+          "id": "AZ-R02",
+          "ruleClass": "Consistencia",
+          "fields": "configuración actual y propuesta",
+          "result": "ERROR si no existe una diferencia coherente con el objetivo declarado.",
+          "mode": "Documental automática"
+        },
+        {
+          "id": "AZ-R03",
+          "ruleClass": "Consistencia",
+          "fields": "réplicas o bandera de funcionalidad",
+          "result": "Para los casos de demo: ERROR si mínimas supera máximas o la bandera no es un booleano.",
+          "mode": "Documental automática"
+        },
+        {
+          "id": "AZ-R04",
+          "ruleClass": "Trazabilidad",
+          "fields": "configuración anterior, prueba y reversión",
+          "result": "FALTA_INFORMACION si la solicitud no indica cómo comprobar y recuperar el cambio.",
+          "mode": "Documental automática"
+        },
+        {
+          "id": "AZ-R05",
+          "ruleClass": "Ejecución",
+          "fields": "existencia, compatibilidad y valores efectivos",
+          "result": "NO_VERIFICABLE sin lectura Azure o evidencias accesibles. No inferir cuotas ni disponibilidad.",
+          "mode": "Técnica mediante evidencia"
+        }
+      ],
+      "examples": [
+        {
+          "draftId": "AZ-01",
+          "key": "SCRUM-10",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-10"
+        },
+        {
+          "draftId": "AZ-02",
+          "key": "SCRUM-11",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-11"
+        },
+        {
+          "draftId": "AZ-03",
+          "key": "SCRUM-12",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-12"
+        },
+        {
+          "draftId": "AZ-04",
+          "key": "SCRUM-13",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-13"
+        },
+        {
+          "draftId": "AZ-05",
+          "key": "SCRUM-14",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-14"
+        }
+      ]
+    },
+    {
+      "code": "MO-RED-001",
+      "category": "red",
+      "title": "MO-RED-001 - Accesos de red [DEMO]",
+      "pageId": "98314",
+      "url": "https://grupo-visai.atlassian.net/wiki/spaces/DDS/pages/98314/MO-RED-001+-+Accesos+de+red+DEMO",
+      "parentPageId": "66048",
+      "confluenceVersion": 1,
+      "documentVersion": "1.0",
+      "localFile": "MO-RED-001.md",
+      "requiredFields": [
+        {
+          "name": "origen / ambiente_origen",
+          "type": "IP, CIDR o referencia lógica y ambiente",
+          "when": "Siempre",
+          "example": "10.240.10.0/24 / prod-demo"
+        },
+        {
+          "name": "destino / ambiente_destino",
+          "type": "IP o CIDR de regla y referencia del recurso",
+          "when": "Siempre",
+          "example": "10.240.20.10 / SQL privado / prod-demo"
+        },
+        {
+          "name": "nombre_dns",
+          "type": "FQDN",
+          "when": "Si se utiliza resolución de nombres",
+          "example": "api-riesgo.demo.example"
+        },
+        {
+          "name": "protocolo / puerto_destino",
+          "type": "TCP o UDP; número o rango",
+          "when": "Siempre",
+          "example": "TCP / 1433"
+        },
+        {
+          "name": "puerto_origen",
+          "type": "Puerto o efímero según el flujo",
+          "when": "Al definir la regla ejecutable",
+          "example": "Efímero; justificar comodines cuando correspondan"
+        },
+        {
+          "name": "sentido / finalidad",
+          "type": "Entrada o salida y necesidad del flujo",
+          "when": "Siempre",
+          "example": "Salida para consultar la base de datos"
+        },
+        {
+          "name": "punto_control / regla",
+          "type": "NSG, firewall u otro control; nombre de regla",
+          "when": "Antes de ejecutar",
+          "example": "demo-red-01; control específico pendiente"
+        },
+        {
+          "name": "regla_anterior / reversion",
+          "type": "Descripción y retirada del cambio concreto",
+          "when": "Siempre",
+          "example": "Retirar únicamente demo-red-01"
+        }
+      ],
+      "rules": [
+        {
+          "id": "RED-R01",
+          "ruleClass": "Completitud",
+          "fields": "origen, destino, ambientes, protocolo, puerto y finalidad",
+          "result": "FALTA_INFORMACION si no puede reconstruirse el flujo solicitado.",
+          "mode": "Documental automática"
+        },
+        {
+          "id": "RED-R02",
+          "ruleClass": "Consistencia",
+          "fields": "IP/CIDR y puertos",
+          "result": "ERROR ante IP/CIDR inválido, puerto fuera de 1–65535 o rango invertido.",
+          "mode": "Documental automática"
+        },
+        {
+          "id": "RED-R03",
+          "ruleClass": "Consistencia",
+          "fields": "protocolo y DNS",
+          "result": "El caso DNS de demo declara UDP y TCP/53. FALTA_INFORMACION si solo indica «abrir DNS».",
+          "mode": "Documental automática"
+        },
+        {
+          "id": "RED-R04",
+          "ruleClass": "Trazabilidad",
+          "fields": "control, nombre de regla y reversión",
+          "result": "FALTA_INFORMACION antes de ejecutar si no se identifica qué regla agregar y retirar.",
+          "mode": "Documental automática"
+        },
+        {
+          "id": "RED-R05",
+          "ruleClass": "Ejecución",
+          "fields": "rutas, resolución, filtrado y alcance efectivo",
+          "result": "NO_VERIFICABLE sin consulta o prueba técnica accesible. Un puerto escrito no demuestra conectividad.",
+          "mode": "Técnica mediante evidencia"
+        }
+      ],
+      "examples": [
+        {
+          "draftId": "RED-01",
+          "key": "SCRUM-15",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-15"
+        },
+        {
+          "draftId": "RED-02",
+          "key": "SCRUM-16",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-16"
+        },
+        {
+          "draftId": "RED-03",
+          "key": "SCRUM-17",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-17"
+        },
+        {
+          "draftId": "RED-04",
+          "key": "SCRUM-18",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-18"
+        },
+        {
+          "draftId": "RED-05",
+          "key": "SCRUM-19",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-19"
+        }
+      ]
+    },
+    {
+      "code": "MO-ID-001",
+      "category": "identidad",
+      "title": "MO-ID-001 - Identidades de servicio con Microsoft Entra ID [DEMO]",
+      "pageId": "294943",
+      "url": "https://grupo-visai.atlassian.net/wiki/spaces/DDS/pages/294943/MO-ID-001+-+Identidades+de+servicio+con+Microsoft+Entra+ID+DEMO",
+      "parentPageId": "66048",
+      "confluenceVersion": 1,
+      "documentVersion": "1.0",
+      "localFile": "MO-ID-001.md",
+      "requiredFields": [
+        {
+          "name": "tenant / nombre_identidad",
+          "type": "Identificador o marcador de demo y nombre solicitado",
+          "when": "Siempre",
+          "example": "TENANT-DEMO / sp-demo-emisor-notificaciones"
+        },
+        {
+          "name": "consumidor / finalidad",
+          "type": "Aplicación o pipeline y uso esperado",
+          "when": "Siempre",
+          "example": "ms-demo-productor-notificaciones / enviar mensajes"
+        },
+        {
+          "name": "identidad_nueva / existente",
+          "type": "Selección y referencia",
+          "when": "Siempre",
+          "example": "Nueva; todavía sin client ID ni object ID"
+        },
+        {
+          "name": "client_id / object_id",
+          "type": "Identificadores diferenciados",
+          "when": "Si existe la identidad",
+          "example": "Registrar los valores reales solo al disponer de ellos"
+        },
+        {
+          "name": "mecanismo_autenticacion",
+          "type": "Federación o certificado en los casos de demo",
+          "when": "Siempre",
+          "example": "OIDC o referencia de certificado"
+        },
+        {
+          "name": "confianza_o_certificado",
+          "type": "Emisor, sujeto y audiencia; o referencia y vigencia",
+          "when": "Según el mecanismo",
+          "example": "Pipeline y ambiente concretos; sin claves privadas"
+        },
+        {
+          "name": "destino / tipo_autorizacion",
+          "type": "Recurso Azure o API y mecanismo",
+          "when": "Siempre",
+          "example": "Cola Service Bus / Azure RBAC"
+        },
+        {
+          "name": "rol_y_alcance",
+          "type": "Rol y recurso; o app role y API",
+          "when": "Siempre",
+          "example": "Azure Service Bus Data Sender / cola concreta"
+        },
+        {
+          "name": "pruebas / revocacion",
+          "type": "Prueba permitida, denegación y retirada",
+          "when": "Siempre",
+          "example": "Enviar un mensaje y denegar recepción"
+        }
+      ],
+      "rules": [
+        {
+          "id": "ID-R01",
+          "ruleClass": "Completitud",
+          "fields": "tenant, identidad, consumidor, destino y finalidad",
+          "result": "FALTA_INFORMACION si no se conoce quién accede a qué y para qué.",
+          "mode": "Documental automática"
+        },
+        {
+          "id": "ID-R02",
+          "ruleClass": "Consistencia",
+          "fields": "autenticación y referencias",
+          "result": "ERROR si incluye una clave privada, contraseña o token como contenido del ticket; los identificadores públicos no son secretos.",
+          "mode": "Documental con detección limitada"
+        },
+        {
+          "id": "ID-R03",
+          "ruleClass": "Consistencia",
+          "fields": "tipo de autorización, rol y alcance",
+          "result": "FALTA_INFORMACION si un rol Azure RBAC carece de alcance o un app role carece de API destino.",
+          "mode": "Documental automática"
+        },
+        {
+          "id": "ID-R04",
+          "ruleClass": "Trazabilidad",
+          "fields": "pruebas positiva/negativa y revocación",
+          "result": "FALTA_INFORMACION si no describe acceso permitido, denegación y retirada de asignaciones nuevas.",
+          "mode": "Documental automática"
+        },
+        {
+          "id": "ID-R05",
+          "ruleClass": "Ejecución",
+          "fields": "confianza, token y permiso efectivo",
+          "result": "NO_VERIFICABLE sin evidencia de autenticación y operación en el destino. Leer un token no prueba su validez.",
+          "mode": "Técnica mediante evidencia"
+        }
+      ],
+      "examples": [
+        {
+          "draftId": "ID-01",
+          "key": "SCRUM-20",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-20"
+        },
+        {
+          "draftId": "ID-02",
+          "key": "SCRUM-21",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-21"
+        },
+        {
+          "draftId": "ID-03",
+          "key": "SCRUM-22",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-22"
+        },
+        {
+          "draftId": "ID-04",
+          "key": "SCRUM-23",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-23"
+        },
+        {
+          "draftId": "ID-05",
+          "key": "SCRUM-24",
+          "url": "https://grupo-visai.atlassian.net/browse/SCRUM-24"
+        }
+      ]
+    }
+  ],
+  "verification": [
+    {
+      "code": "MO-OCD-000",
+      "pageId": "66048",
+      "status": "current",
+      "bodyFormat": "html",
+      "characters": 20189,
+      "allRulesPresent": true,
+      "examplesPresent": null,
+      "lossyConversion": false
+    },
+    {
+      "code": "MO-MIC-001",
+      "pageId": "294922",
+      "status": "current",
+      "bodyFormat": "html",
+      "characters": 23226,
+      "allRulesPresent": true,
+      "examplesPresent": 5,
+      "lossyConversion": false
+    },
+    {
+      "code": "MO-AZ-001",
+      "pageId": "131339",
+      "status": "current",
+      "bodyFormat": "html",
+      "characters": 22950,
+      "allRulesPresent": true,
+      "examplesPresent": 5,
+      "lossyConversion": false
+    },
+    {
+      "code": "MO-RED-001",
+      "pageId": "98314",
+      "status": "current",
+      "bodyFormat": "html",
+      "characters": 23317,
+      "allRulesPresent": true,
+      "examplesPresent": 5,
+      "lossyConversion": false
+    },
+    {
+      "code": "MO-ID-001",
+      "pageId": "294943",
+      "status": "current",
+      "bodyFormat": "html",
+      "characters": 25903,
+      "allRulesPresent": true,
+      "examplesPresent": 5,
+      "lossyConversion": false
+    }
+  ]
+}

@@ -1,0 +1,168 @@
+{
+  "status": "CREATED",
+  "projectKey": "SCRUM",
+  "siteUrl": "https://grupo-visai.atlassian.net",
+  "expected": 20,
+  "createdIssues": [
+    {
+      "draftId": "MIC-01",
+      "category": "microservicio",
+      "key": "SCRUM-5",
+      "id": "10004",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-5",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "MIC-02",
+      "category": "microservicio",
+      "key": "SCRUM-6",
+      "id": "10005",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-6",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "MIC-03",
+      "category": "microservicio",
+      "key": "SCRUM-7",
+      "id": "10006",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-7",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "MIC-04",
+      "category": "microservicio",
+      "key": "SCRUM-8",
+      "id": "10007",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-8",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "MIC-05",
+      "category": "microservicio",
+      "key": "SCRUM-9",
+      "id": "10008",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-9",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "AZ-01",
+      "category": "azure",
+      "key": "SCRUM-10",
+      "id": "10009",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-10",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "AZ-02",
+      "category": "azure",
+      "key": "SCRUM-11",
+      "id": "10010",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-11",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "AZ-03",
+      "category": "azure",
+      "key": "SCRUM-12",
+      "id": "10011",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-12",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "AZ-04",
+      "category": "azure",
+      "key": "SCRUM-13",
+      "id": "10012",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-13",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "AZ-05",
+      "category": "azure",
+      "key": "SCRUM-14",
+      "id": "10013",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-14",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "RED-01",
+      "category": "red",
+      "key": "SCRUM-15",
+      "id": "10014",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-15",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "RED-02",
+      "category": "red",
+      "key": "SCRUM-16",
+      "id": "10015",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-16",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "RED-03",
+      "category": "red",
+      "key": "SCRUM-17",
+      "id": "10016",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-17",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "RED-04",
+      "category": "red",
+      "key": "SCRUM-18",
+      "id": "10017",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-18",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "RED-05",
+      "category": "red",
+      "key": "SCRUM-19",
+      "id": "10018",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-19",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "ID-01",
+      "category": "identidad",
+      "key": "SCRUM-20",
+      "id": "10019",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-20",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "ID-02",
+      "category": "identidad",
+      "key": "SCRUM-21",
+      "id": "10020",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-21",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "ID-03",
+      "category": "identidad",
+      "key": "SCRUM-22",
+      "id": "10021",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-22",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "ID-04",
+      "category": "identidad",
+      "key": "SCRUM-23",
+      "id": "10022",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-23",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "ID-05",
+      "category": "identidad",
+      "key": "SCRUM-24",
+      "id": "10023",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-24",
+      "status": "Por hacer"
+    }
+  ]
+}

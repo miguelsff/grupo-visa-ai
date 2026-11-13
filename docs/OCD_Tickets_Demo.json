@@ -1,0 +1,552 @@
+{
+  "status": "CREATED",
+  "project": {
+    "projectKey": "SCRUM",
+    "projectName": "Grupo VisAI",
+    "issueType": "Tarea",
+    "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+    "siteUrl": "https://grupo-visai.atlassian.net",
+    "submissionStatus": "CREATED",
+    "stage": "Solicitud de certificación previa al pase a producción.",
+    "environment": "Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.",
+    "subscription": "SUB-OCD-DEMO",
+    "resourceGroup": "rg-ocd-demo-prod",
+    "region": "East US",
+    "window": "20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.",
+    "impact": "Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.",
+    "evidence": "Pendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.",
+    "knowledgePolicy": "Contenido creado desde cero con datos sintéticos. El ejemplo aportado por el usuario queda excluido de estos tickets y de la base de conocimiento."
+  },
+  "reuseRestriction": "Contenido creado desde cero con datos sintéticos. El ejemplo aportado por el usuario queda excluido de estos tickets y de la base de conocimiento.",
+  "counts": {
+    "microservicio": 5,
+    "azure": 5,
+    "red": 5,
+    "identidad": 5,
+    "total": 20
+  },
+  "issues": [
+    {
+      "draftId": "MIC-01",
+      "category": "microservicio",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][MIC-01] Pase a producción de ms-demo-transferencias v1.3.1",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: MIC-01.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Desarrollo y DevOps.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nEvitar solicitudes duplicadas mediante una clave de idempotencia.\n\n## Alcance técnico\nMicroservicio ms-demo-transferencias; versión actual 1.3.0; versión objetivo 1.3.1. Repositorio https://git.example/ocd/ms-demo-transferencias; artefacto acr-demo.example/ms-demo-transferencias:1.3.1.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: 1.3.0 → 1.3.1; incorporar idempotencia.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nRepetir una solicitud sintética con la misma clave y comprobar que conserva el mismo identificador de operación.\n\n## Reversión\nVolver al artefacto 1.3.0 y comprobar la operación básica.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-microservicio",
+          "ejemplo-mic-01"
+        ]
+      }
+    },
+    {
+      "draftId": "MIC-02",
+      "category": "microservicio",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][MIC-02] Pase a producción de ms-demo-saldos v1.2.0",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: MIC-02.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Desarrollo y DevOps.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nPermitir la consulta de varias cuentas sintéticas en una única solicitud.\n\n## Alcance técnico\nMicroservicio ms-demo-saldos; versión actual 1.1.0; versión objetivo 1.2.0. Repositorio https://git.example/ocd/ms-demo-saldos; artefacto acr-demo.example/ms-demo-saldos:1.2.0.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: 1.1.0 → 1.2.0; consulta de múltiples cuentas.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nConsultar cuentas sintéticas existentes e inexistentes y comprobar respuestas separadas, sin mezclar titulares ficticios.\n\n## Reversión\nVolver al artefacto 1.1.0 y comprobar la consulta individual.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-microservicio",
+          "ejemplo-mic-02"
+        ]
+      }
+    },
+    {
+      "draftId": "MIC-03",
+      "category": "microservicio",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][MIC-03] Pase a producción de ms-demo-notificaciones v1.0.0",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: MIC-03.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Desarrollo y DevOps.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nProcesar notificaciones ficticias de forma asíncrona.\n\n## Alcance técnico\nMicroservicio ms-demo-notificaciones; versión actual 0.9.0; versión objetivo 1.0.0. Repositorio https://git.example/ocd/ms-demo-notificaciones; artefacto acr-demo.example/ms-demo-notificaciones:1.0.0.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: 0.9.0 → 1.0.0; procesamiento asíncrono.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nEnviar un evento ficticio, comprobar su recepción y simular un reintento controlado sin duplicar el efecto.\n\n## Reversión\nPausar el consumidor nuevo, conservar mensajes pendientes y volver al artefacto 0.9.0.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-microservicio",
+          "ejemplo-mic-03"
+        ]
+      }
+    },
+    {
+      "draftId": "MIC-04",
+      "category": "microservicio",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][MIC-04] Pase a producción de ms-demo-comisiones v2.0.1",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: MIC-04.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Desarrollo y DevOps.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nCorregir el redondeo de importes conforme a la regla ficticia definida para la demo.\n\n## Alcance técnico\nMicroservicio ms-demo-comisiones; versión actual 2.0.0; versión objetivo 2.0.1. Repositorio https://git.example/ocd/ms-demo-comisiones; artefacto acr-demo.example/ms-demo-comisiones:2.0.1.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: 2.0.0 → 2.0.1; corrección de redondeos.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nEjecutar casos sintéticos de cero, límites y decimales contra resultados esperados de la regla de demo.\n\n## Reversión\nVolver al artefacto 2.0.0 y ejecutar las comprobaciones de regresión previstas.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-microservicio",
+          "ejemplo-mic-04"
+        ]
+      }
+    },
+    {
+      "draftId": "MIC-05",
+      "category": "microservicio",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][MIC-05] Pase a producción de ms-demo-beneficiarios v1.5.0",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: MIC-05.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Desarrollo y DevOps.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nAgregar búsqueda paginada sobre beneficiarios ficticios.\n\n## Alcance técnico\nMicroservicio ms-demo-beneficiarios; versión actual 1.4.0; versión objetivo 1.5.0. Repositorio https://git.example/ocd/ms-demo-beneficiarios; artefacto acr-demo.example/ms-demo-beneficiarios:1.5.0.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: 1.4.0 → 1.5.0; búsqueda paginada.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nComprobar primera página, última página, búsqueda vacía y conservación del orden con registros sintéticos.\n\n## Reversión\nVolver al artefacto 1.4.0 y verificar la consulta anterior.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-microservicio",
+          "ejemplo-mic-05"
+        ]
+      }
+    },
+    {
+      "draftId": "AZ-01",
+      "category": "azure",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][AZ-01] Configurar escalado de ca-demo-transferencias",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: AZ-01.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Plataforma.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nAjustar las réplicas del microservicio de transferencias de demostración.\n\n## Alcance técnico\nAzure Container Apps; recurso ca-demo-transferencias; réplicas mínimas actuales 1; máximas actuales 1; mínimas propuestas 1; máximas propuestas 3.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: Container Apps: réplicas mínimas 1 y máximas 3.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nAplicar carga sintética y observar las réplicas dentro del rango configurado; retirar la carga y comprobar estabilización.\n\n## Reversión\nRestaurar el rango anterior de una réplica mínima y máxima.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-azure",
+          "ejemplo-az-01"
+        ]
+      }
+    },
+    {
+      "draftId": "AZ-02",
+      "category": "azure",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][AZ-02] Configurar telemetría de ms-demo-saldos en Application Insights",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: AZ-02.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Plataforma.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nRegistrar solicitudes y errores sintéticos con identificadores de correlación.\n\n## Alcance técnico\nRecurso Application Insights ai-demo-saldos; aplicación emisora ms-demo-saldos; configuración propuesta mediante referencia de conexión almacenada en el backend. El ticket no contiene valores de credenciales.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: Vincular ms-demo-saldos con ai-demo-saldos.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nEjecutar una solicitud correcta y un error sintético; comprobar correlación y ausencia de valores sensibles en la telemetría.\n\n## Reversión\nRestaurar la referencia de configuración anterior y comprobar que el servicio conserva su funcionamiento básico.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-azure",
+          "ejemplo-az-02"
+        ]
+      }
+    },
+    {
+      "draftId": "AZ-03",
+      "category": "azure",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][AZ-03] Configurar cola de notificaciones en Azure Service Bus",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: AZ-03.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Plataforma.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nDefinir el procesamiento controlado de notificaciones ficticias.\n\n## Alcance técnico\nNamespace sb-demo-mensajeria; cola q-demo-notificaciones; máximo de entregas actual 10 y propuesto 5. Se conserva la cola de mensajes no entregables.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: Service Bus: configurar máximo de entregas en 5.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nProvocar fallos controlados de procesamiento y comprobar reintentos y traslado del mensaje a la cola de mensajes no entregables.\n\n## Reversión\nRestaurar el máximo anterior de 10 entregas y conservar los mensajes existentes.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-azure",
+          "ejemplo-az-03"
+        ]
+      }
+    },
+    {
+      "draftId": "AZ-04",
+      "category": "azure",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][AZ-04] Activar configuración asíncrona de notificaciones en Azure App Configuration",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: AZ-04.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Plataforma.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nHabilitar el flujo asíncrono del entorno ficticio mediante una bandera de funcionalidad.\n\n## Alcance técnico\nRecurso Azure App Configuration appcfg-demo; bandera notificaciones-asincronas; estado actual desactivado; estado propuesto activado; etiqueta de configuración prod-demo.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: App Configuration: activar notificaciones-asincronas.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nComprobar la selección del flujo asíncrono al activar la bandera y del flujo anterior al desactivarla.\n\n## Reversión\nDesactivar notificaciones-asincronas y verificar el flujo previo.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-azure",
+          "ejemplo-az-04"
+        ]
+      }
+    },
+    {
+      "draftId": "AZ-05",
+      "category": "azure",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][AZ-05] Configurar referencias de secretos de ms-demo-beneficiarios con Azure Key Vault",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: AZ-05.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Plataforma.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nUtilizar una referencia de secreto en la configuración del microservicio ficticio.\n\n## Alcance técnico\nAzure Key Vault kv-demo-beneficiarios; microservicio ms-demo-beneficiarios; nombre lógico del secreto conexion-demo. Se registran únicamente nombre y referencia, nunca su valor.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: Key Vault: utilizar referencia al secreto conexion-demo.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nComprobar resolución mediante la identidad autorizada y denegación para una identidad de prueba sin permisos.\n\n## Reversión\nRestaurar la referencia anterior y retirar únicamente la configuración agregada por este cambio.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-azure",
+          "ejemplo-az-05"
+        ]
+      }
+    },
+    {
+      "draftId": "RED-01",
+      "category": "red",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][RED-01] Habilitar acceso de transferencias a SQL privado",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: RED-01.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Redes.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nPermitir la conexión del servicio ficticio al endpoint privado de la base de datos.\n\n## Alcance técnico\nOrigen 10.240.10.0/24, subred demo-transferencias; destino 10.240.20.10, endpoint SQL de demostración; protocolo TCP; puerto 1433; sentido de salida; regla demo-red-01.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: 10.240.10.0/24 → 10.240.20.10; TCP/1433.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nComprobar conexión desde un origen permitido y bloqueo desde una subred de prueba excluida.\n\n## Reversión\nRetirar únicamente la regla demo-red-01 y restaurar la configuración anterior.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-red",
+          "ejemplo-red-01"
+        ]
+      }
+    },
+    {
+      "draftId": "RED-02",
+      "category": "red",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][RED-02] Habilitar acceso de beneficiarios a Key Vault privado",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: RED-02.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Redes.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nPermitir tráfico HTTPS hacia el endpoint privado del almacén ficticio.\n\n## Alcance técnico\nOrigen 10.240.11.0/24, subred demo-beneficiarios; destino 10.240.20.20, endpoint Key Vault de demostración; protocolo TCP; puerto 443; sentido de salida; regla demo-red-02.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: 10.240.11.0/24 → 10.240.20.20; TCP/443.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nComprobar conectividad HTTPS desde el origen permitido. La autorización al secreto se comprueba por separado.\n\n## Reversión\nRetirar únicamente la regla demo-red-02 y restaurar la configuración anterior.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-red",
+          "ejemplo-red-02"
+        ]
+      }
+    },
+    {
+      "draftId": "RED-03",
+      "category": "red",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][RED-03] Habilitar acceso de notificaciones a Service Bus privado",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: RED-03.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Redes.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nPermitir mensajería cifrada hacia el endpoint privado del servicio ficticio.\n\n## Alcance técnico\nOrigen 10.240.12.0/24, subred demo-notificaciones; destino 10.240.20.30, endpoint Service Bus de demostración; protocolo TCP; puerto 5671; sentido de salida; regla demo-red-03.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: 10.240.12.0/24 → 10.240.20.30; TCP/5671.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nComprobar establecimiento de conexión y envío de un mensaje sintético usando una identidad de prueba autorizada.\n\n## Reversión\nRetirar únicamente la regla demo-red-03 y conservar los mensajes del servicio.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-red",
+          "ejemplo-red-03"
+        ]
+      }
+    },
+    {
+      "draftId": "RED-04",
+      "category": "red",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][RED-04] Habilitar acceso de transferencias a API interna de riesgo",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: RED-04.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Redes.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nPermitir consultas ficticias a una API interna de demostración.\n\n## Alcance técnico\nOrigen 10.240.10.0/24, subred demo-transferencias; destino 10.240.30.10, api-riesgo.demo.example; protocolo TCP; puerto 443; sentido de salida; regla demo-red-04.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: 10.240.10.0/24 → 10.240.30.10; TCP/443.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nComprobar resolución del nombre y conectividad HTTPS. Verificar la autorización de la API en una prueba separada.\n\n## Reversión\nRetirar únicamente la regla demo-red-04 y restaurar la configuración anterior.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-red",
+          "ejemplo-red-04"
+        ]
+      }
+    },
+    {
+      "draftId": "RED-05",
+      "category": "red",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][RED-05] Habilitar consultas al resolvedor DNS de demostración",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: RED-05.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Redes.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nResolver los nombres privados usados por el escenario ficticio.\n\n## Alcance técnico\nOrigen 10.240.10.0/24; destino 10.240.0.4, resolvedor DNS de demostración; protocolos UDP y TCP; puerto 53; sentido de salida; reglas demo-red-05-udp y demo-red-05-tcp; zona demo.example.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: 10.240.10.0/24 → 10.240.0.4; UDP y TCP/53.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nConsultar api-riesgo.demo.example por el resolvedor previsto y comprobar consultas DNS mediante UDP y TCP.\n\n## Reversión\nRetirar únicamente las dos reglas agregadas y restaurar la configuración DNS previa.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-red",
+          "ejemplo-red-05"
+        ]
+      }
+    },
+    {
+      "draftId": "ID-01",
+      "category": "identidad",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][ID-01] Crear service principal de despliegue de transferencias",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: ID-01.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Identidades.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nAutenticar el pipeline ficticio y autorizar cambios únicamente sobre la aplicación objetivo.\n\n## Alcance técnico\nMicrosoft Entra ID; tenant TENANT-DEMO; nombre solicitado sp-demo-deploy-transferencias; consumidor GitHub Actions del repositorio demo/ms-demo-transferencias; autenticación OIDC federada restringida al ambiente prod-demo; rol Azure RBAC Contributor sobre el recurso ca-demo-transferencias, sin alcance de suscripción.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: sp-demo-deploy-transferencias; Contributor sobre ca-demo-transferencias.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nObtener un token mediante la federación prevista; comprobar despliegue en la aplicación objetivo y rechazo fuera del recurso autorizado.\n\n## Reversión\nRevocar la asignación y la credencial federada agregadas; retirar la identidad nueva si no tiene dependencias.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-identidad",
+          "ejemplo-id-01"
+        ]
+      }
+    },
+    {
+      "draftId": "ID-02",
+      "category": "identidad",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][ID-02] Crear service principal de lectura de secretos de beneficiarios",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: ID-02.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Identidades.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nAutenticar el microservicio ficticio y permitir lectura en su almacén de secretos.\n\n## Alcance técnico\nMicrosoft Entra ID; tenant TENANT-DEMO; nombre solicitado sp-demo-lector-beneficiarios; consumidor ms-demo-beneficiarios; autenticación mediante certificado, registrando solo su referencia; rol Azure RBAC Key Vault Secrets User sobre kv-demo-beneficiarios.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: sp-demo-lector-beneficiarios; Key Vault Secrets User sobre kv-demo-beneficiarios.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nComprobar lectura del secreto sintético permitido y denegación sobre otro almacén de demostración.\n\n## Reversión\nRevocar la asignación y la credencial agregadas; retirar la identidad nueva si no tiene dependencias.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-identidad",
+          "ejemplo-id-02"
+        ]
+      }
+    },
+    {
+      "draftId": "ID-03",
+      "category": "identidad",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][ID-03] Crear service principal emisor de notificaciones",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: ID-03.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Identidades.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nPermitir al productor ficticio enviar mensajes a una cola específica.\n\n## Alcance técnico\nMicrosoft Entra ID; tenant TENANT-DEMO; nombre solicitado sp-demo-emisor-notificaciones; consumidor ms-demo-productor-notificaciones; autenticación mediante certificado, registrando solo su referencia; rol Azure Service Bus Data Sender sobre sb-demo-mensajeria/q-demo-notificaciones.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: sp-demo-emisor-notificaciones; Azure Service Bus Data Sender sobre q-demo-notificaciones.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nComprobar envío de un mensaje ficticio y denegación de recepción o administración con la misma identidad.\n\n## Reversión\nRevocar la asignación y la credencial agregadas; retirar la identidad nueva si no tiene dependencias.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-identidad",
+          "ejemplo-id-03"
+        ]
+      }
+    },
+    {
+      "draftId": "ID-04",
+      "category": "identidad",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][ID-04] Crear service principal de carga de archivos sintéticos",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: ID-04.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Identidades.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nAutorizar al proceso ficticio a trabajar únicamente en su contenedor de archivos.\n\n## Alcance técnico\nMicrosoft Entra ID; tenant TENANT-DEMO; nombre solicitado sp-demo-carga-archivos; consumidor pipeline demo/carga-archivos; autenticación OIDC federada restringida al repositorio y ambiente de demostración; rol Storage Blob Data Contributor sobre el contenedor demo-entradas de stocddemo.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: sp-demo-carga-archivos; Storage Blob Data Contributor sobre demo-entradas.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nComprobar carga y lectura de un archivo ficticio y denegación sobre otro contenedor.\n\n## Reversión\nRevocar la asignación y la credencial federada agregadas; retirar la identidad nueva si no tiene dependencias.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-identidad",
+          "ejemplo-id-04"
+        ]
+      }
+    },
+    {
+      "draftId": "ID-05",
+      "category": "identidad",
+      "request": {
+        "cloudId": "086061bf-9e78-4235-82e3-dac00ef74f4f",
+        "projectKey": "SCRUM",
+        "issueType": "Tarea",
+        "contentFormat": "markdown",
+        "summary": "[DEMO][ID-05] Crear service principal consumidor de API interna de riesgo",
+        "description": "## Naturaleza del ticket\nEjemplo OCD para el MVP del hackatón. Todos los nombres, recursos, direcciones y procedimientos son sintéticos.\n\n## Datos generales\n- Identificador de borrador: ID-05.\n- Etapa: Solicitud de certificación previa al pase a producción.\n- Ambientes: Producción de demostración (prod-demo). Validar previamente en certificación con recursos equivalentes de cert-demo.\n- Responsable funcional ficticio: Equipo Demo de Identidades.\n- Suscripción de referencia: SUB-OCD-DEMO.\n- Grupo de recursos de referencia: rg-ocd-demo-prod.\n- Región de referencia: East US.\n- Ventana referencial: 20/11/2026, 22:00–23:00, America/Lima. Ventana ficticia de cada ejemplo independiente; no agendada.\n- Impacto previsto: Posible interrupción del componente ficticio afectado durante el cambio; no representa una operación real.\n\n## Objetivo\nAutenticar al microservicio ficticio ante una API y autorizar una operación de consulta.\n\n## Alcance técnico\nMicrosoft Entra ID; tenant TENANT-DEMO; nombre solicitado sp-demo-consumidor-riesgo; consumidor ms-demo-transferencias; API destino api-riesgo.demo.example; autenticación client credentials mediante certificado; permiso de aplicación/app role Riesgo.Consultar definido para la API ficticia. No es un rol Azure RBAC.\nLos identificadores definitivos de recursos e identidades se completarían en una solicitud real. Los valores de este ejemplo no acreditan su existencia.\n\n## Plan de ejecución propuesto\n1. Registrar la configuración anterior y comprobar las dependencias del componente.\n2. Validar el cambio en cert-demo con los recursos equivalentes.\n3. Aplicar el cambio solicitado al componente ficticio de prod-demo: sp-demo-consumidor-riesgo; app role Riesgo.Consultar en api-riesgo.demo.example.\n4. Ejecutar las comprobaciones previstas y registrar sus resultados.\n5. Revertir el cambio si las comprobaciones no cumplen los criterios previstos.\n\n## Comprobaciones previstas\nComprobar audiencia y rol del token; obtener respuesta permitida para consulta y denegación para operaciones sin autorización.\n\n## Reversión\nRevocar la asignación del app role y la credencial agregadas; retirar la identidad nueva si no tiene dependencias.\n\n## Evidencias y estado de validación\nPendiente de ejecución. Las pruebas descritas son criterios previstos, no evidencias de pruebas realizadas.\nLa aprobación de certificación y los enlaces de evidencia permanecen pendientes. Este ticket no demuestra conectividad ni permisos efectivos.\n\n## Datos de demostración\nLos nombres de equipos describen roles ficticios. El borrador no asigna una persona de Jira.\nLos dominios .example y las direcciones privadas representan infraestructura ficticia.\nTENANT-DEMO y SUB-OCD-DEMO son marcadores; no son identificadores reales.",
+        "labels": [
+          "ocd-demo",
+          "datos-sinteticos",
+          "caso-identidad",
+          "ejemplo-id-05"
+        ]
+      }
+    }
+  ],
+  "createdIssues": [
+    {
+      "draftId": "MIC-01",
+      "category": "microservicio",
+      "key": "SCRUM-5",
+      "id": "10004",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-5",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "MIC-02",
+      "category": "microservicio",
+      "key": "SCRUM-6",
+      "id": "10005",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-6",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "MIC-03",
+      "category": "microservicio",
+      "key": "SCRUM-7",
+      "id": "10006",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-7",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "MIC-04",
+      "category": "microservicio",
+      "key": "SCRUM-8",
+      "id": "10007",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-8",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "MIC-05",
+      "category": "microservicio",
+      "key": "SCRUM-9",
+      "id": "10008",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-9",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "AZ-01",
+      "category": "azure",
+      "key": "SCRUM-10",
+      "id": "10009",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-10",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "AZ-02",
+      "category": "azure",
+      "key": "SCRUM-11",
+      "id": "10010",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-11",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "AZ-03",
+      "category": "azure",
+      "key": "SCRUM-12",
+      "id": "10011",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-12",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "AZ-04",
+      "category": "azure",
+      "key": "SCRUM-13",
+      "id": "10012",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-13",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "AZ-05",
+      "category": "azure",
+      "key": "SCRUM-14",
+      "id": "10013",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-14",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "RED-01",
+      "category": "red",
+      "key": "SCRUM-15",
+      "id": "10014",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-15",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "RED-02",
+      "category": "red",
+      "key": "SCRUM-16",
+      "id": "10015",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-16",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "RED-03",
+      "category": "red",
+      "key": "SCRUM-17",
+      "id": "10016",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-17",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "RED-04",
+      "category": "red",
+      "key": "SCRUM-18",
+      "id": "10017",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-18",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "RED-05",
+      "category": "red",
+      "key": "SCRUM-19",
+      "id": "10018",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-19",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "ID-01",
+      "category": "identidad",
+      "key": "SCRUM-20",
+      "id": "10019",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-20",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "ID-02",
+      "category": "identidad",
+      "key": "SCRUM-21",
+      "id": "10020",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-21",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "ID-03",
+      "category": "identidad",
+      "key": "SCRUM-22",
+      "id": "10021",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-22",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "ID-04",
+      "category": "identidad",
+      "key": "SCRUM-23",
+      "id": "10022",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-23",
+      "status": "Por hacer"
+    },
+    {
+      "draftId": "ID-05",
+      "category": "identidad",
+      "key": "SCRUM-24",
+      "id": "10023",
+      "url": "https://grupo-visai.atlassian.net/browse/SCRUM-24",
+      "status": "Por hacer"
+    }
+  ]
+}
