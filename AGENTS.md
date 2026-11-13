@@ -20,8 +20,8 @@ T4 verifica integración con Qdrant real y dobles REST Atlassian/OpenAI en Compo
 La prueba local del 13 de noviembre de 2026 verificó la lectura autenticada de Atlassian, los embeddings, la inferencia y las citas de una consulta.
 Consulta la [evidencia y sus límites](docs/verificacion_t4.md#ingesta-real-y-verificación-de-citas).
 La búsqueda HTTP usa Qdrant; SQLite conserva saludos, sesiones, mensajes y revisiones.
-La carga FTS5 queda como código legado sin uso en rutas. El frontend conserva saludo/búsqueda;
-el chat se opera por HTTP. No describir una interfaz de chat como disponible.
+La carga FTS5 queda como código legado sin uso en rutas. El frontend sirve el chat
+y la búsqueda de procedimientos desde el mismo origen que la API.
 El alcance local termina con el borrador validado, sin crear tickets. En Railway se verificaron los tres servicios, la ingesta y las citas en la red privada.
 Antes de extender capacidades, verifica estos estados en el código.
 
