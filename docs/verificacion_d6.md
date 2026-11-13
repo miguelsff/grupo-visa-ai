@@ -10,6 +10,9 @@ de la Tarea SCRUM, con esos datos y cinco pendientes: ventana, responsable,
 repositorio, pruebas y reversión. El detalle mostró 24 fuentes y 19 validaciones.
 Se revisaron escritorio, móvil, barra izquierda y cierre del detalle con Escape y
 retorno del foco. No se accionó la publicación real. No se cronometró este recorrido.
+Coordinación probó en Chrome la frase exacta «Quiero hacer un pase a producción de
+mi microservicio.» con OpenAI y Qdrant reales: la corrida preliminar llegó a la vista
+previa en 22 segundos, con 24 fuentes y 19 validaciones, sin publicar.
 
 La aceptación aislada usa Qdrant, SQLite, MongoDB y aplicación reales en contenedores,
 con Atlassian y OpenAI simulados. El doble Jira captura el POST: se comparan título

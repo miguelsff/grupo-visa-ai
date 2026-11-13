@@ -127,7 +127,7 @@ def main(phase: str) -> None:
             EVIDENCE.write_text(json.dumps(evidence))
             double.post("/control", json={"atlassian": False}).raise_for_status()
         elif phase == "publication":
-            first = app.post("/api/chat", json={"message": "Quiero un pase a producción"}).raise_for_status().json()
+            first = app.post("/api/chat", json={"message": "Quiero hacer un pase a producción de mi microservicio."}).raise_for_status().json()
             assert first["questions"] == ["¿Qué microservicio vas a pasar y qué versión quieres publicar?"]
             assert first["preview"] is None
             second = app.post("/api/chat", json={"message": "Pedidos, versión 1.9.0. Corrige la duplicación de pedidos."}).raise_for_status().json()

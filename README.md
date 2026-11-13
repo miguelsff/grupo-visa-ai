@@ -66,7 +66,7 @@ $env:APP_PORT = '3001'
 docker compose -p ocd-demo-preview --env-file C:/Desarrollo/grupo-visa-ai/.env up -d --build --wait app
 ```
 
-Abre [la candidata](http://localhost:3001). Escribe «Quiero un pase a producción»;
+Abre [la candidata](http://localhost:3001). Escribe «Quiero hacer un pase a producción de mi microservicio.»;
 cuando pregunte por servicio y versión, responde «Pedidos, versión 1.9.0. Corrige
 la duplicación de pedidos.». Revisa la vista previa y los pendientes antes de decidir
 si publicas. El botón de publicación usa las credenciales Jira configuradas en `app`.
