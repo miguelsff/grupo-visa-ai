@@ -9,8 +9,8 @@
 .iconButton { display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; background:transparent; border:0; color:var(--secondary); border-radius:7px; }
 .iconButton:hover { background:var(--soft); }
 .mobileMenu { display:none; }
-.workspace { display:grid; grid-template-columns:235px minmax(0,1fr) minmax(340px,.85fr); height:calc(100dvh - 72px); min-height:0; }
-.rightClosed { grid-template-columns:235px minmax(0,1fr) 48px; }
+.workspace { display:grid; grid-template-columns:270px minmax(0,1fr) minmax(340px,.85fr); height:calc(100dvh - 72px); min-height:0; }
+.rightClosed { grid-template-columns:270px minmax(0,1fr) 48px; }
 .leftClosed { grid-template-columns:48px minmax(0,1fr) minmax(340px,.85fr); }
 .leftClosed.rightClosed { grid-template-columns:48px minmax(0,1fr) 48px; }
 .sidebar { padding:18px 14px; border-right:1px solid var(--border); overflow:auto; min-height:0; }
