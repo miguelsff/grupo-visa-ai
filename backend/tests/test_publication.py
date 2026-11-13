@@ -98,10 +98,32 @@ def test_publish_uses_saved_preview_and_survives_restart(settings: Settings) -> 
             client.get("/api/chat/revisions/1", auth=AUTH).json()["publication"]
             == response.json()
         )
-    with TestClient(create_app(configured, jira=fake)) as restarted:
+    with TestClient(create_app(configured)) as restarted:
         restarted.cookies.set("ocd_session", token, path="/api/chat")
+        assert restarted.get("/api/health").status_code == 200
         assert restarted.get("/api/chat", auth=AUTH).json()["publication"] == response.json()
         assert restarted.post("/api/chat/revisions/1/publish", auth=AUTH).status_code == 200
+        assert len(fake.posts) == 1
+
+
+def test_local_cookie_owner_can_publish_without_basic(settings: Settings) -> None:
+    fake = FakeJira()
+    with TestClient(create_app(settings, jira=fake)) as client:
+        store = ChatStore(Database(settings.database_path))
+        _, token = reviewed(store)
+        assert client.post("/api/chat/revisions/1/publish").status_code == 404
+        client.cookies.set("ocd_session", "cookie-ajena", path="/api/chat")
+        assert client.post("/api/chat/revisions/1/publish").status_code == 404
+        client.cookies.set("ocd_session", token, path="/api/chat")
+        created = client.post("/api/chat/revisions/1/publish")
+        assert created.status_code == 201
+        assert created.json()["key"] == ISSUE.key
+        assert len(fake.posts) == 1
+    with TestClient(create_app(settings)) as restarted:
+        restarted.cookies.set("ocd_session", token, path="/api/chat")
+        assert restarted.get("/api/health").status_code == 200
+        assert restarted.post("/api/chat/revisions/1/publish").status_code == 200
+        assert restarted.get("/api/chat").json()["publication"]["key"] == ISSUE.key
         assert len(fake.posts) == 1
 
 

@@ -171,6 +171,19 @@ class ChatStore:
                 (result.model_dump_json(), session_id, result.revision),
             )
 
+    def confirmed_publication(self, session_id: str, revision: int) -> JiraPublication | None:
+        """Recupera un ticket confirmado vigente sin requerir conexión con Jira."""
+        with self.database.connect() as connection:
+            row = connection.execute(
+                "SELECT p.issue_key, p.issue_url FROM jira_publications AS p "
+                "JOIN chat_sessions AS s ON s.id=p.session_id AND s.revision=p.revision "
+                "WHERE p.session_id=? AND p.revision=? AND p.status='confirmed'",
+                (session_id, revision),
+            ).fetchone()
+        if row is None:
+            return None
+        return JiraPublication(key=row["issue_key"], url=row["issue_url"])
+
     def claim_publication(self, session_id: str, revision: int) -> PublicationClaim:
         with self.database.connect() as connection:
             connection.execute("BEGIN IMMEDIATE")

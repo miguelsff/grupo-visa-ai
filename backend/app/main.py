@@ -157,11 +157,16 @@ def create_app(
         "/api/chat/revisions/{revision}/publish", response_model=JiraPublication, status_code=201
     )
     def publish_revision(request: Request, revision: int) -> JSONResponse:
-        if not configuration.demo_password:
-            raise HTTPException(503, "Configura el acceso de demostración para publicar.")
         session_id = store.existing_session(request.cookies.get("ocd_session"))
         if session_id is None:
             raise HTTPException(404, "La revisión no existe en esta sesión.")
+        saved = store.confirmed_publication(session_id, revision)
+        if saved is not None:
+            return JSONResponse(
+                status_code=200,
+                content=saved.model_dump(),
+                headers={"Cache-Control": "no-store"},
+            )
         try:
             if jira is None:
                 with JiraClient(configuration) as remote:
