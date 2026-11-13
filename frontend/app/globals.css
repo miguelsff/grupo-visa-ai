@@ -1,0 +1,17 @@
+:root {
+  color-scheme: light;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #172c4c;
+  background: #f2f5fa;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: wait; }
+a { color: #174ec9; }
+button:focus-visible, input:focus-visible, a:focus-visible {
+  outline: 3px solid #ba6c08;
+  outline-offset: 4px;
+}

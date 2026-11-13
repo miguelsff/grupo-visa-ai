@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "skills": {
+    "este": {
+      "source": "esadrian/este-skill",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "42077738dd52fb67caafda6ca079bf888a79f110333188335db091a44bf31a48"
+    },
+    "python-design-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-design-patterns/SKILL.md",
+      "computedHash": "bb31c26764cb2bf8f19955e1610e8102509cb1569e1575a413ffb3ada23a3c16"
+    },
+    "python-testing-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-testing-patterns/SKILL.md",
+      "computedHash": "8113c05a831d4872c9294b0df26a335c09af423ee2e23d8b9b6817b300d96796"
+    }
+  }
+}
