@@ -23,7 +23,7 @@ class FakeEmbedder:
 
 def test_pagination_all_rules_active_categories_and_alias_rotation(settings, points):
     requests = []
-    collection = "ocd_initial"
+    collection = "ocd_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
     def handler(request: httpx.Request) -> httpx.Response:
         nonlocal collection
@@ -38,7 +38,7 @@ def test_pagination_all_rules_active_categories_and_alias_rotation(settings, poi
                     }
                 },
             )
-        assert "ocd_initial" in path
+        assert "ocd_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" in path
         if request.method == "GET":
             return httpx.Response(
                 200,
@@ -56,6 +56,7 @@ def test_pagination_all_rules_active_categories_and_alias_rotation(settings, poi
             ]
             selected = [
                 p for p in points if p["payload"]["scope"] in ["comun", "microservicio", "azure"]
+                and p["payload"]["normative"]
             ]
             start = body["offset"] or 0
             collection = (
@@ -79,7 +80,7 @@ def test_pagination_all_rules_active_categories_and_alias_rotation(settings, poi
         reader = QdrantKnowledge(settings, FakeEmbedder(), client)
         physical = reader.resolve()
         found = reader.retrieve(physical, ["microservicio", "azure"], "consulta")
-    assert found.collection == "ocd_initial"
+    assert found.collection == "ocd_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     assert len([r for r in found.records if r.payload.rule]) == 16
     assert len([r for r in requests if r.url.path.endswith("/scroll")]) > 1
     assert len([r for r in requests if r.url.path == "/aliases"]) == 1
@@ -93,7 +94,9 @@ def test_incomplete_generation_is_not_accepted(settings, points):
 
     with httpx.Client(base_url="http://qdrant", transport=httpx.MockTransport(handler)) as client:
         with pytest.raises(ServiceUnavailable, match="todas las reglas"):
-            QdrantKnowledge(settings, FakeEmbedder(), client).retrieve("ocd_x", ["red"], "red")
+            QdrantKnowledge(settings, FakeEmbedder(), client).retrieve(
+                "ocd_" + "a" * 32, ["red"], "red"
+            )
 
 
 @pytest.mark.parametrize("mutation", ["hash", "version", "rule", "condition", "url", "id"])
@@ -184,3 +187,32 @@ def test_incompatible_embedding_configuration_is_rejected(settings):
             frontend_dir=settings.frontend_dir,
             embedding_model="otro-modelo",
         )
+
+
+@pytest.mark.parametrize("mutation", ["generation", "model", "dimension", "payload"])
+def test_invalid_physical_generation_and_payload_return_503(settings, points, mutation):
+    raw = copy.deepcopy(points[0])
+    if mutation == "generation":
+        raw["payload"]["ingestion_run_id"] = "b" * 32
+    elif mutation == "model":
+        raw["payload"]["embedding_model"] = "other"
+    elif mutation == "dimension":
+        raw["payload"]["embedding_dimensions"] = 8
+    else:
+        raw["payload"] = None
+
+    def handler(request):
+        if request.url.path == "/aliases":
+            result = {
+                "aliases": [{"alias_name": "ocd_actual", "collection_name": "ocd_" + "a" * 32}]
+            }
+        elif request.method == "GET":
+            result = {"config": {"params": {"vectors": {"size": 1536, "distance": "Cosine"}}}}
+        else:
+            result = {"points": [raw]}
+        return httpx.Response(200, json={"result": result})
+
+    with httpx.Client(base_url="http://qdrant", transport=httpx.MockTransport(handler)) as http:
+        reader = QdrantKnowledge(settings, FakeEmbedder(), http)
+        with TestClient(create_app(settings, knowledge=reader)) as client:
+            assert client.get("/api/knowledge", params={"q": "red"}).status_code == 503

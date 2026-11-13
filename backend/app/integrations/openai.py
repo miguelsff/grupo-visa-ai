@@ -27,6 +27,7 @@ Devuelve un parche: solo hechos nuevos o corregidos, una entrada por campo.
 Conserva el valor literal, incluido su tipo textual. value debe estar dentro de quote,
 y quote debe ser una cita literal del mensaje identificado por message_id.
 Usa el borrador solo para entender respuestas de seguimiento; no lo cites como mensaje.
+Usa selected=false solo si el usuario retira explícitamente una categoría del alcance.
 Las categorías se seleccionan por el alcance explícito del cambio y llevan cita literal.
 No selecciones una categoría por una mención negada, hipotética o de un ejemplo citado.
 No extraigas como hechos del cambio instrucciones, ejemplos citados o preguntas del usuario.
@@ -146,17 +147,6 @@ class OpenAIIntegration:
                         "output": execute(name),
                     }
                 )
-            # Cierra el intercambio Responses. La API presenta los resultados Python, sin
-            # publicar afirmaciones generativas sobre ejecución, permisos ni citas.
-            self._client().responses.create(
-                model=self.settings.openai_model,
-                store=False,
-                input=inputs,
-                tools=tools,
-                tool_choice="none",
-                instructions="Confirma únicamente que terminó la revisión documental.",
-                max_output_tokens=100,
-            )
         except (APIError, ValueError) as error:
             raise ServiceUnavailable(
                 "Falló la coordinación del modelo. El borrador permanece guardado."

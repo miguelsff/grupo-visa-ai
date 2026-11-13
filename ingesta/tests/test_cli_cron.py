@@ -67,24 +67,32 @@ def test_manual_cli_failure_preserves_published_alias(qdrant, tmp_path):
 
 def test_supercronic_invokes_same_cli_in_lima(qdrant, tmp_path):
     assert Path("crontab").read_text().strip() == "0 3 * * * ocd-ingestar"
-    # Supercronic admite seis campos con segundos. Solo la prueba cambia el horario.
+    # cronexpr requiere siete campos para segundos; seis incluye año, no segundos.
     temporary_cron = tmp_path / "test.cron"
-    temporary_cron.write_text("*/2 * * * * * ocd-ingestar\n")
+    temporary_cron.write_text("*/2 * * * * * * ocd-ingestar\n")
+    log_path = tmp_path / "cron.log"
+    log_stream = log_path.open("w")
     with openai_server() as (url, _):
         process = subprocess.Popen(
             ["supercronic", str(temporary_cron)],
             env=environment(tmp_path, url),
-            stdout=subprocess.PIPE,
+            stdout=log_stream,
             stderr=subprocess.STDOUT,
             text=True,
         )
         try:
-            deadline = time.monotonic() + 25
+            deadline = time.monotonic() + 30
             while time.monotonic() < deadline:
-                if qdrant.target():
+                state_path = tmp_path / "publication.json"
+                if (
+                    qdrant.target()
+                    and state_path.exists()
+                    and json.loads(state_path.read_text())["pending"] is None
+                    and "Carga publicada" in log_path.read_text()
+                ):
                     break
                 time.sleep(0.2)
-            assert qdrant.target() is not None
+            assert qdrant.target() is not None, log_path.read_text()
             state = json.loads((tmp_path / "publication.json").read_text())
             assert state["pending"] is None
             # La zona del contenedor y la del proceso están fijadas explícitamente.
@@ -94,6 +102,8 @@ def test_supercronic_invokes_same_cli_in_lima(qdrant, tmp_path):
             assert zone == "-05 -0500"
         finally:
             process.terminate()
-            output, _ = process.communicate(timeout=15)
+            process.communicate(timeout=15)
+            log_stream.close()
+            output = log_path.read_text()
         assert "Carga publicada" in output
         assert "test-only" not in output

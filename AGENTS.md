@@ -13,15 +13,16 @@ Conserva los identificadores, las rutas y los comandos del código.
 - Si el código y la arquitectura difieren, identifica la diferencia antes de extender el componente afectado.
 - Cuando cambie una decisión arquitectónica, actualiza su documentación y las vistas del diagrama afectadas.
 
-La etapa 1 implementa un saludo determinista persistente y búsqueda documental local.
-Incluye cinco documentos cargados desde el repositorio y estados de configuración de integraciones.
-El agente con inferencia, las validaciones OCD y las conexiones remotas están pendientes.
-T1 añade Qdrant interno y su volumen, el contrato `docs/contrato_conocimiento.md` y el proyecto `ingesta/`.
-La nueva ejecución objetivo es local. Railway queda aplazado; su diseño anterior no es aceptación.
-T2 implementará CLI de ingesta, Dockerfile propio y cron Supercronic a las 03:00 America/Lima.
-T3 implementará el agente que pregunta al usuario y valida V-01, V-02 y V-03, sin crear tickets.
-El código de la etapa 1 aún usa SQLite/FTS5: se conserva hasta T3 como comportamiento legado.
-Verifica estos estados en el código antes de describir una capacidad como disponible.
+T1 incorpora Qdrant interno y el contrato `docs/contrato_conocimiento.md`.
+T2 implementa CLI `ocd-ingestar`, imagen independiente y Supercronic a las 03:00 America/Lima.
+T3 implementa Responses API, preguntas, borradores persistentes y V-01, V-02 y V-03.
+T4 verifica integración con Qdrant real y dobles REST Atlassian/OpenAI en Compose aislado.
+La aceptación con servicios externos reales sigue pendiente; consulta `docs/verificacion_t4.md`.
+La búsqueda HTTP usa Qdrant; SQLite conserva saludos, sesiones, mensajes y revisiones.
+La carga FTS5 queda como código legado sin uso en rutas. El frontend conserva saludo/búsqueda;
+el chat se opera por HTTP. No describir una interfaz de chat como disponible.
+El alcance local termina con el borrador validado, sin crear tickets. Railway queda aplazado.
+Antes de extender capacidades, verifica estos estados en el código.
 
 ## Arquitectura y responsabilidades
 
@@ -33,10 +34,10 @@ Conserva un único backend modular y una interfaz exportada como archivos estát
 | `frontend/lib/api.ts` | Cliente HTTP y tipos de los contratos de la API. |
 | `backend/app/main.py` | Composición de FastAPI, rutas HTTP, ciclo de vida y distribución del frontend. |
 | `backend/app/schemas.py` | Contratos de entrada y salida mediante Pydantic. |
-| `backend/app/agent/` | Casos de uso y futura coordinación del agente. |
-| `backend/app/integrations/` | Configuración y futuros clientes de OpenAI y Atlassian. |
-| `backend/app/knowledge/` | Carga FTS5 legada; T3 recuperará desde Qdrant con referencias y versiones. |
-| `ingesta/` | Proyecto Python independiente; CLI, imagen y cron pendientes de T2. |
+| `backend/app/agent/` | Casos de uso, hechos, borradores y validaciones del agente. |
+| `backend/app/integrations/` | SDK oficial OpenAI y estado de configuración del backend. |
+| `backend/app/knowledge/` | Recuperación Qdrant con referencias/versiones; carga FTS5 legada sin uso HTTP. |
+| `ingesta/` | Proyecto Python independiente con CLI, publicación atómica, imagen y cron. |
 | `docs/contrato_conocimiento.md` | Contrato compartido de payload, IDs, condiciones y publicación. |
 | `backend/app/database.py` | Acceso a SQLite, esquema y operaciones de persistencia. |
 | `backend/app/config.py` | Configuración del backend mediante variables de entorno. |
@@ -62,7 +63,7 @@ Conserva un único backend modular y una interfaz exportada como archivos estát
 - Mantén las rutas HTTP delgadas. Delega los casos de uso y las integraciones a sus módulos.
 - Valida las entradas mediante Pydantic y ejecuta las reglas reproducibles en Python.
 - Registra las rutas `/api` antes de montar los archivos estáticos en la raíz.
-- Para T2/T3, usa Qdrant como conocimiento y SQLite solo para estado de sesión y borradores. No extender la carga FTS5 legada.
+- Usa Qdrant como conocimiento y SQLite solo para estado de sesión y borradores. No extender la carga FTS5 legada.
 - Reutiliza `x-knowledge-environment` de Compose para backend e ingesta. Usa el alias `ocd_actual`, `text-embedding-3-small` y 1536 dimensiones/Cosine.
 - Conserva condiciones de campos/reglas y trazabilidad según `docs/contrato_conocimiento.md`. Publica por intercambio atómico de alias; no sobrescribas la colección activa.
 - Conserva código, título, origen, URL y versión de cada documento recuperado.
@@ -73,14 +74,14 @@ Conserva un único backend modular y una interfaz exportada como archivos estát
 
 ### Integraciones y flujo OCD
 
-Estas reglas se aplican al implementar las siguientes etapas:
+Estas reglas se aplican a las integraciones implementadas y sus extensiones:
 
 - Usa el SDK oficial de OpenAI y Responses API para la inferencia y las herramientas.
 - Obtén el modelo de `OPENAI_MODEL`. Conserva la selección documentada hasta revisar esa decisión.
 - Usa HTTPX y las API REST de Jira y Confluence para el conector Atlassian.
 - Limita las lecturas a las páginas y tickets configurados.
 - El alcance local T1–T3 solo lee Atlassian. No crear tickets ni implementar `crear_ticket`.
-- T3 implementa `buscar_conocimiento` y `validar_ocd`, pregunta al usuario y conserva el borrador.
+- Conserva `buscar_conocimiento` y `validar_ocd`, las preguntas y el borrador.
 - Ejecuta V-01, V-02 y V-03 en el backend: completitud condicional, consistencia técnica y trazabilidad del procedimiento.
 - Conserva los estados `CUMPLE`, `FALTA_INFORMACION`, `ERROR` y `NO_VERIFICABLE`.
 - Presenta el borrador, las fuentes, los faltantes y los resultados; no infieras permisos ni ejecución real.
@@ -94,7 +95,7 @@ Estas reglas se aplican al implementar las siguientes etapas:
 - Conserva la base en `/data/ocd.sqlite3`, mediante `DATABASE_PATH` y un volumen persistente.
 - Inicializa el esquema después de montar el volumen, sin eliminar los registros existentes.
 - Usa transacciones cortas. Ejecuta las llamadas externas fuera de las transacciones de escritura.
-- Mantén un backend modular con un worker Uvicorn; Qdrant y la futura ingesta son servicios locales independientes. Railway requiere una revisión posterior.
+- Mantén un backend modular con un worker Uvicorn; Qdrant e ingesta son servicios locales independientes. Railway requiere una revisión posterior.
 - Conserva los volúmenes `sqlite_data` y `qdrant_data` al recrear la aplicación local. Qdrant no publica puertos al host.
 - No ejecutes `docker compose down -v` para tareas habituales de desarrollo o verificación.
 - Antes de cambiar el esquema, crea una copia consistente de SQLite y verifica su restauración.

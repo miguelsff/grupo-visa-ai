@@ -2,10 +2,16 @@
 
 import pytest
 
+from app.agent.consistency import window_errors
 from app.agent.facts import grounded, redact
 from app.agent.models import Draft, ExtractedFact, Extraction, ServiceUnavailable, UserMessage
 from app.agent.validation import validar_ocd
 from app.knowledge.models import Knowledge, parse_record
+
+
+@pytest.mark.parametrize("zone", ["../Lima", "/etc/passwd", "America/../Lima", "Unknown/Zone"])
+def test_invalid_iana_zone_returns_validation_error(zone):
+    assert window_errors(make_draft("red", {"comun.zona_horaria": zone}))
 
 
 def make_draft(category: str, values: dict[str, str]) -> Draft:

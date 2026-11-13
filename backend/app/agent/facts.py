@@ -49,7 +49,7 @@ def grounded(patch: Extraction, messages: list[UserMessage], draft: Draft) -> Ex
     for item in [*patch.categories, *patch.facts]:
         if not item.quote.strip() or item.quote not in contents.get(item.message_id, ""):
             raise ServiceUnavailable("La extracción no tiene evidencia literal del solicitante.")
-    selected = set(draft.categories) | {item.category for item in patch.categories}
+    selected = set(draft.categories) | {item.category for item in patch.categories if item.selected}
     for fact in patch.facts:
         if (
             fact.name not in ALLOWED_FIELDS[fact.scope]

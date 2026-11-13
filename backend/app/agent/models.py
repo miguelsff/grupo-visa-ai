@@ -27,6 +27,7 @@ class ExtractedFact(StrictModel):
 
 
 class SelectedCategory(StrictModel):
+    selected: bool = True
     category: Category
     quote: str
     message_id: int
@@ -41,6 +42,7 @@ class Draft(StrictModel):
     sensitive_detected: bool = False
     categories: list[Category] = Field(default_factory=list)
     facts: dict[str, ExtractedFact] = Field(default_factory=dict)
+    category_messages: dict[Category, int] = Field(default_factory=dict)
 
     def value(self, scope: str, name: str) -> str:
         fact = self.facts.get(f"{scope}.{name}")

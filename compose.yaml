@@ -20,10 +20,6 @@ services:
       FRONTEND_DIR: /app/static
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6-luna}
-      ATLASSIAN_BASE_URL: ${ATLASSIAN_BASE_URL:-https://grupo-visai.atlassian.net}
-      ATLASSIAN_EMAIL: ${ATLASSIAN_EMAIL:-}
-      ATLASSIAN_API_TOKEN: ${ATLASSIAN_API_TOKEN:-}
-      JIRA_PROJECT_KEY: ${JIRA_PROJECT_KEY:-SCRUM}
     volumes:
       - sqlite_data:/data
     init: true

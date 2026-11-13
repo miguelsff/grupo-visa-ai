@@ -55,13 +55,17 @@ def qdrant():
                     raise
                 time.sleep(0.2)
         qdrant = Qdrant(client)
+        existing_aliases = qdrant.aliases()
+        existing_collections = qdrant.collections()
+        if "ocd_actual" in existing_aliases:
+            pytest.skip("ocd_actual preexistente: usar un proyecto aislado vacío")
         yield qdrant
         # Solo se usa el Qdrant del proyecto temporal de pruebas.
-        for alias in qdrant.aliases():
+        for alias in qdrant.aliases().keys() - existing_aliases.keys():
             qdrant.call(
                 "POST",
                 "/collections/aliases",
                 json={"actions": [{"delete_alias": {"alias_name": alias}}]},
             )
-        for name in qdrant.collections():
+        for name in qdrant.collections() - existing_collections:
             qdrant.delete_unpublished(name)

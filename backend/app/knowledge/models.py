@@ -8,7 +8,7 @@ from typing import Any, Literal, Protocol
 from urllib.parse import urlparse
 from uuid import NAMESPACE_URL, uuid5
 
-from pydantic import Field
+from pydantic import Field, ValidationError
 
 from app.agent.catalog import CATEGORY_FIELDS, RULE_IDS, RULE_SIGNATURES, SOURCE_PAGES
 from app.agent.facts import redact
@@ -97,7 +97,10 @@ class Embedder(Protocol):
 
 
 def parse_record(raw: dict[str, Any]) -> Record:
-    p = Payload.model_validate(raw["payload"])
+    try:
+        p = Payload.model_validate(raw["payload"])
+    except (ValidationError, KeyError, TypeError) as error:
+        raise ServiceUnavailable("El conocimiento tiene un payload incompatible.") from error
     expected_id = str(uuid5(NAMESPACE_URL, f"ocd:v1|{p.source_id}|{p.record_key}"))
     valid = (
         str(raw["id"]) == expected_id

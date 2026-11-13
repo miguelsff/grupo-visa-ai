@@ -1,5 +1,6 @@
 """Lecturas Qdrant fijadas a una generación, con paginación normativa completa."""
 
+import re
 from typing import Any
 from urllib.parse import quote
 
@@ -69,7 +70,7 @@ class QdrantKnowledge:
                     "with_vector": False,
                 },
             )
-            records.extend(parse_record(p) for p in page["points"])
+            records.extend(self._parse(p, collection) for p in page["points"])
             offset = page["next_page_offset"]
             if offset is None:
                 break
@@ -110,7 +111,7 @@ class QdrantKnowledge:
                 "with_vector": False,
             },
         )
-        records = [parse_record(point) for point in result["points"]]
+        records = [self._parse(point, collection) for point in result["points"]]
         if any(
             r.payload.scope not in scopes
             or (normative is not None and r.payload.normative != normative)
@@ -118,6 +119,14 @@ class QdrantKnowledge:
         ):
             raise ServiceUnavailable("La búsqueda devolvió registros fuera del filtro autorizado.")
         return records
+
+    def _parse(self, point: dict[str, Any], collection: str) -> Record:
+        record = parse_record(point)
+        if not re.fullmatch(r"ocd_[0-9a-f]{32}", collection) or (
+            collection != "ocd_" + record.payload.ingestion_run_id
+        ):
+            raise ServiceUnavailable("La generación física no coincide con el payload.")
+        return record
 
     def search(self, query: str) -> list[KnowledgeMatch]:
         try:

@@ -46,7 +46,7 @@ def window_errors(draft: Draft) -> list[str]:
     if zone:
         try:
             ZoneInfo(zone)
-        except ZoneInfoNotFoundError:
+        except (ZoneInfoNotFoundError, ValueError):
             if not re.fullmatch(r"(?:UTC)?[+-](?:0\d|1[0-4]):[0-5]\d", zone):
                 errors.append("Indica una zona IANA o un desplazamiento UTC válido.")
     return errors

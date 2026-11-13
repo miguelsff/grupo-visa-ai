@@ -2,6 +2,13 @@
 
 Fecha: 13 de noviembre de 2026. Base: `05d094c`. Rama: `feature/t2-ingesta-ocd`.
 
+Nota T4: la prueba original del cron usaba seis campos, que cronexpr interpreta
+como minutos hasta año, no como segundos. Por tanto, el éxito anterior no prueba
+la frecuencia declarada de segundos. T4 corrige exclusivamente el horario temporal
+de prueba a siete campos (`*/2 * * * * * *`), captura el log sin bloquear el proceso
+y espera publicación y diario completos. El horario productivo de cinco campos
+`0 3 * * *` se conserva. La nueva evidencia está en `docs/verificacion_t4.md`.
+
 ## Evidencia ejecutada
 
 - Lectura real de las cinco páginas en HTML y los veinte tickets autorizados,

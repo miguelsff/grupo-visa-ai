@@ -1,12 +1,13 @@
 # Contrato de conocimiento OCD, versión 1
 
 Decisión confirmada para T1–T3, 13 de noviembre de 2026. T1 prepara infraestructura,
-configuración y contrato; no implementa ingesta ni validaciones del agente.
+configuración y contrato. T2 y T3 implementan sus consumidores; T4 verifica su
+integración con Qdrant real y dobles REST, sin acreditar conexiones externas reales.
 
 ## Configuración compartida
 
 La extensión `x-knowledge-environment` de `compose.yaml` es el punto común que T2
-debe reutilizar en su servicio de ingesta y T3 debe consumir desde el backend.
+reutiliza en ingesta y T3 consume desde el backend.
 No importar módulos de un proyecto Python desde el otro.
 
 | Variable | Valor local | Regla |
@@ -24,7 +25,8 @@ configuración incompatible; no mezclar vectores de modelos diferentes.
 ## Unidad de publicación e identidad
 
 Cada carga construye una colección nueva `ocd_<run_id>`; `run_id` es un UUID sin
-guiones. No escribir directamente en la colección que resuelve el alias vigente.
+guiones y coincide con `payload.ingestion_run_id` de todos sus puntos. Productor y
+consumidor comprueban esta identidad. No escribir directamente en la colección activa.
 Un punto representa una regla completa, un campo condicional completo, un
 fragmento de contexto o un fragmento de un ticket. No partir una regla ni separar
 su condición del resultado. Texto UTF-8, saltos LF, normalización Unicode NFC.
@@ -97,7 +99,7 @@ pregunta al usuario y deja `FALTA_INFORMACION` o `NO_VERIFICABLE` según la caus
 
 Fuente de autorización: `docs/modelos_operativos/manifest.json`. No seguir enlaces
 adicionales encontrados en páginas o tickets. Las copias locales permiten preparar
-reglas; no acreditan la lectura remota. T2 comprobará versiones al leer Confluence.
+reglas; no acreditan la lectura remota. T2 comprueba versiones al leer Confluence.
 
 | Entrada del manifiesto | Destino del payload |
 | --- | --- |
@@ -109,7 +111,7 @@ reglas; no acreditan la lectura remota. T2 comprobará versiones al leer Conflue
 | Texto adicional de página | `kind=context`, `normative=false`; no introducir nuevas reglas automáticamente. |
 
 Los campos comunes y sus condiciones están en las seis reglas del índice. No
-buscar únicamente similitud vectorial para descubrirlos: T3 recuperará todas las
+buscar únicamente similitud vectorial para descubrirlos: T3 recupera todas las
 reglas comunes y todos los campos/reglas de las secciones activadas mediante
 filtros y paginación, y usará búsqueda semántica para contexto y ejemplos.
 La ingesta debe conservar las 26 reglas únicas y los campos con su `when`;
@@ -121,11 +123,11 @@ para una identidad nueva. `MO-RED-001` condiciona `nombre_dns` a la resolución 
 nombres. `identificador_inmutable` de microservicio se exige antes de ejecutar,
 sin confundir esa etapa con preparar el borrador. Mantener estas condiciones.
 
-Cada resultado V-01, V-02 o V-03 de T3 conservará ID del punto, ID de regla o campo,
+Cada resultado V-01, V-02 o V-03 de T3 conserva ID del punto, ID de regla o campo,
 `source_id`, código, URL, versión y fragmento utilizado. El borrador fija también
 la colección física de esa revisión para poder identificar la generación consultada.
 
-## Publicación y recuperación (T2/T3 pendientes)
+## Publicación y recuperación implementadas (T2/T3)
 
 1. Adquirir bloqueo de ingesta compartido por CLI y cron. Leer solo la lista permitida. Contrastar las reglas y los campos con el HTML recibido. Si una regla, condición o versión documental difiere de la admitida por los validadores, conservar la colección vigente y registrar la fuente que requiere revisión.
 2. Construir colección aislada con vectores 1536/Cosine y payload versión 1.
@@ -138,6 +140,9 @@ la colección física de esa revisión para poder identificar la generación con
 6. Conservar la colección activa y su predecesora. Limpiar solo las generaciones propias que ya no estén publicadas. Las revisiones conservan en SQLite el extracto citado y su procedencia para que las citas sobrevivan a la limpieza. Si el cambio de alias devuelve un resultado incierto, comprobar su destino antes de borrar una colección.
 
 Un fallo de descarga, contenido, embedding o escritura no cambia el alias.
+Si se pierde la respuesta del intercambio de alias y se confirma la candidata activa,
+la publicación devuelve éxito. Si no se puede confirmar, se conservan generaciones y
+diario; la siguiente ejecución reconcilia antes de descargar nuevas fuentes.
 Sin primera carga válida, T3 informa conocimiento no disponible; no afirma que
 el agente funciona ni vuelve silenciosamente a FTS5. El backend no escribe conocimiento.
 Qdrant usa volumen propio `qdrant_data`; SQLite conserva sesiones, mensajes,

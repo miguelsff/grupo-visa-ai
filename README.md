@@ -1,173 +1,158 @@
 # Grupo VISA AI
 
-Base local del asistente para preparar tickets OCD.
+Asistente local para preparar un borrador OCD mediante conversación, conocimiento
+Qdrant y validaciones Python V-01, V-02 y V-03. No crea tickets ni ejecuta cambios.
 
-La etapa 1 conecta Next.js, FastAPI, Pydantic y SQLite mediante un «Hola mundo» persistente.
-También carga cinco documentos locales y permite buscarlos mediante FTS5.
+T1 integra Qdrant y el contrato; T2 implementa ingesta independiente, CLI y cron;
+T3 implementa sesiones, extracción mediante Responses API y revisión persistente.
+T4 reúne la aceptación de extremo a extremo y corrige los fallos de integración.
+Las conexiones autenticadas con OpenAI y Atlassian reales no están verificadas.
+La evidencia con dobles se detalla en [verificación T4](docs/verificacion_t4.md).
+La interfaz estática conserva la pantalla de saludo y búsqueda; el chat se usa por HTTP.
 
-T1 añade Qdrant interno persistente y el [contrato de conocimiento](docs/contrato_conocimiento.md).
-La ingesta independiente (T2) y el agente con validación (T3) están pendientes.
-El alcance local termina con un borrador validado, sin crear tickets; Railway queda aplazado.
-La aplicación aún usa FTS5: T1 no conecta el backend a Qdrant.
-Consulta la [evidencia y las limitaciones de T1](docs/verificacion_t1.md).
+## Configurar y ejecutar
 
-## Ejecutar con Docker Compose
+Requisitos: Docker Desktop con contenedores Linux, Compose y acceso a Internet
+para construir las imágenes. Copia `.env.example` a `.env`. Configura:
 
-Requisito: Docker Desktop iniciado con contenedores Linux y Docker Compose disponible.
-La primera compilación necesita Internet para descargar imágenes y dependencias.
-La etapa 1 funciona sin credenciales de OpenAI o Atlassian.
+| Variable | Uso |
+| --- | --- |
+| `APP_PORT` | Puerto local publicado solo en `127.0.0.1`; por defecto 8000. |
+| `OPENAI_API_KEY` | Embeddings de ingesta/consulta e inferencia del backend. |
+| `OPENAI_MODEL` | Modelo de conversación; decisión actual `gpt-6-luna`. |
+| `ATLASSIAN_BASE_URL` | Origen HTTPS autorizado: `https://grupo-visai.atlassian.net`. |
+| `ATLASSIAN_EMAIL`, `ATLASSIAN_API_TOKEN` | Solo ingesta; permiso de lectura sobre las 25 fuentes autorizadas. |
+| `QDRANT_ALIAS` | Contrato v1: `ocd_actual`. |
+| `OPENAI_EMBEDDING_MODEL` | Contrato v1: `text-embedding-3-small`, 1536 dimensiones/Cosine. |
 
-Desde la raíz del repositorio:
+No guardar credenciales en Git ni usar `NEXT_PUBLIC_*`. El backend no recibe
+credenciales Atlassian: consulta el corpus ya publicado. Sin clave OpenAI o sin
+primera carga válida, chat/búsqueda devuelven 503; salud y saludo siguen disponibles.
+
+Desde la raíz:
 
 ```powershell
 docker compose up --build -d --wait
-```
-
-Abre [la aplicación local](http://localhost:8000).
-La documentación de la API está en [Swagger UI](http://localhost:8000/docs).
-
-Para cambiar el puerto, copia `.env.example` a `.env` y ajusta `APP_PORT`.
-Las variables de integraciones externas se reservan para las siguientes etapas.
-La interfaz muestra su configuración como pendiente o por verificar.
-
-```powershell
+docker compose exec ingesta ocd-ingestar
+docker compose logs ingesta
 docker compose ps
-docker compose logs -f app
-docker compose down
 ```
 
-`docker compose down` conserva `sqlite_data` y `qdrant_data`.
-Qdrant usa `qdrant/qdrant:v1.16.3` y no publica puertos al host.
-`--wait` comprueba el estado del proceso Qdrant; su disponibilidad se verifica
-expresamente con `/readyz` en la prueba de persistencia. No hay ingesta automática todavía.
-
-## Comprobar la etapa 1
-
-1. Comprueba que los tres componentes muestran «Disponible».
-2. Escribe un nombre y pulsa «Enviar saludo».
-3. Comprueba la respuesta y el saludo guardado.
-4. Busca «microservicios» en los modelos operativos.
-5. Recrea el contenedor y comprueba que el saludo continúa disponible.
+Abre [la aplicación local](http://127.0.0.1:8000) y
+[Swagger UI](http://127.0.0.1:8000/docs). La primera carga es manual; después,
+Supercronic ejecuta `ocd-ingestar` cada día a las 03:00 `America/Lima`.
+El bloqueo compartido evita cargas solapadas. Una máquina apagada no recupera
+horarios omitidos: ejecuta la CLI manualmente. Consulta la [guía de ingesta](ingesta/README.md).
 
 ```powershell
 docker compose up -d --force-recreate --wait
+docker compose down
 ```
 
-Ejecuta las pruebas de integración en un contenedor independiente:
+Estos comandos conservan `sqlite_data`, `qdrant_data` e `ingesta_state`.
+No usar `down -v` en el proyecto de aplicación. Qdrant no publica puertos al host.
+`--wait` comprueba la salud local del backend y el proceso Qdrant; no verifica
+conexiones externas ni que exista una generación publicada.
+
+## Chat en dos turnos HTTP
+
+Ejemplo PowerShell. El modelo interpreta lenguaje natural; los datos desconocidos
+permanecen pendientes. Conservar la misma cookie para continuar la sesión:
 
 ```powershell
+$api = 'http://127.0.0.1:8000'
+$turno1 = @{ message = 'Necesito publicar el microservicio de pedidos de la versión 1.0 a la 2.0 en producción. El título es Actualizar pedidos.' } | ConvertTo-Json
+$r1 = Invoke-RestMethod "$api/api/chat" -Method Post -ContentType 'application/json; charset=utf-8' -Body ([Text.Encoding]::UTF8.GetBytes($turno1)) -SessionVariable sesion
+$r1.questions
+$turno2 = @{ message = 'El artefacto es registry/pedidos:2.0. La ventana es del 2026-11-14T10:00:00-05:00 al 2026-11-14T11:00:00-05:00, zona America/Lima.' } | ConvertTo-Json
+$r2 = Invoke-RestMethod "$api/api/chat" -Method Post -ContentType 'application/json; charset=utf-8' -Body ([Text.Encoding]::UTF8.GetBytes($turno2)) -WebSession $sesion
+$r2.draft
+$r2.questions
+$r2.validations
+Invoke-RestMethod "$api/api/chat/revisions/1" -WebSession $sesion
+```
+
+Cada turno nuevo conserva hechos previos y crea una revisión incremental. Los
+mensajes de una sesión se procesan en orden dentro del único backend. Las citas
+incluyen punto, código, URL, versión y extracto; cada revisión fija su colección
+física. Se puede corregir un dato o retirar explícitamente una categoría del alcance.
+No se reutilizan identificadores ni evidencias de tickets históricos como datos del usuario.
+
+## API y recuperación
+
+| Método y ruta | Semántica |
+| --- | --- |
+| `GET /api/health` | Disponibilidad local: SQLite, backend y archivos estáticos. No llama a servicios externos ni expone cantidades de negocio. |
+| `GET/POST /api/hello` | Saludo persistente legado. POST recibe `{"name":"Equipo VISA"}`. |
+| `GET /api/knowledge?q=microservicios` | Consulta Qdrant con embedding OpenAI; 503 sin conocimiento compatible o sin proveedor disponible. |
+| `POST /api/chat` | Recibe `{"message":"..."}`; revisión, borrador, preguntas, fuentes y validaciones. 503 si la revisión queda indisponible. |
+| `GET /api/chat` | Última revisión de la sesión, incluida una revisión indisponible. |
+| `GET /api/chat/revisions/{revision}` | Revisión histórica de la misma sesión, conservada aunque fallen servicios o cambie el alias. |
+| `GET /api/integrations` | Presencia de configuración del proceso backend; no prueba conexiones ni inspecciona el entorno de ingesta. |
+
+Si falla Atlassian, la consulta y el chat siguen usando la última colección válida,
+siempre que Qdrant y OpenAI estén disponibles. La ingesta fallida no sustituye el alias.
+Si se pierde la respuesta al intercambio de alias, la CLI reconcilia su destino:
+si la nueva colección está activa, informa éxito; si no puede confirmarlo, conserva
+las generaciones y el diario para la siguiente ejecución. No editar ni borrar el diario.
+
+Si falla OpenAI o Qdrant, el nuevo turno informa indisponibilidad y conserva el borrador.
+Las revisiones ya validadas siguen consultables por número; tras recuperar el servicio,
+envía otro mensaje con la misma cookie para reanudar. Recrear contenedores conserva
+mensajes, revisiones y corpus. Perder la cookie impide recuperar la sesión desde el cliente.
+
+## Componentes y límites
+
+| Ruta | Responsabilidad |
+| --- | --- |
+| `frontend/` | Next.js App Router, React, TypeScript, CSS Modules; `output: "export"`. |
+| `backend/app/main.py` | FastAPI, rutas delgadas y entrega de estáticos. |
+| `backend/app/agent/` | Borrador, hechos con evidencia, condiciones y V-01/02/03. |
+| `backend/app/knowledge/` | Recuperación exhaustiva normativa y búsqueda semántica Qdrant; FTS5 queda como código legado sin uso HTTP. |
+| `backend/app/integrations/` | SDK oficial OpenAI y estado de configuración. |
+| `backend/app/database.py` | SQLite `/data/ocd.sqlite3`: saludos, sesiones, mensajes y revisiones. |
+| `ingesta/` | Proyecto Python independiente, HTTPX Atlassian/Qdrant, embeddings, publicación atómica, CLI y Supercronic. |
+| `docs/contrato_conocimiento.md` | Payload, UUIDv5 estables, condiciones y generaciones. |
+
+Un backend modular con un worker; Node.js 24 solo compila. Python 3.14 en ambos
+proyectos. Qdrant real, ingesta y backend son procesos separados. Las cinco copias
+Markdown documentan la demostración: la ingesta no las utiliza como sustituto remoto.
+Las 26 reglas son sintéticas; los veinte tickets son ejemplos sin autoridad normativa.
+`CUMPLE`, `FALTA_INFORMACION`, `ERROR` y `NO_VERIFICABLE` expresan comprobaciones
+documentales, no permisos efectivos ni ejecución real. La búsqueda semántica usa
+cinco resultados de apoyo; la recuperación normativa pagina todas las reglas y campos aplicables.
+La calidad real del modelo y embeddings, el acceso REST autenticado, Railway y la
+seguridad de exposición pública quedan pendientes. No hay herramientas de creación Jira.
+
+## Verificación reproducible
+
+```powershell
+# E2E aislado: proyecto aleatorio, puerto libre, volúmenes temporales y dobles REST.
+powershell -NoProfile -File scripts/Test-Aceptacion.ps1
+# Ingesta, cron temporal, fallos y publicación contra Qdrant real aislado.
+powershell -NoProfile -File ingesta/Test-Ingesta.ps1
+# Regresión backend y estilo; sin usar volúmenes de la aplicación.
 docker compose --profile test run --build --rm tests
+docker compose --profile test run --build --rm tests ruff check --no-cache app tests
+# Persistencia histórica T1, también aislada.
+powershell -NoProfile -File scripts/Test-QdrantPersistence.ps1
 ```
 
-Las pruebas usan una base temporal. No modifican el volumen de la aplicación.
+La aceptación T4 no requiere credenciales reales: HTTPS Atlassian usa un certificado
+y snapshots de prueba; OpenAI usa respuestas y vectores sintéticos. Qdrant, la CLI,
+Responses SDK, FastAPI, cookies, SQLite y recreación de contenedores sí se ejecutan.
+El script elimina exclusivamente su propio proyecto `ocd-t4-<UUID>` y sus volúmenes.
+El frontend se construye mediante el Dockerfile normal con TypeScript y Next.js;
+no se copian archivos compilados del proyecto principal.
 
-## Componentes
-
-| Componente | Implementación de la etapa 1 |
-|---|---|
-| Frontend | Next.js App Router, React, TypeScript y CSS Modules. Exportación estática. |
-| Backend | FastAPI y Uvicorn. API JSON y distribución del frontend. |
-| Validación | Pydantic valida el nombre antes de guardarlo. |
-| Persistencia | SQLite en el volumen Docker `sqlite_data`. |
-| Conocimiento | Cinco copias documentales del repositorio, cargadas al arrancar. Búsqueda FTS5. |
-| Caso de uso | Saludo local reproducible, separado en el módulo `agent`. |
-| Integraciones | Configuración de OpenAI, Jira y Confluence. Conexiones pendientes. |
-
-Docker compila Next.js y copia su exportación en la imagen Python.
-Durante la ejecución existen `app` y `qdrant`; solo `app` publica un puerto en `127.0.0.1`.
-SQLite funciona dentro del proceso Python y no necesita un servidor independiente.
-El puerto interno escucha en `0.0.0.0` para recibir el tráfico publicado por Docker.
-
-La etapa 1 utiliza un saludo determinista. No ejecuta inferencias ni crea tickets Jira.
-El SDK de OpenAI y HTTPX están instalados para las siguientes integraciones.
-
-## Estructura
-
-```text
-grupo-visa-ai/
-├── compose.yaml
-├── Dockerfile
-├── .env.example
-├── frontend/
-│   ├── app/                 # Pantalla y estilos
-│   ├── lib/                 # Contratos y cliente de la API
-│   ├── package.json
-│   └── package-lock.json
-├── backend/
-│   ├── app/
-│   │   ├── agent/           # Casos de uso; futura orquestación
-│   │   ├── integrations/    # Estado de configuración externa
-│   │   ├── knowledge/       # Carga de documentos locales
-│   │   ├── config.py
-│   │   ├── database.py
-│   │   ├── schemas.py
-│   │   └── main.py
-│   ├── tests/
-│   ├── pyproject.toml
-│   ├── requirements.txt
-│   └── requirements-dev.txt
-├── ingesta/                 # Proyecto independiente; ejecución pendiente T2
-├── scripts/                 # Prueba aislada de persistencia Qdrant
-└── docs/
-    ├── MVP_OCD_Arquitectura.md
-    └── modelos_operativos/
-```
-
-## API de la etapa 1
-
-| Método y ruta | Resultado |
-|---|---|
-| `GET /api/health` | Estado local, búsqueda FTS5 y cantidades de documentos y saludos. |
-| `GET /api/hello` | Mensaje del backend y los últimos cinco saludos. |
-| `POST /api/hello` | Valida y guarda un saludo. Cuerpo: `{"name": "Equipo VISA"}`. |
-| `GET /api/knowledge?q=microservicios` | Documentos con código, versión, fuente y fragmento. |
-| `GET /api/integrations` | Presencia de configuración; no acredita conexión ni expone credenciales. |
-
-## Desarrollo
-
-Las dependencias están fijadas en los archivos de bloqueo.
-El Dockerfile comprueba TypeScript antes de compilar el frontend.
-
-La compilación utiliza Python 3.14 y Node.js 24 dentro de Docker.
-Después de cambiar el código, ejecuta de nuevo `docker compose up --build -d --wait`.
-
-Ambos proyectos Python están limitados a la serie 3.14.
-Para actualizar los bloqueos del backend con `uv`, ejecuta desde `backend`:
+Para dependencias frontend locales: `npm run typecheck` y `npm run build` desde `frontend/`.
+Los bloqueos Python se actualizan desde `backend/`:
 
 ```powershell
 uv pip compile pyproject.toml --python-version 3.14 --universal --output-file requirements.txt
 uv pip compile pyproject.toml --extra dev --python-version 3.14 --universal --output-file requirements-dev.txt
 ```
 
-El proyecto independiente `ingesta/` tiene sus propios bloqueos y [comandos](ingesta/README.md),
-con restricciones del backend para mantener versiones comunes de HTTPX, OpenAI y Pydantic.
-
-Para comprobar Qdrant real en un proyecto temporal aislado:
-
-```powershell
-powershell -NoProfile -File scripts/Test-QdrantPersistence.ps1
-```
-
-La prueba escribe datos sintéticos, crea el alias `ocd_actual`, recrea Qdrant y
-recupera alias, configuración y payload. Elimina exclusivamente su proyecto y
-volumen temporales; no llama a OpenAI ni Atlassian.
-La configuración compartida `x-knowledge-environment` de Compose será consumida
-por T2/T3. El modelo de embeddings es `text-embedding-3-small`, 1536 dimensiones/Cosine.
-
-Consulta el [diseño de la solución](docs/MVP_OCD_Arquitectura.md) para las siguientes etapas.
-
-## Verificación previa de la etapa 1
-
-Comprobaciones del 13 de noviembre de 2026:
-
-- Compilación de Next.js y comprobación TypeScript correctas dentro de Docker.
-- Servicio `app` saludable después de ejecutar el comando de arranque documentado.
-- Frontend y nueve recursos estáticos con respuesta HTTP 200.
-- Saludo guardado y recuperado después de recrear el contenedor.
-- Cinco documentos locales cargados; búsqueda de microservicios con fuente y versión.
-- Tres pruebas de integración aprobadas dentro de Docker con Python 3.14.
-- Revisión de estilo Python aprobada mediante Ruff.
-
-La revisión visual quedó pendiente porque Computer Use no pudo verificar la URL de Chrome.
-Las lecturas reales de Atlassian y las llamadas OpenAI corresponden a T2/T3.
-La creación Jira está fuera de este alcance local.
+Ingesta mantiene sus [bloqueos y restricciones](ingesta/README.md). Consulta la
+[arquitectura](docs/MVP_OCD_Arquitectura.md), el [histórico T1](docs/verificacion_t1.md),
+la [evidencia T2](ingesta/VERIFICACION.md) y la [aceptación T4](docs/verificacion_t4.md).

@@ -70,12 +70,41 @@ class ChatStore:
                 "ORDER BY revision DESC LIMIT 1",
                 (session_id,),
             ).fetchone()
-            draft = ChatResponse.model_validate_json(row[0]).draft if row else Draft()
+            current = ChatResponse.model_validate_json(row[0]) if row else None
+            if messages:
+                unprocessed = {
+                    r[0]
+                    for r in connection.execute(
+                        "SELECT id FROM chat_messages WHERE session_id=? AND extracted=0",
+                        (session_id,),
+                    )
+                }
+                messages = [m for m in messages if m.id in unprocessed]
+                if not messages and current is not None:
+                    return current
+                admitted = {m.id for m in messages}
+                patch = Extraction(
+                    categories=[c for c in patch.categories if c.message_id in admitted],
+                    facts=[f for f in patch.facts if f.message_id in admitted],
+                )
+            draft = current.draft if current else Draft()
             draft.sensitive_detected |= any(SENSITIVE_MARKER in m.content for m in messages)
             for item in patch.categories:
-                if item.category not in draft.categories:
+                if item.message_id < draft.category_messages.get(item.category, 0):
+                    continue
+                draft.category_messages[item.category] = item.message_id
+                if item.selected and item.category not in draft.categories:
                     draft.categories.append(item.category)
+                elif not item.selected and item.category in draft.categories:
+                    draft.categories.remove(item.category)
+                    draft.facts = {
+                        key: fact
+                        for key, fact in draft.facts.items()
+                        if fact.scope != item.category
+                    }
             for fact in patch.facts:
+                if fact.scope != "comun" and fact.scope not in draft.categories:
+                    continue
                 key = f"{fact.scope}.{fact.name}"
                 previous = draft.facts.get(key)
                 if previous is None or fact.message_id >= previous.message_id:

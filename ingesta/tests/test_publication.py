@@ -8,6 +8,7 @@ from ocd_ingesta.publication import Publisher
 
 def publish(publisher, records):
     name = "ocd_" + uuid4().hex
+    records = [r.model_copy(update={"ingestion_run_id": name[4:]}) for r in records]
     publisher.publish(name, records, [[1.0] + [0.0] * 1535 for _ in records])
     return name
 
@@ -45,6 +46,14 @@ def test_partial_write_keeps_alias_and_recovers(qdrant, records, tmp_path, monke
     assert qdrant.collections() == {first}
 
 
+def test_mismatched_ingestion_run_is_rejected_before_write(qdrant, records, tmp_path):
+    publisher = Publisher(qdrant, tmp_path)
+    with pytest.raises(ValueError, match="ingestion_run_id"):
+        publisher.publish("ocd_" + uuid4().hex, records, [[1.0] + [0.0] * 1535 for _ in records])
+    assert qdrant.target() is None
+    assert not qdrant.collections()
+
+
 @pytest.mark.parametrize("applied", [True, False])
 def test_uncertain_alias_result_never_deletes_active(
     qdrant, records, tmp_path, monkeypatch, applied
@@ -59,9 +68,13 @@ def test_uncertain_alias_result_never_deletes_active(
         raise httpx.ReadTimeout("Respuesta perdida")
 
     monkeypatch.setattr(qdrant, "switch", uncertain)
-    with pytest.raises(httpx.ReadTimeout):
-        publish(publisher, records)
-    pending = publisher.state["pending"]["candidate"]
+    if applied:
+        pending = publish(publisher, records)
+        assert publisher.state["pending"] is None
+    else:
+        with pytest.raises(httpx.ReadTimeout):
+            publish(publisher, records)
+        pending = publisher.state["pending"]["candidate"]
     restarted = Publisher(qdrant, tmp_path)
     restarted.recover()
     assert qdrant.target() == (pending if applied else first)
@@ -83,7 +96,7 @@ def test_alias_unreadable_defers_all_cleanup(qdrant, records, tmp_path, monkeypa
         raise httpx.ReadTimeout("Respuesta perdida")
 
     monkeypatch.setattr(qdrant, "switch", uncertain)
-    with pytest.raises(httpx.ReadTimeout):
+    with pytest.raises(httpx.ConnectError):
         publish(publisher, records)
     with pytest.raises(httpx.ConnectError):
         Publisher(qdrant, tmp_path).recover()

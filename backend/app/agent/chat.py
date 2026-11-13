@@ -1,5 +1,6 @@
 """Caso de uso de chat: guardar, interpretar, recuperar y validar sin escrituras remotas."""
 
+from threading import Lock
 from typing import Protocol
 
 from pydantic import ValidationError
@@ -24,8 +25,16 @@ class ChatService:
         self.store = store
         self.model = model
         self.knowledge = knowledge
+        self._locks: dict[str, Lock] = {}
+        self._guard = Lock()
 
     def handle(self, session_id: str, message: str) -> ChatResponse:
+        with self._guard:
+            lock = self._locks.setdefault(session_id, Lock())
+        with lock:
+            return self._handle(session_id, message)
+
+    def _handle(self, session_id: str, message: str) -> ChatResponse:
         self.store.append(session_id, redact(message))
         pending = self.store.pending(session_id)
         previous = self.store.get(session_id)

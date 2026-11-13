@@ -3,6 +3,8 @@ import os
 import re
 from pathlib import Path
 
+import httpx
+
 from .models import Payload
 from .qdrant import Qdrant
 
@@ -66,6 +68,8 @@ class Publisher:
         self.recover()
         if not GENERATION.fullmatch(name) or name in self.qdrant.collections():
             raise ValueError("Nombre de generación inválido o existente")
+        if any(name != "ocd_" + record.ingestion_run_id for record in records):
+            raise ValueError("La generación física no coincide con ingestion_run_id")
         old = self.state["active"]
         self.state["pending"] = {"candidate": name, "old": old}
         self.state["owned"].append(name)
@@ -77,7 +81,12 @@ class Publisher:
         self.qdrant.verify(name, records, vectors)
         if self.qdrant.target() != old:
             raise ValueError("Alias cambió durante la carga")
-        self.qdrant.switch(name, old)
+        try:
+            self.qdrant.switch(name, old)
+        except (httpx.TimeoutException, httpx.NetworkError):
+            # No repetir la mutación: confirmar su destino antes de decidir el resultado.
+            if self.qdrant.target() != name:
+                raise
         self.recover()
         if self.state["active"] != name:
             raise ValueError("La generación nueva no quedó publicada")

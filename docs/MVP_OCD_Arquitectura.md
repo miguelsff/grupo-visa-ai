@@ -1,177 +1,162 @@
-# MVP OCD — arquitectura local
+# Arquitectura MVP OCD — ejecución local
 
-Fecha: 13 de noviembre de 2026. Versión: 0.5. Decisión local T1–T3 confirmada.
+Versión 0.6. Fecha: 13 de noviembre de 2026. Estado T1–T4.
 
 ## 1. Alcance y estado
 
-El objetivo local es conversar sobre un cambio, recuperar modelos operativos y
-preparar un borrador OCD con faltantes y verificaciones V-01, V-02 y V-03.
-El agente pregunta al usuario por datos desconocidos. No crea tickets Jira ni
-ejecuta cambios de infraestructura en este alcance.
+La solución prepara un borrador OCD, solicita datos desconocidos y ejecuta
+V-01/02/03 con fuentes y versiones. No crea tickets Jira ni ejecuta infraestructura.
+El diseño Railway anterior queda aplazado; no constituye aceptación de despliegue.
+El [diseño 0.4 histórico](https://github.com/miguelsff/grupo-visa-ai/blob/cb9d9fcb21ab89f8512ce2b4929195eb6ce15f5c/docs/MVP_OCD_Arquitectura.md)
+conserva las propuestas anteriores de creación Jira y Railway.
 
-Esta decisión sustituye el diseño 0.4 que concentraba carga y conocimiento en
-SQLite y terminaba creando un ticket. Railway queda aplazado: la solución local
-con Qdrant e ingesta independiente requiere revisar servicios, volúmenes,
-autenticación y costos antes de retomar un despliegue. No hay despliegue aceptado.
-
-Los requisitos para la futura creación en Jira, el diseño Railway y las estimaciones de la etapa anterior se conservan en la [arquitectura 0.4](https://github.com/miguelsff/grupo-visa-ai/blob/cb9d9fcb21ab89f8512ce2b4929195eb6ce15f5c/docs/MVP_OCD_Arquitectura.md).
-
-| Capacidad | Estado comprobable en el repositorio |
+| Capacidad | Estado en el código |
 | --- | --- |
-| Frontend estático Next.js, FastAPI y saludo persistente | Implementación legada de etapa 1, conservada. |
-| Cinco copias locales y búsqueda FTS5 | Implementación legada, aún usada por la aplicación. |
-| Servicio Qdrant interno con imagen fijada y volumen propio | Implementado en T1; aceptación reproducible en `scripts/Test-QdrantPersistence.ps1`. |
-| Contrato de payload, alias y configuración compartida | Definido en T1, sin consumidor funcional aún. |
-| Proyectos Python 3.14 independientes y bloqueos | Configurados en T1. |
-| CLI de ingesta, imagen propia, Supercronic a las 03:00 Lima | Diseñado; implementación T2 pendiente. |
-| Agente OpenAI, preguntas, borradores y V-01/02/03 | Diseñado; implementación T3 pendiente. |
-| Lecturas reales de Atlassian y embeddings OpenAI | Pendientes de T2/T3 y de aceptación con credenciales. |
-| Creación Jira y Railway | Fuera del alcance local T1–T3. |
+| Next.js estático, FastAPI y saludo SQLite | Implementado; interfaz de saludo y búsqueda conservada. |
+| Cinco copias Markdown y cargador FTS5 | Legado sin uso en rutas HTTP de conocimiento. |
+| Qdrant interno y contrato v1 | Implementado T1; persistencia histórica documentada por separado. |
+| CLI, HTTPX Atlassian, embeddings y publicación atómica | Implementado T2. |
+| Supercronic 03:00 America/Lima y bloqueo compartido | Implementado T2; disparo probado con horario temporal. |
+| Responses API, herramientas, preguntas, sesiones y V-01/02/03 | Implementado T3; acceso al chat por HTTP. |
+| Aceptación integrada | T4: Qdrant real y REST dobles; evidencia en `docs/verificacion_t4.md`. |
+| Servicios externos autenticados y calidad semántica real | No verificados. |
+| Creación Jira, infraestructura remota y Railway | Fuera del alcance local. |
 
-La existencia de variables o dependencias no acredita una conexión ni un agente.
-T1 no cambia el frontend, el esquema SQLite ni los casos de uso del backend.
-El manifiesto contiene cinco páginas, 26 reglas y veinte referencias de ejemplo.
-No equivale a veinte tickets ya ingeridos.
+T4 identificó y corrigió la diferencia entre las condiciones publicadas por T2
+y las firmas de reglas/fixtures del consumidor T3. La aceptación usa el índice
+producido por la CLI: cinco páginas, 26 reglas y veinte tickets de ejemplo.
 
-## 2. Componentes y responsabilidades
+## 2. Componentes y ejecución
 
-| Componente | Responsabilidad | Tecnología |
-| --- | --- | --- |
-| `frontend/` | Interfaz y cliente `/api` del mismo origen. | Next.js App Router, React, TypeScript, CSS Modules, `output: "export"`. |
-| `backend/` | API, sesión, borrador, preguntas y validaciones. | Python 3.14, FastAPI, Pydantic, Uvicorn con un worker. |
-| Agente dentro del backend (T3) | Interpretar solicitud y seleccionar herramientas de consulta/validación. | SDK oficial OpenAI, Responses API, `OPENAI_MODEL=gpt-6-luna`. |
-| `ingesta/` (T2) | Leer fuentes permitidas, estructurar reglas/campos, vectorizar y publicar una generación. | Python 3.14, HTTPX REST, SDK oficial OpenAI. |
-| Qdrant | Vectores y payload trazable de reglas, campos, contexto y ejemplos. | `qdrant/qdrant:v1.16.3`, volumen `qdrant_data`. |
-| SQLite | Estado de sesiones, mensajes, borradores y revisiones (T3). | `/data/ocd.sqlite3`, volumen `sqlite_data`. |
-| Supercronic (T2) | Invocar la misma CLI de ingesta que la ejecución manual. | Servicio separado con Dockerfile propio; 03:00 `America/Lima`. |
+| Componente | Responsabilidad |
+| --- | --- |
+| `frontend/` | Next.js App Router, React, TypeScript y CSS Modules; `output: "export"`. |
+| `backend/app/main.py` | FastAPI, rutas delgadas, ciclo de vida y estáticos; un worker Uvicorn. |
+| `backend/app/agent/` | Casos de uso, hechos con evidencia, categorías, condiciones, V-01/02/03 y revisiones. |
+| `backend/app/integrations/` | SDK oficial OpenAI, Responses API y estado de configuración. |
+| `backend/app/knowledge/` | Cliente HTTPX Qdrant; paginación normativa y búsqueda semántica con referencias. |
+| `ingesta/` | Proyecto Python independiente; HTTPX REST Atlassian/Qdrant, SDK OpenAI, CLI y publicación. |
+| Qdrant | Vectores 1536/Cosine y payload trazable; imagen fijada `qdrant/qdrant:v1.16.3`. |
+| SQLite | `/data/ocd.sqlite3`: saludos, sesiones, mensajes y revisiones; no se usa como conocimiento. |
+| Supercronic | Mismo caso de uso `ocd-ingestar` manual/cron; 03:00 `America/Lima`. |
 
-El backend sigue siendo modular. Las rutas HTTP delegan en casos de uso;
-no alojan reglas ni clientes externos. La ingesta no importa el backend y el
-backend no ejecuta la ingesta al arrancar. Ambos comparten el contrato documental
-y la configuración Compose; no se crea una biblioteca común prematura.
-HTTPX permite consumir REST de Qdrant y Atlassian sin añadir otro SDK.
-El proceso Node.js solo interviene en compilación; FastAPI sirve los estáticos.
+`docker compose up --build -d --wait` inicia app, Qdrant e ingesta. Solo app publica
+`127.0.0.1:${APP_PORT:-8000}:8000`. Qdrant usa `http://qdrant:6333` dentro de Compose;
+no publica 6333/6334. La red permite llamadas salientes. Node.js 24 interviene solo
+en compilación; Python 3.14 ejecuta ambos proyectos independientes, con sus bloqueos.
+HTTPX evita un SDK Qdrant adicional. Backend e ingesta no importan código entre sí.
 
-### Ejecución local
+El backend no descarga Atlassian ni ejecuta ingesta al arrancar. Compose entrega las
+credenciales Atlassian exclusivamente a ingesta. La API `/api/integrations` describe
+solo configuración del backend: los estados Jira/Confluence no inspeccionan ingesta,
+no prueban conectividad y no deben interpretarse como estado de su carga.
+`/api/health` verifica SQLite y estáticos sin llamadas externas ni datos de negocio.
+Qdrant no tiene healthcheck propio en Compose; `--wait` no acredita corpus listo.
 
-`docker compose up --build -d --wait` inicia `app` y `qdrant`.
-Solo `app` publica `127.0.0.1:${APP_PORT:-8000}:8000`.
-Qdrant no publica puertos; sus consumidores usan `http://qdrant:6333` por la red
-Compose. Esa red permite las futuras llamadas salientes a las API externas;
-«interno» significa sin publicación al host, no una red sin salida a Internet.
-Qdrant no incorpora healthcheck en T1: `--wait` acredita proceso iniciado, y la
-sonda `/readyz` acredita disponibilidad en la prueba explícita. T2/T3 deberán
-manejar indisponibilidad con timeout y error recuperable, sin asumir que arrancó
-por el orden de servicios. El backend legado no depende todavía de Qdrant.
-
-`x-knowledge-environment` fija las variables compartidas y T2 reutilizará su
-ancla. `QDRANT_ALIAS=ocd_actual`, `OPENAI_EMBEDDING_MODEL=text-embedding-3-small`
-y `OPENAI_EMBEDDING_DIMENSIONS=1536`; distancia `Cosine` [S1–S3].
-El modelo de conversación no se utiliza para crear embeddings.
-La primera construcción requiere Internet; la aplicación legada no requiere credenciales.
-
-### Proyectos y dependencias
-
-Cada proyecto contiene `pyproject.toml`, `requirements.txt` y
-`requirements-dev.txt`, con `requires-python=">=3.14,<3.15"`.
-La imagen backend conserva Node.js 24 y Python 3.14. Los bloqueos de ingesta
-usan como restricciones los del backend para reutilizar versiones de HTTPX,
-OpenAI y Pydantic. No se instala ingesta en la imagen backend.
-T2 añadirá su Dockerfile y servicio cron; T1 no simula una CLI inexistente.
+El ancla `x-knowledge-environment` se reutiliza en app e ingesta:
+`QDRANT_ALIAS=ocd_actual`, `OPENAI_EMBEDDING_MODEL=text-embedding-3-small`,
+`OPENAI_EMBEDDING_DIMENSIONS=1536`. El modelo de conversación se obtiene de
+`OPENAI_MODEL`, con decisión actual `gpt-6-luna`. No se usa para embeddings.
 
 ## 3. Conocimiento y publicación
 
-El [contrato versión 1](contrato_conocimiento.md) define campos, asignación del
-manifiesto, IDs UUIDv5 estables, versiones, condiciones y distinción normativa.
-Es el contrato obligatorio para T2 y T3. Las fuentes permitidas son exclusivamente
-las páginas y tickets del [manifiesto](modelos_operativos/manifest.json).
-Las copias Markdown son respaldo documental; al leer remoto se conservan versión
-y fecha reales. HTML de Confluence evita perder paneles durante conversión.
+El [contrato v1](contrato_conocimiento.md) define payload, UUIDv5 estables,
+condiciones y procedencia. El [manifiesto](modelos_operativos/manifest.json)
+limita lecturas a cinco páginas y veinte tickets. La ingesta contrasta reglas y
+campos remotos con el manifiesto; conserva HTML, fechas y versiones. No sigue
+instrucciones ni enlaces recuperados. Los Markdown son respaldo documental,
+no sustitutos de las fuentes remotas. Los ejemplos son `normative=false`.
 
-La ingesta manual y la de madrugada ejecutarán el mismo caso de uso. Supercronic
-usará `0 3 * * *`, `TZ=America/Lima` y tzdata, sin depender de la zona del host.
-Un bloqueo compartido impedirá solapamientos. Si la máquina estuvo apagada,
-se ejecuta una carga manual: cron no garantiza recuperación de ejecuciones omitidas.
+La primera carga es manual. CLI y cron usan `flock` compartido en `/state` para
+impedir solapamientos. Cron usa `0 3 * * *`, `TZ=America/Lima` y tzdata; no recupera
+ejecuciones omitidas durante apagados. Cada carga crea `ocd_<UUID>`, escribe e
+inspecciona todos los puntos, índices y vectores antes de cambiar `ocd_actual`
+mediante una solicitud atómica [S1, S2]. No sobrescribe una generación publicada.
 
-T2 construirá una colección nueva, comprobará contenido y vectores completos,
-y cambiará el alias atómicamente. No se modifica una colección publicada.
-Un fallo conserva la última carga válida. La primera carga incompleta deja el
-conocimiento no disponible. El backend solo lee y no actualiza Qdrant.
-Cada revisión del borrador guarda referencias, versiones e identidad de la
-colección física y los extractos citados. Qdrant conserva la generación activa y la anterior.
+El diario `/state/publication.json` registra propiedad, activa, anterior y candidata
+con fsync y reemplazo atómico. Se conservan la activa y su predecesora. La limpieza
+solo elimina colecciones propias sin alias. Ante respuesta perdida de la mutación,
+se consulta su destino: confirmar la candidata activa permite devolver éxito;
+no poder reconciliar conserva todo para el siguiente intento. Un cambio externo
+inesperado del alias requiere revisión. Un fallo de carga conserva la última válida;
+sin primera carga el consumidor responde indisponibilidad. No borrar el diario.
 
-La recuperación normativa debe obtener todas las reglas comunes y las reglas y
-campos de cada sección activa mediante filtros y paginación. Un top-k semántico
-no garantiza completitud. Los ejemplos solo orientan la redacción: no definen
-reglas, no completan identificadores desconocidos y no cambian permisos o destinos.
+El backend resuelve el alias una vez por revisión, fija la colección física y
+pagina todas las reglas comunes y campos/reglas de las categorías activas. Un
+top-k no sustituye completitud. Los cinco resultados semánticos añaden apoyo.
+Se validan hash, firma normativa, URL autorizada, UUID, modelo, dimensiones y
+coherencia `ocd_<ingestion_run_id>`. Un payload malformado produce 503.
 
-## 4. Flujo backend previsto (T3)
+Cada revisión guarda colección física, referencias, versiones y extractos; puede
+consultarse aunque la generación anterior ya no exista. Atlassian apagado no
+impide consulta/chat del corpus publicado si Qdrant y OpenAI siguen disponibles.
 
-1. El usuario describe el cambio. El backend conserva sesión, mensaje y borrador.
-2. El agente identifica secciones: microservicio, Azure, red e identidad.
-3. `buscar_conocimiento` obtiene reglas comunes, campos y reglas específicos,
-   contexto y ejemplos, con código, URL, versión y fragmento.
-4. `validar_ocd` ejecuta reglas Python reproducibles V-01, V-02 y V-03.
-5. El agente formula preguntas precisas por datos faltantes, conserva desconocidos
-   como pendientes y actualiza la revisión con las respuestas del usuario.
-6. Se presenta borrador, fuentes y resultados. El flujo termina sin escribir en Jira.
+## 4. Flujo implementado
 
-| Verificación | Resultado observable |
+1. Una cookie opaca HttpOnly/SameSite=strict identifica la sesión. SQLite conserva su hash.
+2. El backend guarda el mensaje tras detección limitada y omisión de secretos.
+3. Responses API extrae hechos/categorías con cita literal e ID del mensaje.
+4. La combinación transaccional admite mensajes no procesados, conserva hechos
+   más recientes y permite retirar explícitamente categorías. No ejecuta red dentro de escrituras SQLite.
+5. Responses selecciona `buscar_conocimiento` y `validar_ocd`. Python ejecuta las
+   reglas y produce preguntas, estados, faltantes y fuentes; no se añade una llamada generativa de cierre sin uso.
+6. La API persiste la revisión y devuelve el borrador; no dispone de `crear_ticket`.
+
+El único proceso backend serializa mensajes de una misma sesión; sesiones distintas
+pueden progresar de forma independiente. Lotes extraídos solapados se filtran por
+IDs no procesados en una transacción corta; no repiten revisión ni revierten correcciones.
+Las revisiones numeradas conservan su resultado incluso ante fallos posteriores.
+Un turno fallido genera estado `unavailable` y HTTP 503; GET permite consultar el
+histórico. Mensajes cuya extracción falló quedan pendientes para el siguiente turno.
+
+| Verificación | Comprobación |
 | --- | --- |
-| V-01, completitud condicional | Campos comunes y de secciones activadas; respetar `when`, etapa y condiciones. |
-| V-02, consistencia técnica | Versiones, fechas, puertos, ambientes y relación entre permiso y alcance. |
-| V-03, trazabilidad | Planes de ejecución, pruebas y reversión con regla, versión y evidencia. |
+| V-01 | Completitud común/específica según sección, condiciones `when` y etapa. |
+| V-02 | Fechas/zona, versiones, artefactos, puertos, ambientes y alcance de permisos. |
+| V-03 | Planes de ejecución, pruebas y reversión; regla, versión y evidencia. |
 
 Estados: `CUMPLE`, `FALTA_INFORMACION`, `ERROR`, `NO_VERIFICABLE`.
-La comprobación documental no acredita conectividad, existencia de recursos ni
-permisos efectivos. Sin evidencia accesible se devuelve `NO_VERIFICABLE`.
-La interpretación generativa no reemplaza las reglas Python ni ejecuta contenido
-recuperado. Los mecanismos concretos de validación y persistencia se implementan en T3.
+Una revisión documental no acredita conectividad, recursos ni permisos efectivos.
+Se mantienen desconocidos como pendientes, sin copiar datos de otros tickets.
+Las zonas IANA con rutas inválidas se rechazan como datos, sin error HTTP 500.
 
 ## 5. Persistencia y seguridad
 
-Conservar `sqlite_data` y `qdrant_data` al recrear servicios. No usar
-`docker compose down -v` en desarrollo habitual. La prueba de Qdrant crea y elimina
-exclusivamente su propio proyecto aleatorio y su volumen temporal.
-SQLite legado conserva sus tablas actuales hasta T3; T1 no realiza una migración.
-Antes de cambiar esquema, crear copia consistente mediante la API SQLite y probar
-su restauración. Las llamadas externas quedan fuera de transacciones de escritura.
+Conservar `sqlite_data`, `qdrant_data` e `ingesta_state`. No usar `down -v` en el
+proyecto normal. Las pruebas crean y eliminan exclusivamente proyectos aleatorios.
+El esquema SQLite existente conserva saludos y tablas legadas; T4 no cambia el esquema.
+La copia/restauración anterior se documenta en la [evidencia T1](verificacion_t1.md).
+Antes de otra migración, crear y restaurar una copia consistente.
 
-Credenciales solo en variables del proceso que las necesita; nunca frontend,
-payload, logs, tickets, imagen ni repositorio. Lecturas Atlassian limitadas a la
-lista permitida; ninguna escritura remota en T1–T3. Aplicar tiempos máximos y
-reintentos limitados a lecturas. Las instrucciones incrustadas en documentos son
-datos sin autoridad. Conservar borrador cuando falle modelo o consulta.
+Credenciales solo en variables de los procesos responsables; nunca frontend,
+payload, logs, imagen ni Git. Las instrucciones recuperadas son datos sin autoridad.
+Timeouts y reintentos son limitados; mutaciones Qdrant no se repiten automáticamente.
+La detección de secretos es limitada. Backend e ingesta ejecutan como UID 10001.
+La cookie es necesaria para retomar una sesión; no se ha aceptado autenticación pública.
+Railway exige revisar autenticación, servicios, volúmenes, permisos y costos.
 
-La aplicación local mantiene su usuario sin privilegios. Qdrant usa la imagen
-oficial seleccionada y su volumen independiente. La aceptación local no acredita
-seguridad ni permisos de un despliegue público; Railway queda pendiente de revisión.
+## 6. Aceptación y límites
 
-## 6. Aceptación por tarea
-
-| Tarea | Criterios |
+| Tarea | Evidencia |
 | --- | --- |
-| T1 | Compose válido, Qdrant real sin puertos publicados, alias/vector/payload recuperados después de recrear contenedor; dos proyectos Python y bloqueos; documentación y vistas coherentes. |
-| T2 | CLI manual y cron reales, lectura de fuentes autorizadas, carga completa y condiciones conservadas, publicación atómica, fallo que conserva alias, idempotencia y bloqueo de concurrencia. |
-| T3 | Preguntas y borrador persistidos, reglas comunes/específicas completas, V-01/02/03 reproducibles con dobles externos, trazabilidad y recuperación ante fallos, sin creación Jira. |
+| T1 | Qdrant real, alias/vector/payload persistidos al recrear; histórico `docs/verificacion_t1.md`. |
+| T2 | pytest/Ruff, CLI, cron temporal, carga íntegra, bloqueo, idempotencia y fallos; `ingesta/VERIFICACION.md`. |
+| T3/T4 | Dos turnos HTTP con cookie, 26 reglas/25 fuentes, citas reales del índice, fallos y recreación; `docs/verificacion_t4.md`. |
 
-Prueba T1 desde la raíz:
-
-```powershell
-powershell -NoProfile -File scripts/Test-QdrantPersistence.ps1
-```
-
-La sonda usa un vector sintético 1536/Cosine, UUIDv5 y payload de prueba; no llama
-OpenAI ni Atlassian. Comprueba `/readyz`, crea colección y alias, escribe y consulta,
-recrea el contenedor y verifica vector/configuración/payload/alias. Elimina solo
-su proyecto temporal. Las conexiones reales y la calidad de embeddings siguen pendientes.
-
-Pruebas de regresión backend y estilo:
+Comandos reproducibles desde raíz:
 
 ```powershell
+powershell -NoProfile -File scripts/Test-Aceptacion.ps1
+powershell -NoProfile -File ingesta/Test-Ingesta.ps1
 docker compose --profile test run --build --rm tests
 docker compose --profile test run --build --rm tests ruff check --no-cache app tests
 ```
+
+T4 utiliza Qdrant real y REST dobles: snapshots Atlassian, HTTPS local con certificado
+temporal, SDK OpenAI real contra respuestas/vectores sintéticos. No usa credenciales
+reales, volúmenes principales ni fuentes frontend modificadas. No acredita semántica
+real, acceso REST autenticado ni ejecución del cron a las 03:00 en una fecha real.
+La interfaz de chat y las conexiones reales siguen sin aceptación.
 
 ## Referencias
 
@@ -183,5 +168,7 @@ docker compose --profile test run --build --rm tests ruff check --no-cache app t
 
 Diagrama editable: [MVP_OCD_Arquitectura.drawio](MVP_OCD_Arquitectura.drawio).
 Vistas: Contexto local, Servicios locales y Contrato de conocimiento.
-Vista previa local: [MVP_OCD_Arquitectura.png](MVP_OCD_Arquitectura.png).
-Los nodos señalados como pendientes representan diseño, no funcionalidad disponible.
+Vista previa: [MVP_OCD_Arquitectura.png](MVP_OCD_Arquitectura.png).
+Amarillo indica servicio externo sin aceptación real, no implementación pendiente.
+
+Regenerar la vista PNG en Windows con `uv run --no-project --with pillow python scripts/render_architecture.py`.

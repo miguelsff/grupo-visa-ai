@@ -2,13 +2,12 @@
 
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor
-from threading import Barrier
 
 from conftest import FakeKnowledge, FakeModel
 from fastapi.testclient import TestClient
 
 from app.agent.chat import ChatService
-from app.agent.models import Draft, Extraction, ServiceUnavailable, UserMessage
+from app.agent.models import Draft, Extraction, SelectedCategory, ServiceUnavailable, UserMessage
 from app.agent.store import ChatStore
 from app.config import Settings
 from app.database import Database
@@ -130,12 +129,10 @@ def test_concurrent_turns_keep_all_facts_and_late_review_does_not_overwrite(
     database.initialize()
     store = ChatStore(database)
     session, _ = store.session(None)
-    barrier = Barrier(2)
 
     class ConcurrentModel(FakeModel):
         def extract(self, messages: list[UserMessage], draft: Draft) -> Extraction:
             patch = super().extract(messages, draft)
-            barrier.wait(timeout=5)
             return patch
 
     service = ChatService(store, ConcurrentModel(), knowledge)
@@ -229,3 +226,121 @@ def test_older_extraction_cannot_undo_a_newer_correction(settings):
     store.merge(session, fake.extract(newer, Draft()), newer)
     store.merge(session, fake.extract(older, Draft()), older)
     assert store.get(session).draft.value("comun", "titulo") == "Corregido"
+    assert store.get(session).revision == 1
+
+
+def test_overlapping_batches_only_admit_unprocessed_facts(settings):
+    database = Database(settings.database_path)
+    database.initialize()
+    store = ChatStore(database)
+    session, _ = store.session(None)
+    store.append(session, "comun.titulo=Anterior")
+    first = store.pending(session)
+    store.append(session, "comun.objetivo=Objetivo")
+    overlapping = store.pending(session)
+    model = FakeModel()
+    store.merge(session, model.extract(first, Draft()), first)
+    store.append(session, "comun.titulo=Corregido")
+    correction = store.pending(session)
+    store.merge(session, model.extract(correction, Draft()), correction)
+    store.merge(session, model.extract(overlapping, Draft()), overlapping)
+    assert store.get(session).revision == 2
+    assert store.get(session).draft.value("comun", "titulo") == "Corregido"
+    assert store.get(session).draft.value("comun", "objetivo") == "Objetivo"
+
+
+def test_category_can_be_explicitly_removed_without_late_reactivation(settings):
+    database = Database(settings.database_path)
+    database.initialize()
+    store = ChatStore(database)
+    session, _ = store.session(None)
+    store.append(session, "incluir red")
+    first = store.pending(session)
+    store.merge(
+        session,
+        Extraction(
+            categories=[
+                SelectedCategory(
+                    category="red", selected=True, quote="incluir red", message_id=first[0].id
+                )
+            ],
+            facts=[],
+        ),
+        first,
+    )
+    store.append(session, "retiro red del alcance")
+    second = store.pending(session)
+    store.merge(
+        session,
+        Extraction(
+            categories=[
+                SelectedCategory(
+                    category="red", selected=False, quote="retiro red", message_id=second[0].id
+                )
+            ],
+            facts=[],
+        ),
+        second,
+    )
+    assert store.get(session).draft.categories == []
+    assert store.get(session, 1).draft.categories == ["red"]
+    store.merge(
+        session,
+        Extraction(
+            categories=[
+                SelectedCategory(category="red", quote="incluir red", message_id=first[0].id)
+            ],
+            facts=[],
+        ),
+        first,
+    )
+    assert store.get(session).revision == 2
+    assert store.get(session).draft.categories == []
+
+
+def test_http_withdrawal_stops_using_category_facts_and_rules(settings, knowledge):
+    class CorrectingModel(FakeModel):
+        def extract(self, messages, draft):
+            if messages[-1].content == "Retiro red del alcance":
+                return Extraction(
+                    categories=[
+                        SelectedCategory(
+                            category="red",
+                            selected=False,
+                            quote=messages[-1].content,
+                            message_id=messages[-1].id,
+                        )
+                    ],
+                    facts=[],
+                )
+            return super().extract(messages, draft)
+
+    with TestClient(create_app(settings, model=CorrectingModel(), knowledge=knowledge)) as client:
+        first = client.post(
+            "/api/chat",
+            json={
+                "message": "categoria=red\nred.ambiente_destino=certificacion\n"
+                "comun.ambiente_objetivo=produccion"
+            },
+        ).json()
+        second = client.post("/api/chat", json={"message": "Retiro red del alcance"}).json()
+        assert first["draft"]["categories"] == ["red"]
+        assert second["draft"]["categories"] == []
+        assert "red.ambiente_destino" not in second["draft"]["facts"]
+        assert not any(v["rule_id"].startswith("RED-") for v in second["validations"])
+        assert client.get("/api/chat/revisions/1").json() == first
+
+
+def test_failure_after_review_keeps_previous_numbered_revision(settings, model, knowledge):
+    class FailedModel(FakeModel):
+        def extract(self, messages, draft):
+            raise ServiceUnavailable("Indisponible")
+
+    with TestClient(create_app(settings, model=model, knowledge=knowledge)) as client:
+        reviewed = client.post("/api/chat", json={"message": "comun.titulo=Conservar"}).json()
+        cookie = client.cookies.get("ocd_session")
+    with TestClient(create_app(settings, model=FailedModel(), knowledge=knowledge)) as client:
+        client.cookies.set("ocd_session", cookie, path="/api/chat")
+        failed = client.post("/api/chat", json={"message": "continuar"})
+        assert failed.status_code == 503 and failed.json()["revision"] == 2
+        assert client.get("/api/chat/revisions/1").json() == reviewed

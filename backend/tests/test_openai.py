@@ -107,7 +107,7 @@ def test_sdk_responses_extracts_and_dispatches_backend_tools(settings):
     integration.tools(execute)
     integration.close()
     assert executed == ["buscar_conocimiento", "validar_ocd"]
-    assert len(requests) == 4
+    assert len(requests) == 3
     assert all(t["name"] in {"buscar_conocimiento", "validar_ocd"} for t in requests[1]["tools"])
 
 

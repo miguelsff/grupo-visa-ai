@@ -5,19 +5,19 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="contexto-title" value="MVP OCD | Contexto local | Diseño 0.5 | 13 nov 2026" style="text;html=0;align=left;fontSize=24;fontStyle=1;" vertex="1" parent="1">
+        <mxCell id="contexto-title" value="MVP OCD | Contexto local | Estado T1–T4 | 13 nov 2026" style="text;html=0;align=left;fontSize=24;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="20" width="1200" height="65" />
         </mxCell>
         <mxCell id="user" value="Usuario&#10;Describe el cambio&#10;y responde preguntas" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="250" width="235" height="135" />
         </mxCell>
-        <mxCell id="system" value="MVP OCD local&#10;Saludo y FTS5: implementados&#10;Agente y V-01/02/03: T3 pendiente&#10;Sin crear tickets" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+        <mxCell id="system" value="MVP OCD local&#10;Saludo + búsqueda Qdrant&#10;Agente y V-01/02/03 implementados&#10;Chat HTTP; sin crear tickets" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="430" y="235" width="380" height="165" />
         </mxCell>
-        <mxCell id="atl" value="Atlassian (solo lectura)&#10;5 páginas / 20 ejemplos&#10;Lectura T2 pendiente" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1">
+        <mxCell id="atl" value="Atlassian (solo lectura)&#10;5 páginas / 20 ejemplos&#10;REST real no verificado" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="990" y="130" width="250" height="135" />
         </mxCell>
-        <mxCell id="ai" value="OpenAI&#10;Embeddings T2 / agente T3&#10;Conexión pendiente" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1">
+        <mxCell id="ai" value="OpenAI&#10;Embeddings + Responses&#10;Servicio real no verificado" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="990" y="420" width="250" height="135" />
         </mxCell>
         <mxCell id="ctx1" value="HTTP local" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="user" target="system">
@@ -29,7 +29,7 @@
         <mxCell id="ctx3" value="SDK oficial" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;exitX=1;exitY=0.75;" edge="1" parent="1" source="system" target="ai">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="ctx-note" value="Alcance: borrador, fuentes, preguntas y verificaciones; sin ejecutar infraestructura.&#10;Railway aplazado. Amarillo discontinuo = implementación pendiente." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
+        <mxCell id="ctx-note" value="Alcance: borrador, fuentes, preguntas y verificaciones; sin ejecutar infraestructura.&#10;Railway aplazado. Amarillo = servicio externo no verificado." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="650" width="1200" height="100" />
         </mxCell>
       </root>
@@ -40,19 +40,19 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="local-title" value="MVP OCD | Servicios locales | T1 implementado / T2–T3 pendientes" style="text;html=0;align=left;fontSize=24;fontStyle=1;" vertex="1" parent="1">
+        <mxCell id="local-title" value="MVP OCD | Servicios locales | T1–T3 implementados / aceptación T4 con dobles" style="text;html=0;align=left;fontSize=24;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="20" width="1200" height="65" />
         </mxCell>
         <mxCell id="browser" value="Navegador&#10;Next.js exportado&#10;127.0.0.1:8000" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="150" width="230" height="125" />
         </mxCell>
-        <mxCell id="app" value="app: FastAPI + estáticos&#10;Python 3.14 / un worker&#10;Saludo + FTS5 legados&#10;Agente y Qdrant: T3 pendiente" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+        <mxCell id="app" value="app: FastAPI + estáticos&#10;Python 3.14 / un worker&#10;Agente + Qdrant / chat HTTP&#10;Sin credenciales Atlassian" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="430" y="120" width="370" height="180" />
         </mxCell>
-        <mxCell id="sqlite" value="sqlite_data&#10;/data/ocd.sqlite3&#10;T3: solo estado y borradores" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+        <mxCell id="sqlite" value="sqlite_data&#10;/data/ocd.sqlite3&#10;Saludos, sesiones y revisiones" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="980" y="140" width="260" height="140" />
         </mxCell>
-        <mxCell id="ingest" value="ingesta (T2 pendiente)&#10;Proyecto Python independiente&#10;CLI manual / Supercronic&#10;03:00 America/Lima" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1">
+        <mxCell id="ingest" value="ingesta: CLI + Supercronic&#10;Python 3.14 independiente&#10;03:00 America/Lima&#10;ingesta_state: /state" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="440" width="300" height="175" />
         </mxCell>
         <mxCell id="qdrant" value="qdrant/qdrant:v1.16.3&#10;REST interno :6333&#10;Alias ocd_actual&#10;Sin puertos al host" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
@@ -76,7 +76,7 @@
         <mxCell id="local5" value="Volumen propio" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="qdrant" target="qvolume">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="local-note" value="Qdrant y volumen: implementados y probados. Alias de datos reales: pendiente de T2.&#10;La aplicación aún consulta FTS5. La compilación usa Node.js 24; no hay servidor Next.js." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
+        <mxCell id="local-note" value="T4: Qdrant real y dobles REST. Conexiones externas reales sin verificar.&#10;FTS5 fuera de las rutas HTTP. Node.js 24 solo compila; no hay servidor Next.js." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="685" width="1200" height="80" />
         </mxCell>
       </root>
@@ -87,7 +87,7 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="contrato-title" value="MVP OCD | Contrato v1 | Diseñado en T1, consumidores T2/T3 pendientes" style="text;html=0;align=left;fontSize=24;fontStyle=1;" vertex="1" parent="1">
+        <mxCell id="contrato-title" value="MVP OCD | Contrato v1 | Productor T2 y consumidor T3 verificados en T4" style="text;html=0;align=left;fontSize=24;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="20" width="1200" height="65" />
         </mxCell>
         <mxCell id="sources" value="Manifiesto permitido&#10;5 páginas Confluence&#10;26 reglas + campos con when&#10;20 tickets como ejemplos" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
@@ -99,13 +99,13 @@
         <mxCell id="vectors" value="text-embedding-3-small&#10;1536 / Cosine&#10;Mismo modelo en consultas" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="970" y="160" width="270" height="145" />
         </mxCell>
-        <mxCell id="stage" value="Colección ocd_&lt;run_id&gt;&#10;Carga completa + validación&#10;Sin sobrescribir la activa" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1">
+        <mxCell id="stage" value="Colección ocd_&lt;run_id&gt;&#10;Carga completa + validación&#10;Sin sobrescribir la activa" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="480" width="320" height="145" />
         </mxCell>
-        <mxCell id="alias" value="ocd_actual&#10;Intercambio atómico del alias&#10;Fallo: conservar carga anterior" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1">
+        <mxCell id="alias" value="ocd_actual&#10;Intercambio atómico del alias&#10;Fallo: conservar carga anterior" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="480" y="480" width="380" height="145" />
         </mxCell>
-        <mxCell id="rules" value="Backend T3&#10;Todas las reglas aplicables&#10;Ejemplos sin autoridad&#10;Preguntas + V-01/02/03" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1">
+        <mxCell id="rules" value="Backend T3&#10;Todas las reglas aplicables&#10;Ejemplos sin autoridad&#10;Preguntas + V-01/02/03" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="970" y="465" width="270" height="175" />
         </mxCell>
         <mxCell id="con1" value="Asignación T2" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="sources" target="payload">
@@ -120,7 +120,7 @@
         <mxCell id="con4" value="Recuperar T3" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="alias" target="rules">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="con-note" value="SQLite conserva estado; Qdrant conserva conocimiento. Cada revisión conserva fuentes y generación.&#10;El backend no ejecuta ingesta ni escribe en Jira. No inferir identificadores de ejemplos." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
+        <mxCell id="con-note" value="SQLite: estado. Qdrant: conocimiento. Revisiones: fuentes, extractos y generación física.&#10;Alias incierto: reconciliar. Sin ingesta en backend ni escritura Jira; no copiar ejemplos." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="685" width="1200" height="80" />
         </mxCell>
       </root>

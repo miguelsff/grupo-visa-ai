@@ -120,5 +120,7 @@ uv pip compile pyproject.toml --constraint ../backend/requirements.txt --python-
 uv pip compile pyproject.toml --extra dev --constraint ../backend/requirements-dev.txt --python-version 3.14 --universal --output-file requirements-dev.txt
 ```
 
-La documentación general de la aplicación y su arquitectura se actualizarán en
-T4. El backend legado no consume esta ingesta hasta T3.
+El backend T3 consume las generaciones publicadas. Consulta el [README general](../README.md)
+y la [aceptación T4](../docs/verificacion_t4.md) para el flujo HTTP, recuperación y límites.
+Una respuesta perdida después del intercambio de alias se considera éxito solo
+si la reconciliación confirma la colección candidata activa.
