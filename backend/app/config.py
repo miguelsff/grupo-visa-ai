@@ -16,6 +16,17 @@ class Settings:
     atlassian_base_url: str = ""
     atlassian_email: str = ""
     atlassian_api_token: str = ""
+    qdrant_url: str = "http://qdrant:6333"
+    qdrant_alias: str = "ocd_actual"
+    embedding_model: str = "text-embedding-3-small"
+    embedding_dimensions: int = 1536
+    external_timeout: float = 30.0
+
+    def __post_init__(self) -> None:
+        if self.embedding_model != "text-embedding-3-small" or self.embedding_dimensions != 1536:
+            raise ValueError("El contrato OCD requiere text-embedding-3-small y 1536 dimensiones.")
+        if self.external_timeout <= 0:
+            raise ValueError("El tiempo máximo externo debe ser positivo.")
 
     @classmethod
     def from_environment(cls) -> Self:
@@ -28,4 +39,9 @@ class Settings:
             atlassian_base_url=os.environ.get("ATLASSIAN_BASE_URL", "").strip(),
             atlassian_email=os.environ.get("ATLASSIAN_EMAIL", "").strip(),
             atlassian_api_token=os.environ.get("ATLASSIAN_API_TOKEN", "").strip(),
+            qdrant_url=os.environ.get("QDRANT_URL", "http://qdrant:6333"),
+            qdrant_alias=os.environ.get("QDRANT_ALIAS", "ocd_actual"),
+            embedding_model=os.environ.get("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"),
+            embedding_dimensions=int(os.environ.get("OPENAI_EMBEDDING_DIMENSIONS", "1536")),
+            external_timeout=float(os.environ.get("EXTERNAL_TIMEOUT_SECONDS", "30")),
         )

@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, StringConstraints
+from pydantic import BaseModel, ConfigDict, StringConstraints
 
 Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80)]
 
@@ -28,10 +28,14 @@ class HealthResponse(BaseModel):
     status: Literal["ok"] = "ok"
     backend: Literal["ok"] = "ok"
     sqlite: Literal["ok"] = "ok"
-    fts5: Literal["ok"] = "ok"
     frontend: Literal["ok", "missing"]
-    document_count: int
-    greeting_count: int
+
+
+class ChatRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    message: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1, max_length=12000)
+    ]
 
 
 class KnowledgeMatch(BaseModel):
