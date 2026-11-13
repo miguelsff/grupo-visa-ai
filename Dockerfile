@@ -20,6 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt \
     && mkdir /data \
     && chown app:app /data
 COPY backend/app/ ./app/
+COPY scripts/acceptance/verify_conversation.py /opt/ocd/verify_conversation.py
 COPY --from=frontend /build/frontend/out/ ./static/
 USER app
 EXPOSE 8000

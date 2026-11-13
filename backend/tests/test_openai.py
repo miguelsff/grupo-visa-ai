@@ -5,6 +5,7 @@ import json
 import httpx
 from openai import OpenAI
 
+from app.agent.conversation import Evidence
 from app.agent.models import Draft, UserMessage
 from app.integrations.openai import OpenAIIntegration
 
@@ -135,4 +136,60 @@ def test_sdk_embedding_uses_contract_model_and_dimensions(settings):
     )
     integration = OpenAIIntegration(settings, client=sdk)
     assert len(integration.embed("consulta")) == 1536
+    integration.close()
+
+
+def test_sdk_classifies_and_verifies_a_grounded_answer(settings):
+    evidence = {"p1": Evidence("La regla exige un plan de pruebas.", None)}
+    formats = []
+
+    def handler(request):
+        body = json.loads(request.content)
+        name = body["text"]["format"]["name"]
+        formats.append(name)
+        assert body["store"] is False
+        data = json.loads(body["input"][0]["content"])
+        if name == "TurnIntent":
+            assert "borrador" in data
+            parsed = {"intent": "consulta"}
+        elif name == "Synthesis":
+            assert data["evidencia"]["p1"]["texto"] == evidence["p1"].text
+            parsed = {
+                "claims": [
+                    {
+                        "text": "Incluye un plan de pruebas.",
+                        "support": [{"key": "p1", "quote": "plan de pruebas"}],
+                    }
+                ]
+            }
+        else:
+            assert name == "Assessment"
+            assert data["propuesta"]["claims"][0]["support"][0]["key"] == "p1"
+            parsed = {"supported": True}
+        return httpx.Response(
+            200,
+            json=response_body(
+                [
+                    {
+                        "id": "msg_fake",
+                        "type": "message",
+                        "role": "assistant",
+                        "status": "completed",
+                        "content": [
+                            {"type": "output_text", "text": json.dumps(parsed), "annotations": []}
+                        ],
+                    }
+                ]
+            ),
+        )
+
+    sdk = OpenAI(
+        api_key="fake-key", http_client=httpx.Client(transport=httpx.MockTransport(handler))
+    )
+    integration = OpenAIIntegration(settings, client=sdk)
+    query = "¿Qué plan exige esa regla?"
+    assert integration.classify(query, Draft()) == "consulta"
+    proposal = integration.compose(query, evidence, reviewing=False)
+    assert integration.supported(query, proposal, evidence, reviewing=False)
+    assert formats == ["TurnIntent", "Synthesis", "Assessment"]
     integration.close()

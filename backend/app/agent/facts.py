@@ -27,6 +27,9 @@ ALLOWED_FIELDS = {"comun": set(COMMON_FIELDS)} | {
 }
 SENSITIVE_MARKER = "[DATO_SENSIBLE_OMITIDO]"
 SECRET_PATTERNS = [
+    re.compile(r"(?i)\bmongodb(?:\+srv)?://[^\s/@]+@[^\s]+"),
+    re.compile(r"(?i)\bBasic\s+[A-Za-z0-9+/]+={0,2}"),
+    re.compile(r"(?i)\bocd_session\s*=\s*[^\s;,]+"),
     re.compile(r"-----BEGIN [^-]*PRIVATE KEY-----.*?(?:-----END [^-]*PRIVATE KEY-----|$)", re.S),
     re.compile(r"\bsk-[A-Za-z0-9_-]{16,}"),
     re.compile(r"\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+"),

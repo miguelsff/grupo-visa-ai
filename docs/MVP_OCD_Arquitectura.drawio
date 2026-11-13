@@ -11,7 +11,7 @@
         <mxCell id="user" value="Usuario&#10;Describe el cambio&#10;y responde preguntas" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="250" width="235" height="135" />
         </mxCell>
-        <mxCell id="system" value="MVP OCD local&#10;Saludo + búsqueda Qdrant&#10;Agente y V-01/02/03 implementados&#10;Chat HTTP; sin crear tickets" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+        <mxCell id="system" value="Asistente OCD&#10;Responde consultas con evidencia&#10;Prepara y valida borradores&#10;Solicita los datos que faltan" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="430" y="235" width="380" height="165" />
         </mxCell>
         <mxCell id="atl" value="Atlassian (solo lectura)&#10;5 páginas y 20 tickets&#10;Lectura REST verificada" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
@@ -29,7 +29,7 @@
         <mxCell id="ctx3" value="SDK oficial" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;exitX=1;exitY=0.75;" edge="1" parent="1" source="system" target="ai">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="ctx-note" value="El amarillo identifica los servicios externos.&#10;En Railway, app exige autenticación HTTP Basic para el chat. Qdrant e ingesta usan la red privada." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
+        <mxCell id="ctx-note" value="El amarillo identifica los servicios externos.&#10;En Railway, app exige autenticación HTTP Basic. Qdrant, MongoDB e ingesta usan la red privada." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="650" width="1200" height="100" />
         </mxCell>
       </root>
@@ -60,6 +60,12 @@
         </mxCell>
         <mxCell id="qvolume" value="qdrant_data&#10;/qdrant/storage&#10;Conocimiento persistente" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="980" y="465" width="260" height="125" />
+        </mxCell>
+        <mxCell id="mongo" value="MongoDB&#10;ocd.preguntas&#10;Volumen /data/db" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="980" y="310" width="260" height="115" />
+        </mxCell>
+        <mxCell id="mongo-write" value="Preguntas" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="app" target="mongo">
+          <mxGeometry as="geometry" relative="1" />
         </mxCell>
         <mxCell id="local1" value="/api mismo origen" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="browser" target="app">
           <mxGeometry as="geometry" relative="1" />

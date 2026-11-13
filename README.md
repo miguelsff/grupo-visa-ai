@@ -20,6 +20,7 @@ para construir las imágenes. Copia `.env.example` a `.env`. Configura:
 | --- | --- |
 | `APP_PORT` | Puerto local publicado solo en `127.0.0.1`; por defecto 8000. |
 | `OCD_DEMO_PASSWORD` | Contraseña del usuario `demo` de `app`. Obligatoria en Railway y opcional en Compose local. |
+| `MONGODB_URI` | Conexión privada de `app` para registrar cada mensaje aceptado en `ocd.preguntas`. Compose usa su servicio MongoDB y Railway usa una credencial propia de la aplicación. |
 | `OPENAI_API_KEY` | Embeddings de ingesta/consulta e inferencia del backend. |
 | `OPENAI_MODEL` | Modelo de conversación; decisión actual `gpt-6-luna`. |
 | `ATLASSIAN_BASE_URL` | Origen HTTPS autorizado: `https://grupo-visai.atlassian.net`. |
@@ -51,7 +52,7 @@ docker compose up -d --force-recreate --wait
 docker compose down
 ```
 
-Estos comandos conservan `sqlite_data`, `qdrant_data` e `ingesta_state`.
+Estos comandos conservan `sqlite_data`, `qdrant_data`, `mongo_data` e `ingesta_state`.
 No usar `down -v` en el proyecto de aplicación. Qdrant no publica puertos al host.
 `--wait` comprueba la salud local del backend y el proceso Qdrant; no verifica
 conexiones externas ni que exista una generación publicada.
@@ -80,7 +81,14 @@ $r2.validations
 Invoke-RestMethod "$api/api/chat/revisions/1" -WebSession $sesion
 ```
 
-Cada turno nuevo conserva hechos previos y crea una revisión incremental. Los
+En `POST /api/chat`, el campo `answer` contiene la respuesta que debe mostrar el cliente.
+Un saludo presenta al asistente. Una pregunta sobre otro tema recibe una indicación
+de su alcance. Ante una pregunta sobre una OCD, el agente consulta la evidencia y
+explica qué puede confirmar. Si las fuentes y el borrador no contienen el dato,
+lo indica. Por ejemplo, conocer la regla que exige registrar un responsable no
+permite deducir quién es el responsable de un cambio concreto.
+
+Solo los turnos que preparan o modifican una OCD crean una revisión del borrador. Los
 mensajes de una sesión se procesan en orden dentro del único backend. Las citas
 incluyen punto, código, URL, versión y extracto; cada revisión fija su colección
 física. Se puede corregir un dato o retirar explícitamente una categoría del alcance.
@@ -93,7 +101,7 @@ No se reutilizan identificadores ni evidencias de tickets históricos como datos
 | `GET /api/health` | Disponibilidad local: SQLite, backend y archivos estáticos. No llama a servicios externos ni expone cantidades de negocio. |
 | `GET/POST /api/hello` | Saludo persistente legado. POST recibe `{"name":"Equipo VISA"}`. |
 | `GET /api/knowledge?q=microservicios` | Consulta Qdrant con embedding OpenAI; 503 sin conocimiento compatible o sin proveedor disponible. |
-| `POST /api/chat` | Recibe `{"message":"..."}`; revisión, borrador, preguntas, fuentes y validaciones. 503 si la revisión queda indisponible. |
+| `POST /api/chat` | Recibe `{"message":"..."}` y devuelve `answer`, el borrador y la evidencia aplicable al turno. Un fallo al registrar la pregunta o consultar una dependencia puede devolver 503. |
 | `GET /api/chat` | Última revisión de la sesión, incluida una revisión indisponible. |
 | `GET /api/chat/revisions/{revision}` | Revisión histórica de la misma sesión, conservada aunque fallen servicios o cambie el alias. |
 | `GET /api/integrations` | Presencia de configuración del proceso backend; no prueba conexiones ni inspecciona el entorno de ingesta. |
@@ -133,6 +141,14 @@ En la red privada de Railway se verificaron los tres servicios, la ingesta de
 83 puntos y las citas de una consulta. La evaluación general de relevancia sigue pendiente.
 
 ## Verificación reproducible
+
+Para probar la conversación y comprobar los registros en MongoDB contra la
+instancia local ya iniciada, ejecuta el siguiente comando. Genera cinco mensajes
+de demostración y hace llamadas reales al proveedor configurado.
+
+```powershell
+docker compose exec -T -e OCD_TEST_URL=http://127.0.0.1:8000 app python /opt/ocd/verify_conversation.py
+```
 
 ```powershell
 # E2E aislado: proyecto aleatorio, puerto libre, volúmenes temporales y dobles REST.

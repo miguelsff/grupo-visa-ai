@@ -19,6 +19,7 @@ from app.auth import require_demo_login
 from app.config import Settings
 from app.database import Database
 from app.integrations.openai import OpenAIIntegration, Orchestrator
+from app.integrations.questions import QuestionLog, QuestionLogUnavailable
 from app.integrations.status import integration_status
 from app.knowledge.qdrant import QdrantKnowledge
 from app.schemas import (
@@ -47,6 +48,7 @@ def create_app(
     client = httpx.Client(base_url=configuration.qdrant_url, timeout=configuration.external_timeout)
     reader = knowledge or QdrantKnowledge(configuration, integration, client)
     chat = ChatService(store, model or integration, reader)
+    questions = QuestionLog(configuration.mongodb_uri) if configuration.mongodb_uri else None
 
     @asynccontextmanager
     async def lifespan(application: FastAPI) -> AsyncIterator[None]:
@@ -56,6 +58,8 @@ def create_app(
         finally:
             integration.close()
             client.close()
+            if questions is not None:
+                questions.close()
 
     application = FastAPI(title="Grupo VISA AI · OCD local", version="0.3.0", lifespan=lifespan)
     if configuration.demo_password:
@@ -124,6 +128,13 @@ def create_app(
 
     @application.post("/api/chat", response_model=ChatResponse)
     def post_chat(body: ChatRequest, request: Request) -> JSONResponse:
+        if questions is not None:
+            try:
+                questions.record(body.message)
+            except QuestionLogUnavailable:
+                raise HTTPException(
+                    503, "No se pudo confirmar el registro de la pregunta."
+                ) from None
         return chat_response(request, body)
 
     @application.get("/api/chat", response_model=ChatResponse)

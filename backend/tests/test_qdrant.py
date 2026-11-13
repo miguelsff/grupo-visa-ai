@@ -99,6 +99,42 @@ def test_incomplete_generation_is_not_accepted(settings, points):
             )
 
 
+def test_documentary_finds_named_rule_before_semantic_neighbors(settings, points):
+    collection = "ocd_" + "a" * 32
+    target = next(p for p in points if p["payload"]["record_key"] == "rule:OCD-C02")
+    neighbor = next(p for p in points if p["payload"]["record_key"] == "rule:MIC-R04")
+
+    def handler(request):
+        body = json.loads(request.content)
+        if request.url.path == f"/collections/{collection}/points/scroll":
+            assert body["filter"]["must"] == [{"key": "rule.id", "match": {"any": ["OCD-C02"]}}]
+            result = {"points": [target], "next_page_offset": None}
+        else:
+            assert request.url.path == f"/collections/{collection}/points/query"
+            assert set(body["filter"]["must"][0]["match"]["any"]) == {
+                "comun", "microservicio", "azure", "red", "identidad"
+            }
+            result = {"points": [neighbor, target]}
+        return httpx.Response(200, json={"result": result})
+
+    with httpx.Client(base_url="http://qdrant", transport=httpx.MockTransport(handler)) as client:
+        records = QdrantKnowledge(settings, FakeEmbedder(), client).documentary(
+            collection, "¿Qué indica ocd-c02?"
+        )
+        assert [r.id for r in records] == [target["id"], neighbor["id"]]
+
+
+def test_documentary_unknown_rule_has_no_substitute(settings):
+    def handler(request):
+        assert request.url.path.endswith("/points/scroll")
+        return httpx.Response(200, json={"result": {"points": [], "next_page_offset": None}})
+
+    with httpx.Client(base_url="http://qdrant", transport=httpx.MockTransport(handler)) as client:
+        assert not QdrantKnowledge(settings, FakeEmbedder(), client).documentary(
+            "ocd_" + "a" * 32, "¿Qué exige la regla MIC-R99?"
+        )
+
+
 @pytest.mark.parametrize("mutation", ["hash", "version", "rule", "condition", "url", "id"])
 def test_incompatible_or_forged_payload_is_rejected(points, mutation):
     raw = copy.deepcopy(points[0])

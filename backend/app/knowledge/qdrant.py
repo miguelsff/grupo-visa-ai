@@ -13,6 +13,8 @@ from app.config import Settings
 from app.knowledge.models import Embedder, Knowledge, Record, parse_record
 from app.schemas import KnowledgeMatch
 
+RULE_REFERENCE = re.compile(r"\b[A-Z]{2,8}-[CR]\d{2,}\b", re.IGNORECASE | re.ASCII)
+
 
 class QdrantKnowledge:
     def __init__(self, settings: Settings, embedder: Embedder, client: httpx.Client) -> None:
@@ -90,6 +92,30 @@ class QdrantKnowledge:
             )
         records.extend(self.semantic(collection, query, scopes, normative=False))
         return Knowledge(collection, records)
+
+    def documentary(self, collection: str, query: str) -> list[Record]:
+        ids = sorted({match.upper() for match in RULE_REFERENCE.findall(query)})
+        exact: list[Record] = []
+        if ids:
+            page = self._request(
+                "POST",
+                f"/collections/{quote(collection, safe='')}/points/scroll",
+                json={
+                    "filter": {"must": [{"key": "rule.id", "match": {"any": ids}}]},
+                    "limit": 64,  # El contrato admite 26 reglas, cada una con ID único.
+                    "with_payload": True,
+                    "with_vector": False,
+                },
+            )
+            exact = [self._parse(p, collection) for p in page["points"]]
+            if page["next_page_offset"] is not None or any(
+                not r.payload.rule or r.payload.rule.id not in ids for r in exact
+            ):
+                raise ServiceUnavailable("La búsqueda devolvió reglas fuera del filtro solicitado.")
+            if not exact:
+                return []
+        related = self.semantic(collection, query, ["comun", *CATEGORY_FIELDS])
+        return list({r.id: r for r in [*exact, *related]}.values())
 
     def semantic(
         self, collection: str, query: str, scopes: list[str], normative: bool | None = None

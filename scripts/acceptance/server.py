@@ -102,30 +102,19 @@ class Handler(BaseHTTPRequestHandler):
         assert body["model"] == "gpt-6-luna" and body["store"] is False
         if "text" in body:
             data = json.loads(body["input"][0]["content"])
-            facts, categories = {}, {}
-            for message in data["messages"]:
-                for line in message["content"].splitlines():
-                    if "=" not in line:
-                        continue
-                    key, value = line.split("=", 1)
-                    evidence = {"quote": line, "message_id": message["id"]}
-                    if key == "categoria":
-                        categories[value] = {
-                            "category": value,
-                            "selected": True,
-                            **evidence,
-                        }
-                    else:
-                        scope, name = key.split(".", 1)
-                        facts[key] = {
-                            "scope": scope,
-                            "name": name,
-                            "value": value,
-                            **evidence,
-                        }
-            text = json.dumps(
-                {"categories": list(categories.values()), "facts": list(facts.values())}
-            )
+            schema = body["text"]["format"]["name"]
+            if schema == "TurnIntent":
+                result = {"intent": "borrador"}
+            elif schema == "Assessment":
+                result = {"supported": True}
+            elif schema == "Synthesis":
+                key, entry = next(iter(data["evidencia"].items()))
+                result = {"claims": [{"text": entry["texto"], "support": [
+                    {"key": key, "quote": entry["texto"]}
+                ]}]}
+            else:
+                result = extraction(data["messages"])
+            text = json.dumps(result)
             output = [
                 {
                     "type": "message",
@@ -149,6 +138,22 @@ class Handler(BaseHTTPRequestHandler):
                 }
             ]
         self.send(200, response(output))
+
+
+def extraction(messages: list[dict]) -> dict:
+    facts, categories = {}, {}
+    for message in messages:
+        for line in message["content"].splitlines():
+            if "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            evidence = {"quote": line, "message_id": message["id"]}
+            if key == "categoria":
+                categories[value] = {"category": value, "selected": True, **evidence}
+            else:
+                scope, name = key.split(".", 1)
+                facts[key] = {"scope": scope, "name": name, "value": value, **evidence}
+    return {"categories": list(categories.values()), "facts": list(facts.values())}
 
 
 def main() -> None:

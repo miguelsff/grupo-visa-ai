@@ -64,7 +64,7 @@ Conserva un único backend modular y una interfaz exportada como archivos estát
 - Mantén las rutas HTTP delgadas. Delega los casos de uso y las integraciones a sus módulos.
 - Valida las entradas mediante Pydantic y ejecuta las reglas reproducibles en Python.
 - Registra las rutas `/api` antes de montar los archivos estáticos en la raíz.
-- Usa Qdrant como conocimiento y SQLite solo para estado de sesión y borradores. No extender la carga FTS5 legada.
+- Usa Qdrant como fuente documental, SQLite para el estado de sesión y los borradores y MongoDB para registrar las preguntas. No alimentes el conocimiento con el historial de preguntas.
 - Reutiliza `x-knowledge-environment` de Compose para backend e ingesta. Usa el alias `ocd_actual`, `text-embedding-3-small` y 1536 dimensiones/Cosine.
 - Conserva condiciones de campos/reglas y trazabilidad según `docs/contrato_conocimiento.md`. Publica por intercambio atómico de alias; no sobrescribas la colección activa.
 - Conserva código, título, origen, URL y versión de cada documento recuperado.

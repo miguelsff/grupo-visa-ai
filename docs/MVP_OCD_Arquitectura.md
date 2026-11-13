@@ -40,6 +40,7 @@ producido por la CLI: cinco páginas, 26 reglas y veinte tickets de ejemplo.
 | `ingesta/` | Proyecto Python independiente; HTTPX REST Atlassian/Qdrant, SDK OpenAI, CLI y publicación. |
 | Qdrant | Vectores 1536/Cosine y payload trazable; imagen fijada `qdrant/qdrant:v1.16.3`. |
 | SQLite | `/data/ocd.sqlite3`: saludos, sesiones, mensajes y revisiones; no se usa como conocimiento. |
+| MongoDB | `ocd.preguntas` registra los mensajes del chat con fecha UTC, antes de procesarlos. Tiene volumen propio y acceso por red privada. |
 | Supercronic | Mismo caso de uso `ocd-ingestar` manual/cron; 03:00 `America/Lima`. |
 
 `docker compose up --build -d --wait` inicia app, Qdrant e ingesta. Solo app publica
@@ -96,13 +97,12 @@ impide consulta/chat del corpus publicado si Qdrant y OpenAI siguen disponibles.
 ## 4. Flujo implementado
 
 1. Una cookie opaca HttpOnly/SameSite=strict identifica la sesión. SQLite conserva su hash.
-2. El backend guarda el mensaje tras detección limitada y omisión de secretos.
-3. Responses API extrae hechos/categorías con cita literal e ID del mensaje.
+2. El backend registra el texto del turno en MongoDB tras omitir los patrones de secretos conocidos. Si falla el registro, responde 503 antes de modificar el borrador.
+3. El orquestador distingue saludos, temas ajenos, consultas de información y cambios al borrador. En un cambio, Responses API extrae hechos y categorías con cita literal e ID del mensaje.
 4. La combinación transaccional admite mensajes no procesados, conserva hechos
    más recientes y permite retirar explícitamente categorías. No ejecuta red dentro de escrituras SQLite.
-5. Responses selecciona `buscar_conocimiento` y `validar_ocd`. Python ejecuta las
-   reglas y produce preguntas, estados, faltantes y fuentes; no se añade una llamada generativa de cierre sin uso.
-6. La API persiste la revisión y devuelve el borrador; no dispone de `crear_ticket`.
+5. Para revisar un borrador, el agente recupera conocimiento de Qdrant y Python ejecuta V-01, V-02 y V-03. El agente arma la respuesta con lo declarado por el solicitante y la evidencia disponible. Una consulta sin respaldo recibe una respuesta de información insuficiente.
+6. La API devuelve `answer` en el contrato habitual. Los turnos informativos conservan la revisión del borrador. Los cambios al borrador y sus validaciones se conservan en SQLite.
 
 El único proceso backend serializa mensajes de una misma sesión; sesiones distintas
 pueden progresar de forma independiente. Lotes extraídos solapados se filtran por

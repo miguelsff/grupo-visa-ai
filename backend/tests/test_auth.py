@@ -33,10 +33,20 @@ def test_public_routes_require_login_except_health(settings: Settings) -> None:
         assert client.head("/api/health").status_code == 200
 
 
-def test_demo_sessions_own_their_revisions(settings: Settings, model, knowledge) -> None:
+def test_demo_sessions_own_their_revisions(
+    settings: Settings, model, knowledge, monkeypatch: pytest.MonkeyPatch
+) -> None:
     auth = ("demo", "clave-de-prueba")
+    monkeypatch.setattr("app.integrations.questions.QuestionLog.record", lambda self, msg: None)
     app = create_app(
-        replace(settings, on_railway=True, demo_password=auth[1]), model=model, knowledge=knowledge
+        replace(
+            settings,
+            on_railway=True,
+            demo_password=auth[1],
+            mongodb_uri="mongodb://localhost:27017",
+        ),
+        model=model,
+        knowledge=knowledge,
     )
     with TestClient(app, base_url="https://testserver") as client:
         draft = client.post("/api/chat", json={"message": "comun.titulo=Pedidos"}, auth=auth)
@@ -58,6 +68,7 @@ def test_railway_requires_demo_password(monkeypatch: pytest.MonkeyPatch) -> None
     with pytest.raises(ValueError, match="OCD_DEMO_PASSWORD"):
         Settings.from_environment()
     monkeypatch.setenv("OCD_DEMO_PASSWORD", "valor-de-prueba")
+    monkeypatch.setenv("MONGODB_URI", "mongodb://localhost:27017")
     settings = Settings.from_environment()
     assert settings.on_railway
     assert settings.demo_password == "valor-de-prueba"

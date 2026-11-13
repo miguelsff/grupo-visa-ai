@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from app.agent.conversation import Claim, Evidence, Intent, Support, Synthesis
 from app.agent.models import Draft, ExtractedFact, Extraction, SelectedCategory, UserMessage
 from app.config import Settings
 from app.integrations.openai import ToolExecutor
@@ -30,6 +31,18 @@ def points() -> list[dict]:
 
 
 class FakeModel:
+    def classify(self, message: str, draft: Draft) -> Intent:
+        return "borrador"
+
+    def compose(self, message: str, evidence: dict[str, Evidence], *, reviewing: bool) -> Synthesis:
+        key, entry = next(iter(evidence.items()))
+        return Synthesis(
+            claims=[Claim(text=entry.text, support=[Support(key=key, quote=entry.text)])]
+        )
+
+    def supported(self, message, proposal, selected, *, reviewing) -> bool:
+        return True
+
     def extract(self, messages: list[UserMessage], draft: Draft) -> Extraction:
         facts = {}
         categories = []
@@ -88,6 +101,9 @@ class FakeKnowledge:
                 excerpt=record.payload.text,
             )
         ]
+
+    def documentary(self, collection: str, query: str):
+        return [parse_record(p) for p in self.points[:5]]
 
 
 @pytest.fixture

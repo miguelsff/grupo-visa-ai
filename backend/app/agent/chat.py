@@ -5,18 +5,29 @@ from typing import Protocol
 
 from pydantic import ValidationError
 
+from app.agent.conversation import (
+    INTRO,
+    NO_INFORMATION,
+    OFF_TOPIC,
+    admitted_support,
+    evidence_for,
+    obvious_intent,
+    render,
+    review_summary,
+)
 from app.agent.facts import grounded, redact
-from app.agent.models import Category, ChatResponse, Extraction, ServiceUnavailable
+from app.agent.models import Category, ChatResponse, Citation, Extraction, ServiceUnavailable
 from app.agent.store import ChatStore
 from app.agent.validation import validar_ocd
 from app.integrations.openai import Orchestrator
-from app.knowledge.models import Knowledge
+from app.knowledge.models import Knowledge, Record
 from app.schemas import KnowledgeMatch
 
 
 class KnowledgeReader(Protocol):
     def resolve(self) -> str: ...
     def retrieve(self, collection: str, categories: list[Category], query: str) -> Knowledge: ...
+    def documentary(self, collection: str, query: str) -> list[Record]: ...
     def search(self, query: str) -> list[KnowledgeMatch]: ...
 
 
@@ -35,9 +46,61 @@ class ChatService:
             return self._handle(session_id, message)
 
     def _handle(self, session_id: str, message: str) -> ChatResponse:
-        self.store.append(session_id, redact(message))
-        pending = self.store.pending(session_id)
+        message = redact(message)
         previous = self.store.get(session_id)
+        try:
+            intent = obvious_intent(message) or self.model.classify(message, previous.draft)
+            if intent == "borrador":
+                return self._review(session_id, message, previous)
+            result = ChatResponse(
+                draft=previous.draft, revision=previous.revision, status="pending", answer=""
+            )
+            if intent == "saludo":
+                result.answer = INTRO
+            elif intent == "fuera_de_contexto":
+                result.answer = OFF_TOPIC
+            else:
+                collection = self.knowledge.resolve()
+                records = self.knowledge.documentary(collection, message)
+                sources = {record.id: record.citation() for record in records}
+                if previous.collection == collection:
+                    sources.update({s.point_id: s for s in previous.sources})
+                    result.validations = previous.validations
+                result.answer, result.sources = self._compose(
+                    message, result, list(sources.values()), reviewing=False
+                )
+                result.collection = collection
+                used = {source.point_id for source in result.sources}
+                result.validations = [v for v in result.validations if v.reference.point_id in used]
+            return result
+        except (ServiceUnavailable, ValidationError, KeyError, TypeError) as error:
+            return ChatResponse(
+                revision=previous.revision,
+                draft=previous.draft,
+                status="unavailable",
+                answer="No se pudo consultar la información en este momento.",
+                error=str(error)
+                if isinstance(error, ServiceUnavailable)
+                else "Respuesta inválida.",
+            )
+
+    def _compose(
+        self, message: str, result: ChatResponse, sources: list[Citation], *, reviewing: bool
+    ) -> tuple[str, list[Citation]]:
+        evidence = evidence_for(result.draft, sources, result.validations)
+        if not evidence:
+            return NO_INFORMATION, []
+        proposal = self.model.compose(message, evidence, reviewing=reviewing)
+        selected = admitted_support(proposal, evidence)
+        if selected and self.model.supported(message, proposal, selected, reviewing=reviewing):
+            return render(proposal, selected)
+        if reviewing:
+            return review_summary(result.draft, result.validations), []
+        return NO_INFORMATION, []
+
+    def _review(self, session_id: str, message: str, previous: ChatResponse) -> ChatResponse:
+        self.store.append(session_id, message)
+        pending = self.store.pending(session_id)
         result: ChatResponse | None = None
         try:
             extracted = (
@@ -79,15 +142,7 @@ class ChatService:
             result.questions = [f"Indica {field}." for field in absent]
             contradictions = [v for v in result.validations if v.status == "ERROR"]
             result.questions.extend(f"Revisa {v.rule_id}: {v.detail}" for v in contradictions)
-            result.answer = (
-                "Borrador guardado y revisado. "
-                + (
-                    "Completa o corrige los datos indicados."
-                    if result.questions
-                    else "Los datos están completos para las comprobaciones disponibles."
-                )
-                + " La ejecución, los permisos y las evidencias técnicas siguen pendientes."
-            )
+            result.answer, _ = self._compose(message, result, result.sources, reviewing=True)
         except (ServiceUnavailable, ValidationError, KeyError, TypeError) as error:
             if result is None:
                 # Mantener mensajes sin extraer para reintentarlos en el próximo turno.

@@ -16,6 +16,7 @@ services:
     environment:
       <<: *knowledge-environment
       DATABASE_PATH: /data/ocd.sqlite3
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongodb:27017/ocd}
       KNOWLEDGE_DIR: /app/knowledge
       FRONTEND_DIR: /app/static
       OCD_DEMO_PASSWORD: ${OCD_DEMO_PASSWORD:-}
@@ -23,6 +24,12 @@ services:
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6-luna}
     volumes:
       - sqlite_data:/data
+    networks:
+      - default
+      - preguntas
+    depends_on:
+      mongodb:
+        condition: service_healthy
     init: true
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
@@ -30,6 +37,19 @@ services:
       timeout: 5s
       start_period: 10s
       retries: 3
+
+  mongodb:
+    image: mongo:8.0@sha256:d97fea17ccb8d004cd137be8dab54d70d0df11be69c9f422aefe4484c8414ab7
+    restart: unless-stopped
+    networks:
+      - preguntas
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "quit(db.runCommand({ping:1}).ok === 1 ? 0 : 1)"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
 
   qdrant:
     image: qdrant/qdrant:v1.16.3@sha256:0425e3e03e7fd9b3dc95c4214546afe19de2eb2e28ca621441a56663ac6e1f46
@@ -66,6 +86,11 @@ services:
       KNOWLEDGE_DIR: /app/knowledge
 
 volumes:
+  mongo_data:
   sqlite_data:
   qdrant_data:
   ingesta_state:
+
+networks:
+  preguntas:
+    internal: true
