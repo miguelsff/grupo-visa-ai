@@ -119,6 +119,9 @@ incluyen punto, código, URL, versión y extracto; cada revisión fija su colecc
 física. Se puede corregir un dato o retirar explícitamente una categoría del alcance.
 No se reutilizan identificadores ni evidencias de tickets históricos como datos del usuario.
 
+Si el chat informa que una cita no coincide con tu mensaje, conserva el borrador y los turnos
+pendientes. Escribe `Reanudar` en el mismo chat para que vuelva a procesarlos.
+
 ## API y recuperación
 
 | Método y ruta | Semántica |

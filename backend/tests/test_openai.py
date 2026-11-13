@@ -3,10 +3,12 @@
 import json
 
 import httpx
+import pytest
 from openai import OpenAI
 
 from app.agent.conversation import Evidence
-from app.agent.models import Draft, UserMessage
+from app.agent.facts import grounded
+from app.agent.models import Draft, ServiceUnavailable, UserMessage
 from app.integrations.openai import OpenAIIntegration
 
 
@@ -137,6 +139,73 @@ def test_sdk_embedding_uses_contract_model_and_dimensions(settings):
     integration = OpenAIIntegration(settings, client=sdk)
     assert len(integration.embed("consulta")) == 1536
     integration.close()
+
+
+@pytest.mark.parametrize("invalid_span", [None, "foreign", "reversed", "typo"])
+def test_extraction_recovers_literal_spans_after_a_bad_quote(settings, invalid_span):
+    messages = [
+        UserMessage(
+            id=42,
+            content="Ana Torres solicita el cambio. El origen es QA y el destino es producción.",
+        ),
+        UserMessage(id=54, content="El responsable es Luis Vega."),
+    ]
+    requests = []
+
+    def handler(request):
+        body = json.loads(request.content)
+        data = json.loads(body["input"][0]["content"])
+        assert data["messages"] == [m.model_dump() for m in messages]
+        requests.append(data)
+        if len(requests) == 1:
+            assert body["text"]["format"]["name"] == "Extraction"
+            facts = [{
+                "scope": "comun", "name": "solicitante", "message_id": 54,
+                "quote": "Ana Torres solicita el cambio.", "value": "Ana Torres",
+            }]
+        else:
+            assert body["text"]["format"]["name"] == "SpanExtraction"
+            assert data["tokens"]["42"][:2] == ["0:Ana", "1:Torres"]
+            person = {
+                "scope": "comun", "name": "solicitante", "message_id": 42,
+                "first": "0:Ana", "last": "1:Torres",
+            }
+            if invalid_span == "foreign":
+                person["message_id"] = 54
+            elif invalid_span == "reversed":
+                person["first"], person["last"] = person["last"], person["first"]
+            elif invalid_span == "typo":
+                person["first"] = "0:Anita"
+            facts = [person, {
+                "scope": "comun", "name": "ambientes", "message_id": 42,
+                "first": "9:QA", "last": "14:producción",
+            }]
+        text = json.dumps({"categories": [], "facts": facts})
+        output = {
+            "id": "msg_retry",
+            "type": "message",
+            "role": "assistant",
+            "status": "completed",
+            "content": [{"type": "output_text", "text": text, "annotations": []}],
+        }
+        return httpx.Response(200, json=response_body([output]))
+
+    transport = httpx.MockTransport(handler)
+    with OpenAI(api_key="fake-key", http_client=httpx.Client(transport=transport)) as sdk:
+        integration = OpenAIIntegration(settings, client=sdk)
+        if invalid_span:
+            with pytest.raises(ServiceUnavailable, match="fragmento indicado"):
+                grounded(integration.extract(messages, Draft()), messages, Draft())
+        else:
+            result = grounded(integration.extract(messages, Draft()), messages, Draft())
+            assert result.facts[0].message_id == 42
+            assert result.facts[0].quote == "Ana Torres"
+            assert result.facts[0].value == "Ana Torres"
+            assert result.facts[1].value == result.facts[1].quote == "QA y el destino es producción"
+
+    assert len(requests) == 2
+    assert "solicitante" in requests[1]["correccion"]
+    assert "54" in requests[1]["correccion"]
 
 
 def test_sdk_classifies_and_verifies_a_grounded_answer(settings):
