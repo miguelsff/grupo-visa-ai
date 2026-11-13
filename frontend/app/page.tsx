@@ -19,6 +19,7 @@ export default function Home() {
   const [leftOpen, setLeftOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);
+  const [mobileDetail, setMobileDetail] = useState(false);
   const [leftWidth, setLeftWidth] = useState(350);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
@@ -33,6 +34,8 @@ export default function Home() {
   const composer = useRef<HTMLTextAreaElement>(null);
   const detailTrigger = useRef<HTMLButtonElement | null>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
+  const detailPanel = useRef<HTMLElement>(null);
+  const restoreDetailFocus = useRef(false);
   const busy = useRef(false);
   const current = [...turns].reverse().find(turn => turn.result)?.result;
   const currentRevision = current?.revision ?? 0;
@@ -56,14 +59,31 @@ export default function Home() {
   }, []);
   useEffect(() => { if (transcript.current) transcript.current.scrollTop = transcript.current.scrollHeight; }, [turns, sending]);
   useEffect(() => {
-    if (!rightOpen) return;
-    if (window.matchMedia("(max-width: 700px)").matches) closeButton.current?.focus();
+    const media = window.matchMedia("(max-width: 700px)");
+    function update() { setMobileDetail(media.matches); }
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  useEffect(() => {
+    if (!rightOpen) {
+      if (restoreDetailFocus.current) { restoreDetailFocus.current = false; detailTrigger.current?.focus(); }
+      return;
+    }
+    if (mobileDetail) closeButton.current?.focus();
     function onKey(event: globalThis.KeyboardEvent) {
-      if (event.key === "Escape") { setRightOpen(false); detailTrigger.current?.focus(); }
+      if (event.key === "Escape") { event.preventDefault(); restoreDetailFocus.current = true; setRightOpen(false); return; }
+      if (event.key !== "Tab" || !mobileDetail || !detailPanel.current) return;
+      const controls = Array.from(detailPanel.current.querySelectorAll<HTMLElement>("a[href], button:not(:disabled), summary, [tabindex]:not([tabindex='-1'])"))
+        .filter(element => element.getClientRects().length > 0);
+      const first = controls[0], last = controls.at(-1);
+      if (!first || !last) return;
+      if (event.shiftKey && (document.activeElement === first || !detailPanel.current.contains(document.activeElement))) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && (document.activeElement === last || !detailPanel.current.contains(document.activeElement))) { event.preventDefault(); first.focus(); }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [rightOpen, selected]);
+  }, [rightOpen, selected, mobileDetail]);
 
   function resize(width: number) {
     const next = Math.max(minWidth, Math.min(maxWidth, width));
@@ -110,22 +130,23 @@ export default function Home() {
   }
   function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); void ask(message); }
   function openDetail(index: number, trigger: HTMLButtonElement) { detailTrigger.current = trigger; setSelected(index); setRightOpen(true); setMobileOpen(false); }
-  function closeDetail() { setRightOpen(false); detailTrigger.current?.focus(); }
+  function closeDetail() { restoreDetailFocus.current = true; setRightOpen(false); }
+  const detailModal = rightOpen && mobileDetail;
   const workspace = [styles.workspace, !leftOpen && styles.leftClosed, !rightOpen && styles.rightClosed, mobileOpen && styles.mobileOpen].filter(Boolean).join(" ");
 
   return <main className={`${styles.app} ${dark ? styles.dark : ""}`}>
-    <header className={styles.topbar}>
+    <header className={styles.topbar} inert={detailModal}>
       <div className={styles.brand}><button className={`${styles.iconButton} ${styles.mobileMenu}`} aria-label="Mostrar requerimientos" aria-expanded={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}><Menu/></button><div className={styles.brandMark}>N</div><div><strong>NexoOPS</strong><small>GRUPO VISA AI · DEMOSTRACIÓN OCD</small></div></div>
       <div className={styles.topActions}><a href="/docs" target="_blank" rel="noreferrer">Explorar API ↗</a><button className={styles.iconButton} aria-label="Cambiar tema" onClick={() => setDark(!dark)}>{dark ? <Sun/> : <Moon/>}</button></div>
     </header>
     <div className={workspace} style={{ "--sidebar-width": `${leftWidth}px` } as CSSProperties}>
-      {mobileOpen && <button className={styles.scrim} aria-label="Cerrar menú" onClick={() => setMobileOpen(false)}/>}
-      <aside className={styles.sidebar} aria-label="Requerimientos y procedimientos">
+      {mobileOpen && <button className={styles.scrim} aria-label="Cerrar menú" inert={detailModal} onClick={() => setMobileOpen(false)}/>}
+      <aside className={styles.sidebar} aria-label="Requerimientos y procedimientos" inert={detailModal}>
         <div className={styles.sideTitle}><span className={styles.eyebrow}>REQUERIMIENTOS</span><button className={styles.iconButton} aria-label={leftOpen ? "Cerrar panel izquierdo" : "Abrir panel izquierdo"} onClick={() => { setLeftOpen(!leftOpen); setMobileOpen(false); }}>{leftOpen ? <ChevronLeft/> : <ChevronRight/>}</button></div>
         <div className={styles.sideContent}><div className={`${styles.ticket} ${styles.selected}`}><span className={styles.tag}>SESIÓN ACTUAL</span><strong>Mi borrador OCD</strong><small>{currentRevision ? `Revisión ${currentRevision}` : "Describe tu cambio para empezar"}</small></div><p className={styles.demoNote}>Una conversación y un borrador real por sesión del navegador.</p><details className={styles.workspaceInfo}><summary>Flujo, agenda y ejemplos</summary><h3>Flujo del requerimiento</h3><ol><li>Registrar el requerimiento.</li><li>Consultar los procedimientos.</li><li>Completar los datos pendientes.</li><li>Revisar el borrador y sus validaciones.</li></ol><h3>Recursos y agenda</h3><p>No hay integración de calendario. Las fechas declaradas no reservan una ventana.</p><h3>Ejemplos</h3><p>No hay ejemplos disponibles en esta demostración.</p></details><div className={styles.sideFooter}><KnowledgeSearch/></div></div>
         {leftOpen && <div className={styles.resizeHandle} role="separator" tabIndex={0} aria-label="Ajustar ancho del panel izquierdo" aria-orientation="vertical" aria-valuemin={minWidth} aria-valuemax={maxWidth} aria-valuenow={leftWidth} onPointerDown={startResize} onKeyDown={resizeKey}/>}
       </aside>
-      <section className={styles.chatPanel} aria-labelledby="chat-title">
+      <section className={styles.chatPanel} aria-labelledby="chat-title" inert={detailModal}>
         <div className={styles.panelHeader}><div className={styles.eyebrow}><Sparkles/> COPILOTO NEXOOPS</div><h1 id="chat-title">Armemos tu cambio.</h1><p>Describe tu requerimiento o consulta un procedimiento. El agente prepara un borrador con fuentes y datos pendientes.</p></div>
         <div className={styles.chatBody} ref={transcript} role="log" aria-label="Mensajes de la conversación" aria-live="polite">
           {!turns.length && !sending && <div className={styles.welcome}>Empieza con una consulta o describe el cambio que necesitas preparar.</div>}
@@ -144,7 +165,7 @@ export default function Home() {
         </div>
         <div className={styles.composer}><div className={styles.quickPrompts}>{["¿Qué planes exige OCD-C02?", "¿Qué datos requiere un pase de microservicios?"].map(text => <button key={text} disabled={restoring || sending || publishing} onClick={() => void ask(text)}>{text}</button>)}</div><form onSubmit={submit}><div className={styles.inputRow}><textarea ref={composer} aria-label="Tu mensaje" aria-busy={sending} value={message} maxLength={12000} required rows={2} disabled={restoring || sending || publishing} onChange={e => setMessage(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void ask(message); } }} placeholder="Describe el cambio que quieres preparar…"/><button className={styles.send} type="submit" aria-label="Enviar mensaje" disabled={restoring || sending || publishing || !message.trim()}><ArrowUp/></button></div></form><div className={styles.hint}><span role="status">{restoring ? "Recuperando la sesión…" : sending ? "Consultando al agente…" : publishing ? "Publicando en Jira…" : "Verifica siempre los datos críticos."}</span><span>Enter para enviar · Mayús+Enter para otra línea</span></div></div>
       </section>
-      <aside className={`${styles.canvasPanel} ${rightOpen ? "" : styles.collapsed}`} aria-label="Detalle del turno" aria-hidden={!rightOpen}>
+      <aside ref={detailPanel} className={`${styles.canvasPanel} ${rightOpen ? "" : styles.collapsed}`} role={detailModal ? "dialog" : undefined} aria-modal={detailModal ? true : undefined} aria-label="Detalle del turno" aria-hidden={!rightOpen}>
         <div className={styles.canvasHead}><div><span className={styles.eyebrow}>DETALLE DEL TURNO</span><h2>{selectedResult?.revision ? `Revisión ${selectedResult.revision}` : "Fuentes y resultados"}</h2></div><button ref={closeButton} className={styles.iconButton} aria-label="Cerrar detalle" onClick={closeDetail}><X/></button></div>
         <div className={styles.canvasInner}>{selectedResult ? <ReviewDetails result={selectedResult}/> : <p>Selecciona «Ver detalle» en una respuesta.</p>}</div>
       </aside>
