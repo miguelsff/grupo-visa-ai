@@ -67,11 +67,17 @@ export type ChatResponse = {
 };
 
 async function chatRequest(options: RequestInit): Promise<ChatResponse> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+  const signal = options.signal;
+  if (signal) signal.addEventListener("abort", () => controller.abort(), { once: true });
   const response = await fetch("/api/chat", {
     credentials: "same-origin",
     cache: "no-store",
     ...options,
+    signal: controller.signal,
   });
+  clearTimeout(timeout);
   if (response.status === 401) throw new Error("Inicia sesión para usar el chat.");
   if (response.status === 422) throw new Error("Escribe un mensaje de entre 1 y 12 000 caracteres.");
   const body = response.headers.get("content-type")?.includes("application/json")
