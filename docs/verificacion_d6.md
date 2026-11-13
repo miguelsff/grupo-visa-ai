@@ -17,7 +17,11 @@ y descripción ADF con la vista previa, destino, clave y enlace simulados; se co
 que la repetición y la recuperación tras recrear `app` no crean otro ticket. Esto no
 acredita credenciales, permisos ni escritura en Jira real. La evidencia anterior de
 lectura real y citas permanece en [T4](verificacion_t4.md#ingesta-real-y-verificación-de-citas).
-El enlace simulado se comprobó en la respuesta; no se abrió en un navegador.
+En una comprobación coordinada independiente, Chrome abrió «Abrir ticket
+SCRUM-999» en una pestaña nueva hacia un destino HTML simulado, en 13 segundos
+con un clic de publicación. La petición de publicación y la apertura se
+interceptaron en el navegador, sin contacto con Atlassian; esta prueba visual no
+atravesó el backend. La aceptación HTTP anterior sí atravesó el backend y el doble Jira.
 
 La ejecución aislada pasó 106 pruebas de backend y Ruff; la prueba de ingesta pasó
 36 pruebas y Ruff. TypeScript y la compilación estática pasaron en Docker. Las 13
