@@ -50,7 +50,11 @@ class JiraClient:
         self.close()
 
     def find_issue(self, marker: str) -> JiraIssue | None:
-        """Busca una etiqueta exacta dentro de SCRUM para reconciliar un intento."""
+        """Busca una etiqueta exacta dentro de SCRUM.
+
+        None solo indica que el índice aún no muestra el ticket. Tras una creación
+        incierta, el llamador debe conservar el intento pendiente y no repetir el POST.
+        """
         self._validate_marker(marker)
         body = {
             "jql": f'project = SCRUM AND labels = "{marker}"',
@@ -71,9 +75,12 @@ class JiraClient:
                 f"Jira no permitió consultar el marcador ({response.status_code})."
             )
         try:
-            issues = response.json()["issues"]
+            result = response.json()
+            issues = result["issues"]
             if not isinstance(issues, list):
                 raise TypeError("issues no es una lista")
+            if result.get("nextPageToken"):
+                raise JiraUncertainError("La búsqueda Jira tiene más páginas sin verificar.")
             matches = [
                 self._issue(issue["key"])
                 for issue in issues
@@ -107,7 +114,7 @@ class JiraClient:
             )
         except httpx.RequestError as error:
             raise JiraUncertainError("No se pudo confirmar la creación en Jira.") from error
-        if 400 <= response.status_code < 500:
+        if 400 <= response.status_code < 500 and response.status_code != 408:
             raise JiraRejectedError(f"Jira rechazó la creación ({response.status_code}).")
         if response.status_code != 201:
             raise JiraUncertainError(f"No se pudo confirmar la creación ({response.status_code}).")

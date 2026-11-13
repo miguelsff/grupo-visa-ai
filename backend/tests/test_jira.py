@@ -70,7 +70,12 @@ def test_find_issue_requires_project_and_exact_label(settings):
 
 @pytest.mark.parametrize(
     "status,error",
-    [(400, JiraRejectedError), (403, JiraRejectedError), (500, JiraUncertainError)],
+    [
+        (400, JiraRejectedError),
+        (403, JiraRejectedError),
+        (408, JiraUncertainError),
+        (500, JiraUncertainError),
+    ],
 )
 def test_create_issue_classifies_response_without_retry(settings, status, error):
     calls = []
@@ -106,6 +111,49 @@ def test_find_issue_rejects_duplicate_marker(settings):
 
     with pytest.raises(JiraUncertainError, match="más de un ticket"):
         _client(settings, handler).find_issue("ocd-42")
+
+
+def test_find_issue_with_next_page_is_uncertain_even_if_first_page_matches(settings):
+    def handler(_request):
+        return httpx.Response(
+            200,
+            json={
+                "issues": [
+                    {
+                        "key": "SCRUM-25",
+                        "fields": {"project": {"key": "SCRUM"}, "labels": ["ocd-42"]},
+                    }
+                ],
+                "nextPageToken": "other-page",
+            },
+        )
+
+    with pytest.raises(JiraUncertainError, match="más páginas"):
+        _client(settings, handler).find_issue("ocd-42")
+
+
+def test_find_issue_empty_index_is_only_absence_of_visible_result(settings):
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        if len(calls) == 1:
+            return httpx.Response(200, json={"issues": []})
+        return httpx.Response(
+            200,
+            json={"issues": [
+                {
+                    "key": "SCRUM-25",
+                    "fields": {"project": {"key": "SCRUM"}, "labels": ["ocd-42"]},
+                }
+            ]},
+        )
+
+    jira = _client(settings, handler)
+    assert jira.find_issue("ocd-42") is None
+    assert jira.find_issue("ocd-42").key == "SCRUM-25"
+    assert len(calls) == 2
+    assert all(call.url.path == "/rest/api/3/search/jql" for call in calls)
 
 
 def test_configuration_and_marker_are_restricted(settings):
