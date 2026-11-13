@@ -12,7 +12,7 @@ No importar módulos de un proyecto Python desde el otro.
 | Variable | Valor local | Regla |
 | --- | --- | --- |
 | `QDRANT_URL` | `http://qdrant:6333` | REST interno, sin puertos publicados. |
-| `QDRANT_ALIAS` | `ocd_actual` | Lectores consultan siempre el alias. |
+| `QDRANT_ALIAS` | `ocd_actual` | Cada consulta resuelve el alias una sola vez y lee esa colección física hasta terminar. |
 | `OPENAI_EMBEDDING_MODEL` | `text-embedding-3-small` | Mismo modelo en carga y consulta. |
 | `OPENAI_EMBEDDING_DIMENSIONS` | `1536` | Vector denso sin nombre, distancia `Cosine`. |
 
@@ -127,7 +127,7 @@ la colección física de esa revisión para poder identificar la generación con
 
 ## Publicación y recuperación (T2/T3 pendientes)
 
-1. Adquirir bloqueo de ingesta compartido por CLI y cron. Leer solo la lista permitida.
+1. Adquirir bloqueo de ingesta compartido por CLI y cron. Leer solo la lista permitida. Contrastar las reglas y los campos con el HTML recibido. Si una regla, condición o versión documental difiere de la admitida por los validadores, conservar la colección vigente y registrar la fuente que requiere revisión.
 2. Construir colección aislada con vectores 1536/Cosine y payload versión 1.
 3. Verificar 5 páginas, 26 reglas, todos los campos y 20 ejemplos distintos;
    comprobar IDs únicos, versiones, condiciones, dimensiones y ausencia de secretos.
@@ -135,8 +135,7 @@ la colección física de esa revisión para poder identificar la generación con
    para `normative`; paginar las recuperaciones completas.
 5. Cambiar `ocd_actual` mediante una sola operación atómica de alias Qdrant:
    borrar alias anterior (si existe) y crear alias hacia la colección nueva.
-6. Conservar al menos la colección previa y no eliminar colecciones utilizadas por
-   revisiones persistidas. La política de limpieza se implementará después.
+6. Conservar la colección activa y su predecesora. Limpiar solo las generaciones propias que ya no estén publicadas. Las revisiones conservan en SQLite el extracto citado y su procedencia para que las citas sobrevivan a la limpieza. Si el cambio de alias devuelve un resultado incierto, comprobar su destino antes de borrar una colección.
 
 Un fallo de descarga, contenido, embedding o escritura no cambia el alias.
 Sin primera carga válida, T3 informa conocimiento no disponible; no afirma que

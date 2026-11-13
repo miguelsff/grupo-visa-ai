@@ -14,6 +14,8 @@ SQLite y terminaba creando un ticket. Railway queda aplazado: la solución local
 con Qdrant e ingesta independiente requiere revisar servicios, volúmenes,
 autenticación y costos antes de retomar un despliegue. No hay despliegue aceptado.
 
+Los requisitos para la futura creación en Jira, el diseño Railway y las estimaciones de la etapa anterior se conservan en la [arquitectura 0.4](https://github.com/miguelsff/grupo-visa-ai/blob/cb9d9fcb21ab89f8512ce2b4929195eb6ce15f5c/docs/MVP_OCD_Arquitectura.md).
+
 | Capacidad | Estado comprobable en el repositorio |
 | --- | --- |
 | Frontend estático Next.js, FastAPI y saludo persistente | Implementación legada de etapa 1, conservada. |
@@ -96,7 +98,7 @@ y cambiará el alias atómicamente. No se modifica una colección publicada.
 Un fallo conserva la última carga válida. La primera carga incompleta deja el
 conocimiento no disponible. El backend solo lee y no actualiza Qdrant.
 Cada revisión del borrador guarda referencias, versiones e identidad de la
-colección física; no se eliminan colecciones aún referenciadas.
+colección física y los extractos citados. Qdrant conserva la generación activa y la anterior.
 
 La recuperación normativa debe obtener todas las reglas comunes y las reglas y
 campos de cada sección activa mediante filtros y paginación. Un top-k semántico
