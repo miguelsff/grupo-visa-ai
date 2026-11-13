@@ -31,7 +31,7 @@ El ejemplo OCD mencionado por el usuario queda excluido de este contenido y de l
 
 ## Responsabilidades y límites
 
-- El agente prepara el baseline, solicita datos pendientes y crea la solicitud Jira.
+- El alcance local T1–T3 prepara el baseline, solicita datos y valida; no crea la solicitud Jira.
 - Los responsables del proceso ejecutan certificación, cambios y pruebas en sus ambientes.
 - La creación de un ticket no acredita certificación ni ejecución del cambio.
 - Los tickets sirven como ejemplos. Los modelos operativos definen las reglas de esta demostración.
@@ -68,7 +68,10 @@ El ejemplo OCD mencionado por el usuario queda excluido de este contenido y de l
 ## Integración pendiente
 
 El manifiesto registra cinco páginas, cuatro modelos, 26 reglas y veinte referencias Jira.
-La ingesta y la ejecución de validaciones en el backend del MVP todavía no están implementadas.
+T1 define el [contrato Qdrant](../contrato_conocimiento.md), que conserva reglas comunes,
+reglas específicas y condiciones `when` de cada campo. La ingesta independiente T2
+y las validaciones V-01/02/03 de T3 aún no están implementadas. SQLite/FTS5 sigue
+siendo el comportamiento legado hasta T3, no el almacenamiento objetivo del conocimiento.
 Para leer Confluence mediante MCP se recomienda HTML. La conversión a Markdown omitió paneles y fechas durante la verificación.
 Las copias Markdown de esta carpeta conservan explícitamente esa información.
 

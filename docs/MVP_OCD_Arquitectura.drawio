@@ -1,150 +1,129 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <mxfile host="app.diagrams.net" version="24.7.17">
-  <diagram id="contexto" name="Contexto">
-    <mxGraphModel dx="1250" dy="880" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1250" pageHeight="880">
+  <diagram id="contexto" name="Contexto local">
+    <mxGraphModel dx="1280" dy="800" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1280" pageHeight="800">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="ctx-title" value="MVP OCD | Contexto | Diseño 0.4 | 13 nov 2026" style="text;html=0;align=left;verticalAlign=middle;fontSize=22;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="20" width="1150" height="50" as="geometry" />
+        <mxCell id="contexto-title" value="MVP OCD | Contexto local | Diseño 0.5 | 13 nov 2026" style="text;html=0;align=left;fontSize=24;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="20" width="1200" height="65" />
         </mxCell>
-        <mxCell id="ctx-user" value="Ingeniero&#xA;Describe el cambio y&#xA;completa datos pendientes" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8eef8;strokeColor=#7385a8;fontSize=15;" vertex="1" parent="1">
-          <mxGeometry x="40" y="330" width="220" height="110" as="geometry" />
+        <mxCell id="user" value="Usuario&#10;Describe el cambio&#10;y responde preguntas" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="250" width="235" height="135" />
         </mxCell>
-        <mxCell id="ctx-system" value="MVP OCD&#xA;Chat, conocimiento, agente&#xA;y verificaciones&#xA;Despliegue en Railway" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=17;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="390" y="295" width="320" height="180" as="geometry" />
+        <mxCell id="system" value="MVP OCD local&#10;Saludo y FTS5: implementados&#10;Agente y V-01/02/03: T3 pendiente&#10;Sin crear tickets" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="430" y="235" width="380" height="165" />
         </mxCell>
-        <mxCell id="ctx-jira" value="Jira Cloud Free&#xA;Ejemplos de tickets&#xA;y creacion del OCD" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="1">
-          <mxGeometry x="950" y="120" width="250" height="120" as="geometry" />
+        <mxCell id="atl" value="Atlassian (solo lectura)&#10;5 páginas / 20 ejemplos&#10;Lectura T2 pendiente" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="990" y="130" width="250" height="135" />
         </mxCell>
-        <mxCell id="ctx-conf" value="Confluence&#xA;Modelos operativos publicados&#xA;Plan Free por verificar" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="1">
-          <mxGeometry x="950" y="330" width="250" height="120" as="geometry" />
+        <mxCell id="ai" value="OpenAI&#10;Embeddings T2 / agente T3&#10;Conexión pendiente" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="990" y="420" width="250" height="135" />
         </mxCell>
-        <mxCell id="ctx-llm" value="OpenAI Responses API&#xA;gpt-6-luna&#xA;Modelo propuesto" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=15;" vertex="1" parent="1">
-          <mxGeometry x="950" y="540" width="250" height="120" as="geometry" />
+        <mxCell id="ctx1" value="HTTP local" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="user" target="system">
+          <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="ctx-note" value="Resultado: ticket para certificacion previo al pase a produccion.&#xA;La demo prepara y verifica la solicitud; la ejecucion Azure pertenece al proceso posterior." style="text;html=0;align=left;verticalAlign=middle;fontSize=15;" vertex="1" parent="1">
-          <mxGeometry x="40" y="740" width="1160" height="80" as="geometry" />
+        <mxCell id="ctx2" value="Lectura T2" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;exitX=1;exitY=0.25;" edge="1" parent="1" source="system" target="atl">
+          <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="ctx-e1" value="HTTPS / chat" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="ctx-user" target="ctx-system">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="ctx3" value="SDK oficial" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;exitX=1;exitY=0.75;" edge="1" parent="1" source="system" target="ai">
+          <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="ctx-e2" value="Lee ejemplos&#xA;Crea ticket" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;exitX=1;exitY=0.15;entryX=0;entryY=0.5;" edge="1" parent="1" source="ctx-system" target="ctx-jira">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="790" y="322" />
-              <mxPoint x="790" y="180" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="ctx-e3" value="Lee procedimientos" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="ctx-system" target="ctx-conf">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="ctx-e4" value="Genera contenido&#xA;Solicita herramientas" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;exitX=1;exitY=0.85;entryX=0;entryY=0.5;" edge="1" parent="1" source="ctx-system" target="ctx-llm">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="790" y="448" />
-              <mxPoint x="790" y="600" />
-            </Array>
-          </mxGeometry>
+        <mxCell id="ctx-note" value="Alcance: borrador, fuentes, preguntas y verificaciones; sin ejecutar infraestructura.&#10;Railway aplazado. Amarillo discontinuo = implementación pendiente." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="650" width="1200" height="100" />
         </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
-  <diagram id="aplicaciones" name="Aplicaciones">
-    <mxGraphModel dx="1250" dy="880" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1250" pageHeight="880">
+  <diagram id="local" name="Servicios locales">
+    <mxGraphModel dx="1280" dy="800" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1280" pageHeight="800">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="app-title" value="MVP OCD | Aplicaciones | Railway + SQLite | Diseño 0.4" style="text;html=0;align=left;verticalAlign=middle;fontSize=22;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="10" width="1150" height="50" as="geometry" />
+        <mxCell id="local-title" value="MVP OCD | Servicios locales | T1 implementado / T2–T3 pendientes" style="text;html=0;align=left;fontSize=24;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="20" width="1200" height="65" />
         </mxCell>
-        <mxCell id="app-local" value="Railway | Servicio app + volumen" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f7fafc;strokeColor=#a0aec0;dashed=1;verticalAlign=top;align=left;spacing=12;fontSize=16;" vertex="1" parent="1">
-          <mxGeometry x="390" y="80" width="430" height="730" as="geometry" />
+        <mxCell id="browser" value="Navegador&#10;Next.js exportado&#10;127.0.0.1:8000" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="150" width="230" height="125" />
         </mxCell>
-        <mxCell id="app-cloud" value="Servicios externos" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f7fafc;strokeColor=#a0aec0;dashed=1;verticalAlign=top;align=left;spacing=12;fontSize=16;" vertex="1" parent="1">
-          <mxGeometry x="900" y="80" width="310" height="730" as="geometry" />
+        <mxCell id="app" value="app: FastAPI + estáticos&#10;Python 3.14 / un worker&#10;Saludo + FTS5 legados&#10;Agente y Qdrant: T3 pendiente" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="430" y="120" width="370" height="180" />
         </mxCell>
-        <mxCell id="app-ui" value="Frontend&#xA;Next.js / TypeScript&#xA;CSS Modules&#xA;Chat, borrador y verificaciones&#xA;Navegador" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8eef8;strokeColor=#7385a8;fontSize=15;" vertex="1" parent="1">
-          <mxGeometry x="70" y="180" width="250" height="160" as="geometry" />
+        <mxCell id="sqlite" value="sqlite_data&#10;/data/ocd.sqlite3&#10;T3: solo estado y borradores" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="980" y="140" width="260" height="140" />
         </mxCell>
-        <mxCell id="app-api" value="Servicio app&#xA;Python / FastAPI / Uvicorn&#xA;Una réplica y un worker&#xA;Sirve Next.js estático&#xA;Agente y conector: pendientes" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="440" y="160" width="300" height="200" as="geometry" />
+        <mxCell id="ingest" value="ingesta (T2 pendiente)&#10;Proyecto Python independiente&#10;CLI manual / Supercronic&#10;03:00 America/Lima" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="440" width="300" height="175" />
         </mxCell>
-        <mxCell id="app-db" value="SQLite + FTS5&#xA;/data/ocd.sqlite3&#xA;Conocimiento y borradores&#xA;Operaciones de creación&#xA;Volumen persistente Railway" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=15;" vertex="1" parent="1">
-          <mxGeometry x="440" y="540" width="300" height="150" as="geometry" />
+        <mxCell id="qdrant" value="qdrant/qdrant:v1.16.3&#10;REST interno :6333&#10;Alias ocd_actual&#10;Sin puertos al host" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="430" y="440" width="370" height="175" />
         </mxCell>
-        <mxCell id="app-jira" value="Jira Cloud Free&#xA;Lee ejemplos&#xA;Crea ticket OCD" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="1">
-          <mxGeometry x="930" y="170" width="250" height="130" as="geometry" />
+        <mxCell id="qvolume" value="qdrant_data&#10;/qdrant/storage&#10;Conocimiento persistente" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="980" y="465" width="260" height="125" />
         </mxCell>
-        <mxCell id="app-conf" value="Confluence&#xA;Modelos operativos&#xA;Lectura previa a la demo" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="1">
-          <mxGeometry x="930" y="390" width="250" height="130" as="geometry" />
+        <mxCell id="local1" value="/api mismo origen" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="browser" target="app">
+          <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="app-llm" value="OpenAI Responses API&#xA;gpt-6-luna&#xA;Llamadas a herramientas" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=15;" vertex="1" parent="1">
-          <mxGeometry x="930" y="620" width="250" height="130" as="geometry" />
+        <mxCell id="local2" value="Estado" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="app" target="sqlite">
+          <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="app-note" value="Next.js se compila en Docker.&#xA;El navegador ejecuta la interfaz.&#xA;Un dominio sirve interfaz y API.&#xA;Secretos solo en el backend.&#xA;Compose local para desarrollo." style="text;html=0;align=left;verticalAlign=middle;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="50" y="500" width="290" height="160" as="geometry" />
+        <mxCell id="local3" value="Lectura T3" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="app" target="qdrant">
+          <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="app-e1" value="HTTPS /api" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="app-ui" target="app-api">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="local4" value="Carga T2" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="ingest" target="qdrant">
+          <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="app-e2" value="Lectura y escritura" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="app-api" target="app-db">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="local5" value="Volumen propio" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="qdrant" target="qvolume">
+          <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="app-e3" value="REST / HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;exitX=1;exitY=0.3;entryX=0;entryY=0.5;" edge="1" parent="1" source="app-api" target="app-jira">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="840" y="220" />
-              <mxPoint x="840" y="235" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="app-e4" value="REST / HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;exitX=1;exitY=0.6;entryX=0;entryY=0.5;" edge="1" parent="1" source="app-api" target="app-conf">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="800" y="280" />
-              <mxPoint x="800" y="455" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="app-e5" value="Responses / HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;exitX=1;exitY=0.85;entryX=0;entryY=0.5;" edge="1" parent="1" source="app-api" target="app-llm">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="850" y="330" />
-              <mxPoint x="850" y="685" />
-            </Array>
-          </mxGeometry>
+        <mxCell id="local-note" value="Qdrant y volumen: implementados y probados. Alias de datos reales: pendiente de T2.&#10;La aplicación aún consulta FTS5. La compilación usa Node.js 24; no hay servidor Next.js." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="685" width="1200" height="80" />
         </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
-  <diagram id="despliegue-railway" name="Despliegue Railway">
-    <mxGraphModel dx="1250" dy="920" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1250" pageHeight="920">
-  <root>
-    <mxCell id="0" />
-    <mxCell id="1" parent="0" />
-    <mxCell id="dep-title" value="MVP OCD | Despliegue Railway | Diseño 0.4" style="text;html=0;align=left;verticalAlign=middle;fontSize=22;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="20" width="1170" height="45" as="geometry" /></mxCell>
-    <mxCell id="dep-subtitle" value="Destino seleccionado. Configuración y pruebas en Railway pendientes." style="text;html=0;align=left;verticalAlign=middle;fontSize=16;" vertex="1" parent="1"><mxGeometry x="40" y="70" width="1170" height="40" as="geometry" /></mxCell>
-    <mxCell id="dep-boundary" value="Railway | Una región | Una réplica" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f7fafc;strokeColor=#a0aec0;dashed=1;verticalAlign=top;align=left;spacing=16;fontSize=16;" vertex="1" parent="1"><mxGeometry x="390" y="340" width="450" height="470" as="geometry" /></mxCell>
-    <mxCell id="dep-repo" value="Repositorio GitHub&#xA;Frontend + backend&#xA;Dockerfile y dependencias" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8eef8;strokeColor=#7385a8;fontSize=16;" vertex="1" parent="1"><mxGeometry x="40" y="160" width="250" height="120" as="geometry" /></mxCell>
-    <mxCell id="dep-build" value="Compilación Docker&#xA;Node.js: exporta Next.js&#xA;Python: copia /app/static&#xA;Sin credenciales ni base de datos" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8eef8;strokeColor=#7385a8;fontSize=15;" vertex="1" parent="1"><mxGeometry x="420" y="150" width="350" height="140" as="geometry" /></mxCell>
-    <mxCell id="dep-image" value="Imagen runtime&#xA;Python + frontend estático&#xA;Construida por Railway" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8eef8;strokeColor=#7385a8;fontSize=16;" vertex="1" parent="1"><mxGeometry x="930" y="160" width="270" height="120" as="geometry" /></mxCell>
-    <mxCell id="dep-user" value="Participante de la demo&#xA;Navegador&#xA;Acceso autenticado" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8eef8;strokeColor=#7385a8;fontSize=16;" vertex="1" parent="1"><mxGeometry x="40" y="450" width="250" height="130" as="geometry" /></mxCell>
-    <mxCell id="dep-app" value="Servicio app&#xA;FastAPI + Uvicorn&#xA;0.0.0.0:8000 / PORT=8000&#xA;Un worker; usuario UID 10001&#xA;/api/health" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="440" y="420" width="350" height="190" as="geometry" /></mxCell>
-    <mxCell id="dep-db" value="Volumen persistente /data&#xA;SQLite + FTS5&#xA;/data/ocd.sqlite3&#xA;0.5 GB iniciales en Trial/Free" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=15;" vertex="1" parent="1"><mxGeometry x="440" y="680" width="350" height="105" as="geometry" /></mxCell>
-    <mxCell id="dep-external" value="Servicios externos&#xA;Jira / Confluence&#xA;OpenAI Responses API&#xA;Llamadas desde el backend" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="1"><mxGeometry x="930" y="440" width="270" height="150" as="geometry" /></mxCell>
-    <mxCell id="dep-vars" value="Railway Variables&#xA;Credenciales del backend&#xA;DATABASE_PATH=/data/ocd.sqlite3&#xA;Permisos: ajustar /data al iniciar&#xA;y después bajar a UID 10001" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1"><mxGeometry x="930" y="660" width="270" height="145" as="geometry" /></mxCell>
-    <mxCell id="dep-local-note" value="Desarrollo y respaldo local:&#xA;Docker Compose + sqlite_data.&#xA;Copias consistentes de SQLite&#xA;guardadas fuera del volumen." style="text;html=0;align=left;verticalAlign=middle;fontSize=15;" vertex="1" parent="1"><mxGeometry x="40" y="660" width="300" height="140" as="geometry" /></mxCell>
-    <mxCell id="dep-note" value="Inicializar SQLite al arrancar, después de montar /data. Los redeploys con volumen tienen una pausa breve.&#xA;Costo: crédito Trial/Free disponible o Hobby desde USD 5/mes; consumo de OpenAI por separado." style="text;html=0;align=left;verticalAlign=middle;fontSize=15;" vertex="1" parent="1"><mxGeometry x="40" y="840" width="1170" height="65" as="geometry" /></mxCell>
-    <mxCell id="dep-e1" value="Código" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;exitX=1;exitY=0.5;entryX=0;entryY=0.5;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="dep-repo" target="dep-build"><mxGeometry relative="1" as="geometry" /></mxCell>
-    <mxCell id="dep-e2" value="Construye" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;exitX=1;exitY=0.5;entryX=0;entryY=0.5;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="dep-build" target="dep-image"><mxGeometry relative="1" as="geometry" /></mxCell>
-    <mxCell id="dep-e3" value="Despliega" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;exitX=0;exitY=0.8;entryX=0.8;entryY=0;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="dep-image" target="dep-app"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="870" y="256" /><mxPoint x="870" y="325" /><mxPoint x="720" y="325" /></Array></mxGeometry></mxCell>
-    <mxCell id="dep-e4" value="HTTPS&#xA;Proxy Railway" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;exitX=1;exitY=0.5;entryX=0;entryY=0.5;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="dep-user" target="dep-app"><mxGeometry relative="1" as="geometry" /></mxCell>
-    <mxCell id="dep-e5" value="Lectura / escritura" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;exitX=0.5;exitY=1;entryX=0.5;entryY=0;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="dep-app" target="dep-db"><mxGeometry relative="1" as="geometry" /></mxCell>
-    <mxCell id="dep-e6" value="HTTPS saliente" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;exitX=1;exitY=0.5;entryX=0;entryY=0.5;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="dep-app" target="dep-external"><mxGeometry relative="1" as="geometry" /></mxCell>
-    <mxCell id="dep-e7" value="Configuración" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;dashed=1;exitX=0;exitY=0.5;entryX=1;entryY=0.9;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="dep-vars" target="dep-app"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="870" y="732.5" /><mxPoint x="870" y="591" /></Array></mxGeometry></mxCell>
-  </root>
-</mxGraphModel>
+  <diagram id="contrato" name="Contrato de conocimiento">
+    <mxGraphModel dx="1280" dy="800" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1280" pageHeight="800">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="contrato-title" value="MVP OCD | Contrato v1 | Diseñado en T1, consumidores T2/T3 pendientes" style="text;html=0;align=left;fontSize=24;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="20" width="1200" height="65" />
+        </mxCell>
+        <mxCell id="sources" value="Manifiesto permitido&#10;5 páginas Confluence&#10;26 reglas + campos con when&#10;20 tickets como ejemplos" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="145" width="320" height="175" />
+        </mxCell>
+        <mxCell id="payload" value="Payload v1 + UUIDv5 estable&#10;source_id / record_key&#10;URL, código, versión, fragmento&#10;kind + scope + normative&#10;Condiciones sin ejecutar" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="480" y="130" width="380" height="205" />
+        </mxCell>
+        <mxCell id="vectors" value="text-embedding-3-small&#10;1536 / Cosine&#10;Mismo modelo en consultas" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="970" y="160" width="270" height="145" />
+        </mxCell>
+        <mxCell id="stage" value="Colección ocd_&lt;run_id&gt;&#10;Carga completa + validación&#10;Sin sobrescribir la activa" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="480" width="320" height="145" />
+        </mxCell>
+        <mxCell id="alias" value="ocd_actual&#10;Intercambio atómico del alias&#10;Fallo: conservar carga anterior" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="480" y="480" width="380" height="145" />
+        </mxCell>
+        <mxCell id="rules" value="Backend T3&#10;Todas las reglas aplicables&#10;Ejemplos sin autoridad&#10;Preguntas + V-01/02/03" style="rounded=1;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontSize=17;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="970" y="465" width="270" height="175" />
+        </mxCell>
+        <mxCell id="con1" value="Asignación T2" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="sources" target="payload">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="con2" value="Vectorizar T2" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="payload" target="vectors">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="con3" value="Publicar T2" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="stage" target="alias">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="con4" value="Recuperar T3" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;" edge="1" parent="1" source="alias" target="rules">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="con-note" value="SQLite conserva estado; Qdrant conserva conocimiento. Cada revisión conserva fuentes y generación.&#10;El backend no ejecuta ingesta ni escribe en Jira. No inferir identificadores de ejemplos." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="685" width="1200" height="80" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
   </diagram>
 </mxfile>

@@ -5,6 +5,12 @@ Base local del asistente para preparar tickets OCD.
 La etapa 1 conecta Next.js, FastAPI, Pydantic y SQLite mediante un «Hola mundo» persistente.
 También carga cinco documentos locales y permite buscarlos mediante FTS5.
 
+T1 añade Qdrant interno persistente y el [contrato de conocimiento](docs/contrato_conocimiento.md).
+La ingesta independiente (T2) y el agente con validación (T3) están pendientes.
+El alcance local termina con un borrador validado, sin crear tickets; Railway queda aplazado.
+La aplicación aún usa FTS5: T1 no conecta el backend a Qdrant.
+Consulta la [evidencia y las limitaciones de T1](docs/verificacion_t1.md).
+
 ## Ejecutar con Docker Compose
 
 Requisito: Docker Desktop iniciado con contenedores Linux y Docker Compose disponible.
@@ -30,7 +36,10 @@ docker compose logs -f app
 docker compose down
 ```
 
-`docker compose down` conserva el volumen `sqlite_data` y los saludos guardados.
+`docker compose down` conserva `sqlite_data` y `qdrant_data`.
+Qdrant usa `qdrant/qdrant:v1.16.3` y no publica puertos al host.
+`--wait` comprueba el estado del proceso Qdrant; su disponibilidad se verifica
+expresamente con `/readyz` en la prueba de persistencia. No hay ingesta automática todavía.
 
 ## Comprobar la etapa 1
 
@@ -65,7 +74,7 @@ Las pruebas usan una base temporal. No modifican el volumen de la aplicación.
 | Integraciones | Configuración de OpenAI, Jira y Confluence. Conexiones pendientes. |
 
 Docker compila Next.js y copia su exportación en la imagen Python.
-Durante la ejecución existe un servicio `app`, publicado únicamente en `127.0.0.1`.
+Durante la ejecución existen `app` y `qdrant`; solo `app` publica un puerto en `127.0.0.1`.
 SQLite funciona dentro del proceso Python y no necesita un servidor independiente.
 El puerto interno escucha en `0.0.0.0` para recibir el tráfico publicado por Docker.
 
@@ -97,6 +106,8 @@ grupo-visa-ai/
 │   ├── pyproject.toml
 │   ├── requirements.txt
 │   └── requirements-dev.txt
+├── ingesta/                 # Proyecto independiente; ejecución pendiente T2
+├── scripts/                 # Prueba aislada de persistencia Qdrant
 └── docs/
     ├── MVP_OCD_Arquitectura.md
     └── modelos_operativos/
@@ -120,16 +131,32 @@ El Dockerfile comprueba TypeScript antes de compilar el frontend.
 La compilación utiliza Python 3.14 y Node.js 24 dentro de Docker.
 Después de cambiar el código, ejecuta de nuevo `docker compose up --build -d --wait`.
 
-Para actualizar los bloqueos Python con `uv`, ejecuta desde `backend`:
+Ambos proyectos Python están limitados a la serie 3.14.
+Para actualizar los bloqueos del backend con `uv`, ejecuta desde `backend`:
 
 ```powershell
 uv pip compile pyproject.toml --python-version 3.14 --universal --output-file requirements.txt
 uv pip compile pyproject.toml --extra dev --python-version 3.14 --universal --output-file requirements-dev.txt
 ```
 
+El proyecto independiente `ingesta/` tiene sus propios bloqueos y [comandos](ingesta/README.md),
+con restricciones del backend para mantener versiones comunes de HTTPX, OpenAI y Pydantic.
+
+Para comprobar Qdrant real en un proyecto temporal aislado:
+
+```powershell
+powershell -NoProfile -File scripts/Test-QdrantPersistence.ps1
+```
+
+La prueba escribe datos sintéticos, crea el alias `ocd_actual`, recrea Qdrant y
+recupera alias, configuración y payload. Elimina exclusivamente su proyecto y
+volumen temporales; no llama a OpenAI ni Atlassian.
+La configuración compartida `x-knowledge-environment` de Compose será consumida
+por T2/T3. El modelo de embeddings es `text-embedding-3-small`, 1536 dimensiones/Cosine.
+
 Consulta el [diseño de la solución](docs/MVP_OCD_Arquitectura.md) para las siguientes etapas.
 
-## Verificación realizada
+## Verificación previa de la etapa 1
 
 Comprobaciones del 13 de noviembre de 2026:
 
@@ -142,4 +169,5 @@ Comprobaciones del 13 de noviembre de 2026:
 - Revisión de estilo Python aprobada mediante Ruff.
 
 La revisión visual quedó pendiente porque Computer Use no pudo verificar la URL de Chrome.
-Las llamadas reales a OpenAI, Jira y Confluence corresponden a las siguientes etapas.
+Las lecturas reales de Atlassian y las llamadas OpenAI corresponden a T2/T3.
+La creación Jira está fuera de este alcance local.

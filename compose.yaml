@@ -1,5 +1,11 @@
 name: grupo-visa-ai
 
+x-knowledge-environment: &knowledge-environment
+  QDRANT_URL: http://qdrant:6333
+  QDRANT_ALIAS: ${QDRANT_ALIAS:-ocd_actual}
+  OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
+  OPENAI_EMBEDDING_DIMENSIONS: "1536"
+
 services:
   app:
     build:
@@ -8,6 +14,7 @@ services:
     ports:
       - "127.0.0.1:${APP_PORT:-8000}:8000"
     environment:
+      <<: *knowledge-environment
       DATABASE_PATH: /data/ocd.sqlite3
       KNOWLEDGE_DIR: /app/knowledge
       FRONTEND_DIR: /app/static
@@ -27,6 +34,13 @@ services:
       start_period: 10s
       retries: 3
 
+  qdrant:
+    image: qdrant/qdrant:v1.16.3@sha256:0425e3e03e7fd9b3dc95c4214546afe19de2eb2e28ca621441a56663ac6e1f46
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+    # Solo accesible desde la red de Compose; no publicar 6333 ni 6334.
+
   tests:
     profiles: [test]
     build:
@@ -37,3 +51,4 @@ services:
 
 volumes:
   sqlite_data:
+  qdrant_data:
