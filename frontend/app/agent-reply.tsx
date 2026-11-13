@@ -7,7 +7,7 @@ const labels = {
 };
 
 export function hasDetails(result: ChatResponse) {
-  return result.sources.length > 0 || Object.keys(result.draft.facts).length > 0 || result.questions.length > 0 || result.validations.length > 0;
+  return result.sources.length > 0 || Object.keys(result.draft.facts).length > 0 || result.questions.length > 0 || result.validations.length > 0 || (result.preview?.pending.length ?? 0) > 0;
 }
 
 export function ReviewDetails({ result }: { result: ChatResponse }) {
@@ -24,6 +24,9 @@ export function ReviewDetails({ result }: { result: ChatResponse }) {
       <dl>{facts.map(([key, fact]) => <div key={key}>
         <dt>{fact.name.replaceAll("_", " ")}</dt><dd>{fact.value}</dd>
       </div>)}</dl>
+    </details>}
+    {!!result.preview?.pending.length && <details open><summary>Pendientes ({result.preview.pending.length})</summary>
+      <ul>{result.preview.pending.map((pending, i) => <li key={`${pending}-${i}`}>{pending}</li>)}</ul>
     </details>}
     {!!result.questions.length && <details><summary>Preguntas pendientes ({result.questions.length})</summary>
       <ul>{result.questions.map(question => <li key={question}>{question}</li>)}</ul>
