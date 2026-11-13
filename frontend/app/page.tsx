@@ -29,7 +29,6 @@ export default function Home() {
   const [tab, setTab] = useState<Tab>("draft");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
   const [restoring, setRestoring] = useState(true);
   const [sending, setSending] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
@@ -60,7 +59,7 @@ export default function Home() {
   async function ask(text: string) {
     const trimmed = text.trim();
     if (!trimmed || busy.current || restoring) return;
-    busy.current = true; setSending(true); setError("");
+    busy.current = true; setSending(true);
     setMessage("");
     setTurns(previous => [...previous, { message: trimmed, pending: true }]);
     try {
@@ -69,7 +68,6 @@ export default function Home() {
     } catch (failure) {
       const message = failure instanceof Error ? failure.message : "No se pudo enviar el mensaje. Inténtalo otra vez.";
       setTurns(previous => previous.map((turn, index) => index === previous.length - 1 && turn.pending ? { message: trimmed, error: message } : turn));
-      setError(message);
     } finally { busy.current = false; setSending(false); }
   }
 
@@ -110,7 +108,6 @@ export default function Home() {
             {turnError && <p role="alert" className={styles.error}>{turnError}</p>}
           </div>)}
           {sending && <div role="status" aria-live="polite" className={styles.loading}><div className={styles.aiAvatar}><img className={styles.aiAvatarImage} src="/nexoops-chatbot.png" alt=""/></div><div className={styles.loadingText}>{loadingLabel}<div className={styles.loadingTrack}/></div></div>}
-          {error && <p role="alert" className={styles.error}>{error}</p>}
         </div>
         <div className={styles.composer}>
           <div className={styles.quickPrompts}>{["¿Qué planes exige OCD-C02?", "¿Qué datos requiere un pase de microservicios?"].map(text => <button key={text} disabled={restoring || sending} onClick={() => { void ask(text); }}>{text}</button>)}</div>
