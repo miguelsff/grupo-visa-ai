@@ -10,7 +10,8 @@ import KnowledgeSearch from "./KnowledgeSearch";
 import styles from "./page.module.css";
 
 type Tab = "draft" | "flow" | "schedule" | "jira";
-type Turn = { message?: string; result: ChatResponse };
+type Turn = { message?: string; result?: ChatResponse; pending?: boolean; error?: string };
+const loadingStages = ["Buscando información relevante", "Comparando resultados con los procedimientos", "Preparando la respuesta"];
 const examples: Array<{ id: string; title: string; progress: number; status: string }> = [];
 const stages = [
   ["Registrar el requerimiento", "Describe el objetivo, el alcance y los datos del cambio."],
@@ -31,15 +32,23 @@ export default function Home() {
   const [error, setError] = useState("");
   const [restoring, setRestoring] = useState(true);
   const [sending, setSending] = useState(false);
+  const [loadingStage, setLoadingStage] = useState(0);
   const [copied, setCopied] = useState(false);
   const transcript = useRef<HTMLDivElement>(null);
   const busy = useRef(false);
   const latest = turns.at(-1)?.result;
+  const loadingLabel = loadingStages[loadingStage];
+
+  useEffect(() => {
+    if (!sending) { setLoadingStage(0); return; }
+    const timer = window.setInterval(() => setLoadingStage(stage => (stage + 1) % loadingStages.length), 1800);
+    return () => window.clearInterval(timer);
+  }, [sending]);
 
   useEffect(() => {
     const controller = new AbortController();
     getChat(controller.signal).then(result => {
-      if (!controller.signal.aborted && result.revision > 0) setTurns([{ result }]);
+      if (!controller.signal.aborted && result.revision > 0) setTurns([]);
     }).catch(() => {
       if (!controller.signal.aborted) setError("No se pudo recuperar la última revisión. Recarga la página para intentarlo de nuevo.");
     }).finally(() => { if (!controller.signal.aborted) setRestoring(false); });
@@ -51,14 +60,18 @@ export default function Home() {
   }, [turns, sending]);
 
   async function ask(text: string) {
-    if (!text.trim() || busy.current || restoring) return;
+    const trimmed = text.trim();
+    if (!trimmed || busy.current || restoring) return;
     busy.current = true; setSending(true); setError("");
+    setMessage("");
+    setTurns(previous => [...previous, { message: trimmed, pending: true }]);
     try {
-      const result = await sendChat(text.trim());
-      setTurns(previous => [...previous, { message: text.trim(), result }]);
-      setMessage("");
+      const result = await sendChat(trimmed);
+      setTurns(previous => previous.map((turn, index) => index === previous.length - 1 && turn.pending ? { message: trimmed, result } : turn));
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "No se pudo enviar el mensaje. Inténtalo otra vez.");
+      const message = failure instanceof Error ? failure.message : "No se pudo enviar el mensaje. Inténtalo otra vez.";
+      setTurns(previous => previous.map((turn, index) => index === previous.length - 1 && turn.pending ? { message: trimmed, error: message } : turn));
+      setError(message);
     } finally { busy.current = false; setSending(false); }
   }
 
@@ -92,18 +105,19 @@ export default function Home() {
       <section className={styles.chatPanel} aria-labelledby="chat-title">
         <div className={styles.panelHeader}><div className={styles.eyebrow}><Sparkles/> COPILOTO NEXOOPS</div><h1 id="chat-title">Armemos tu cambio.</h1><p>Describe tu requerimiento o consulta un procedimiento. El agente prepara un borrador con fuentes y datos pendientes.</p></div>
         <div className={styles.chatBody} ref={transcript} role="log" aria-label="Mensajes de la conversación" aria-live="polite">
-          {!turns.length && <div className={styles.welcome}><p>Describe el cambio que quieres registrar para que el asistente prepare y cree el ticket.</p></div>}
-          {turns.map(({ message: text, result }, i) => <div key={i}>
+          {!turns.length && !sending && <div className={styles.welcome} aria-hidden="true"/>}
+          {turns.map(({ message: text, result, error: turnError }, i) => <div key={i}>
             {text && <div className={`${styles.message} ${styles.userMessage}`}><div className={styles.bubble}><strong>Tú</strong><p>{text}</p></div></div>}
-            <div className={styles.message}><div className={styles.aiAvatar}><Sparkles/></div><div className={styles.bubble}><strong>{text ? "Asistente OCD" : "Última revisión guardada"}</strong><AgentReply result={result}/></div></div>
+            {result && <div className={styles.message}><div className={styles.aiAvatar}><Sparkles/></div><div className={styles.bubble}><strong>{text ? "Asistente OCD" : "Última revisión guardada"}</strong><AgentReply result={result}/></div></div>}
+            {turnError && <p role="alert" className={styles.error}>{turnError}</p>}
           </div>)}
-          {sending && <div role="status" className={styles.message}><div className={styles.aiAvatar}><img className={styles.aiAvatarImage} src="/nexoops-chatbot.png" alt="NexoOPS AI"/></div><div className={styles.bubble}>El agente está revisando tu requerimiento…</div></div>}
+          {sending && <div role="status" aria-live="polite" className={styles.loading}><div className={styles.aiAvatar}><img className={styles.aiAvatarImage} src="/nexoops-chatbot.png" alt=""/></div><div className={styles.loadingText}>{loadingLabel}<div className={styles.loadingTrack}/></div></div>}
           {error && <p role="alert" className={styles.error}>{error}</p>}
         </div>
         <div className={styles.composer}>
           <div className={styles.quickPrompts}>{["¿Qué planes exige OCD-C02?", "¿Qué datos requiere un pase de microservicios?"].map(text => <button key={text} disabled={restoring || sending} onClick={() => { void ask(text); }}>{text}</button>)}</div>
           <form onSubmit={submit}><div className={styles.inputRow}>
-            <textarea aria-label="Tu mensaje" value={message} maxLength={12000} required rows={2} readOnly={sending} onChange={e => setMessage(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void ask(message); } }} placeholder="Describe el cambio que quieres preparar…"/>
+            <textarea aria-label="Tu mensaje" aria-busy={sending} value={message} maxLength={12000} required rows={2} disabled={restoring || sending} onChange={e => setMessage(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void ask(message); } }} placeholder="Describe el cambio que quieres preparar…"/>
             <button className={styles.send} type="submit" aria-label="Enviar mensaje" disabled={restoring || sending || !message.trim()}><ArrowUp/></button>
           </div></form>
           <div className={styles.hint}><span role="status">{restoring ? "Recuperando la sesión…" : sending ? "Consultando al agente…" : "Verifica siempre los datos críticos."}</span><span>Enter para enviar · Mayús+Enter para otra línea</span></div>
