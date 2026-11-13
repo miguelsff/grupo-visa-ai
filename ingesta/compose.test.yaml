@@ -1,0 +1,17 @@
+# Siempre ejecutar con -p ocd-t2-<UUID>; no comparte recursos con la aplicación.
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.16.3@sha256:0425e3e03e7fd9b3dc95c4214546afe19de2eb2e28ca621441a56663ac6e1f46
+    volumes:
+      - test_qdrant:/qdrant/storage
+  tests:
+    build:
+      context: ..
+      dockerfile: ingesta/Dockerfile
+      target: tests
+    environment:
+      QDRANT_TEST_URL: http://qdrant:6333
+    depends_on:
+      - qdrant
+volumes:
+  test_qdrant:

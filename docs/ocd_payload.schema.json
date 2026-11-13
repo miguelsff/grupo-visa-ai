@@ -1,0 +1,465 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Payload OCD v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "source_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "record_key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "enum": [
+        "rule",
+        "field",
+        "context",
+        "example"
+      ]
+    },
+    "scope": {
+      "enum": [
+        "comun",
+        "microservicio",
+        "azure",
+        "red",
+        "identidad"
+      ]
+    },
+    "normative": {
+      "type": "boolean"
+    },
+    "content_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "ingestion_run_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "loaded_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "embedding_model": {
+      "const": "text-embedding-3-small"
+    },
+    "embedding_dimensions": {
+      "const": 1536
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "system": {
+          "enum": [
+            "confluence",
+            "jira"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "document_version": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "updated_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "local_file": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "system",
+        "id",
+        "code",
+        "title",
+        "url",
+        "version",
+        "locator",
+        "document_version",
+        "updated_at",
+        "local_file"
+      ]
+    },
+    "applies_when": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "rule": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "class": {
+              "type": "string",
+              "minLength": 1
+            },
+            "requirement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "result": {
+              "type": "string",
+              "minLength": 1
+            },
+            "fields": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "mode": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "class",
+            "requirement",
+            "result",
+            "fields",
+            "mode"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "field": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": {
+              "type": "string",
+              "minLength": 1
+            },
+            "when": {
+              "type": "string",
+              "minLength": 1
+            },
+            "example": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "name",
+            "type",
+            "when",
+            "example"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "source_id",
+    "record_key",
+    "text",
+    "schema_version",
+    "kind",
+    "scope",
+    "normative",
+    "content_sha256",
+    "ingestion_run_id",
+    "loaded_at",
+    "embedding_model",
+    "embedding_dimensions",
+    "source",
+    "applies_when",
+    "rule",
+    "field"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "rule"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "normative": {
+            "const": true
+          },
+          "rule": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "class": {
+                "type": "string",
+                "minLength": 1
+              },
+              "requirement": {
+                "type": "string",
+                "minLength": 1
+              },
+              "result": {
+                "type": "string",
+                "minLength": 1
+              },
+              "fields": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "mode": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "class",
+              "requirement",
+              "result",
+              "fields",
+              "mode"
+            ]
+          },
+          "field": {
+            "type": "null"
+          },
+          "applies_when": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "properties": {
+              "system": {
+                "const": "confluence"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "field"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "normative": {
+            "const": true
+          },
+          "rule": {
+            "type": "null"
+          },
+          "field": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": {
+                "type": "string",
+                "minLength": 1
+              },
+              "when": {
+                "type": "string",
+                "minLength": 1
+              },
+              "example": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "name",
+              "type",
+              "when",
+              "example"
+            ]
+          },
+          "applies_when": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "properties": {
+              "system": {
+                "const": "confluence"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "context"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "normative": {
+            "const": false
+          },
+          "rule": {
+            "type": "null"
+          },
+          "field": {
+            "type": "null"
+          },
+          "applies_when": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "example"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "normative": {
+            "const": false
+          },
+          "rule": {
+            "type": "null"
+          },
+          "field": {
+            "type": "null"
+          },
+          "applies_when": {
+            "type": "null"
+          },
+          "source": {
+            "properties": {
+              "system": {
+                "const": "jira"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
