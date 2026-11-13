@@ -16,6 +16,7 @@
 .sidebar { padding:18px 14px; border-right:1px solid var(--border); overflow:auto; min-height:0; }
 .sideTitle { display:flex; align-items:center; justify-content:space-between; gap:4px; margin-bottom:15px; }
 .eyebrow { display:flex; align-items:center; gap:7px; font-size:10px; letter-spacing:.1em; font-weight:800; color:var(--secondary); }
+.chatIcon { width:18px; height:18px; object-fit:cover; border-radius:50%; }
 .sideTitle .iconButton { min-width:30px; }
 .leftClosed .sidebar { padding:18px 5px; }
 .leftClosed .sideContent, .leftClosed .sideTitle span { display:none; }
@@ -36,6 +37,7 @@
 .welcome { max-width:760px; margin:0 auto 26px; color:var(--secondary); font-size:13px; line-height:1.8; }
 .message { display:flex; align-items:flex-start; gap:12px; margin:0 auto 20px; max-width:760px; }
 .aiAvatar { width:30px; height:30px; display:grid; place-items:center; background:var(--soft); color:var(--accent); border-radius:9px; flex-shrink:0; }
+.aiAvatarImage { width:100%; height:100%; display:block; object-fit:cover; border-radius:inherit; }
 .bubble { min-width:0; background:var(--surface); border:1px solid var(--border); padding:14px 16px; border-radius:14px; font-size:13px; line-height:1.75; overflow-wrap:anywhere; }
 .bubble p { margin:0 0 10px; white-space:pre-wrap; }
 .bubble p:last-child { margin-bottom:0; }

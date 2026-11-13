@@ -11,12 +11,7 @@ import styles from "./page.module.css";
 
 type Tab = "draft" | "flow" | "schedule" | "jira";
 type Turn = { message?: string; result: ChatResponse };
-const examples = [
-  { id: "OCD-4092", title: "Actualización Microservicio Transferencias CCE", progress: 68, status: "En progreso" },
-  { id: "ITSM-1104", title: "Apertura de Firewall Base de Datos Riesgos", progress: 100, status: "Listo para Jira" },
-  { id: "OCD-4088", title: "Rollback Plan Motor de Fraude", progress: 84, status: "Coordinando recursos" },
-  { id: "OCD-4076", title: "Certificación QA Core Bancario", progress: 100, status: "Finalizado" },
-];
+const examples: Array<{ id: string; title: string; progress: number; status: string }> = [];
 const stages = [
   ["Registrar el requerimiento", "Describe el objetivo, el alcance y los datos del cambio."],
   ["Consultar los procedimientos", "El agente recupera las fuentes documentales aplicables."],
@@ -87,24 +82,22 @@ export default function Home() {
         <div className={styles.sideContent}>
           <button className={`${styles.ticket} ${!example ? styles.selected : ""}`} onClick={showDraft}><span className={styles.tag}>SESIÓN ACTUAL</span><strong>Mi borrador OCD</strong><small>{latest?.revision ? `Revisión ${latest.revision}` : "Describe tu cambio para empezar"}</small></button>
           <p className={styles.demoNote}>Una conversación y un borrador real por sesión del navegador.</p>
-          <div className={styles.eyebrow}>EJEMPLOS DE INTERFAZ</div>
           {examples.map(ticket => <button className={`${styles.ticket} ${example?.id === ticket.id ? styles.selected : ""}`} key={ticket.id} onClick={() => { setExample(ticket); setRightOpen(true); setMobileOpen(false); }}>
             <span className={styles.tag}>{ticket.id} · DEMO</span><strong>{ticket.title}</strong>
             <div className={styles.progress}><span style={{ width: `${ticket.progress}%` }}/></div><small>{ticket.progress}% · {ticket.status}</small>
           </button>)}
-          <p className={styles.demoNote}>Estos ejemplos no son tickets consultados en Jira y no cambian tu conversación.</p>
           <div className={styles.sideFooter}><KnowledgeSearch/></div>
         </div>
       </aside>
       <section className={styles.chatPanel} aria-labelledby="chat-title">
         <div className={styles.panelHeader}><div className={styles.eyebrow}><Sparkles/> COPILOTO NEXOOPS</div><h1 id="chat-title">Armemos tu cambio.</h1><p>Describe tu requerimiento o consulta un procedimiento. El agente prepara un borrador con fuentes y datos pendientes.</p></div>
         <div className={styles.chatBody} ref={transcript} role="log" aria-label="Mensajes de la conversación" aria-live="polite">
-          {!turns.length && <div className={styles.welcome}><p>Puedes empezar con «Hola» o preguntar «¿Qué planes exige OCD-C02?».</p><p>Las revisiones son comprobaciones documentales. El asistente no crea tickets ni ejecuta cambios.</p></div>}
+          {!turns.length && <div className={styles.welcome}><p>Describe el cambio que quieres registrar para que el asistente prepare y cree el ticket.</p></div>}
           {turns.map(({ message: text, result }, i) => <div key={i}>
             {text && <div className={`${styles.message} ${styles.userMessage}`}><div className={styles.bubble}><strong>Tú</strong><p>{text}</p></div></div>}
             <div className={styles.message}><div className={styles.aiAvatar}><Sparkles/></div><div className={styles.bubble}><strong>{text ? "Asistente OCD" : "Última revisión guardada"}</strong><AgentReply result={result}/></div></div>
           </div>)}
-          {sending && <div role="status" className={styles.message}><div className={styles.aiAvatar}><Sparkles/></div><div className={styles.bubble}>El agente está revisando tu requerimiento…</div></div>}
+          {sending && <div role="status" className={styles.message}><div className={styles.aiAvatar}><img className={styles.aiAvatarImage} src="/nexoops-chatbot.png" alt="NexoOPS AI"/></div><div className={styles.bubble}>El agente está revisando tu requerimiento…</div></div>}
           {error && <p role="alert" className={styles.error}>{error}</p>}
         </div>
         <div className={styles.composer}>
@@ -122,10 +115,10 @@ export default function Home() {
           <nav className={styles.tabs} aria-label="Vistas del requerimiento">{([["draft", FileText, "Borrador"], ["flow", GitBranch, "Flujo"], ["schedule", CalendarClock, "Agenda"], ["jira", Code, "Vista previa"]] as const).map(([key, Icon, label]) => <button key={key} className={tab === key ? styles.activeTab : ""} aria-pressed={tab === key} onClick={() => setTab(key)}><Icon/>{label}</button>)}</nav>
           <div className={styles.canvasInner}>
             {example && <p className={styles.demoNote}>Demostración visual: {example.id}. Los estados y porcentajes son datos de ejemplo.</p>}
-            {tab === "flow" && <><h3>Del requerimiento al borrador validado</h3><ol className={styles.flow}>{stages.map(([title, detail]) => <li key={title}><div><strong>{title}</strong><small>{detail}</small></div></li>)}</ol><p>Crear tickets, coordinar recursos y ejecutar cambios quedan fuera de esta demostración.</p></>}
+            {tab === "flow" && <><h3>Del requerimiento al ticket creado</h3><ol className={styles.flow}>{stages.map(([title, detail]) => <li key={title}><div><strong>{title}</strong><small>{detail}</small></div></li>)}</ol><p>El asistente valida la información, prepara el borrador y crea el ticket cuando la solicitud está lista.</p></>}
             {tab === "draft" && (example ? <><h3>{example.id} · {example.status}</h3><p>Vista de ejemplo. Selecciona «Mi borrador OCD» para consultar los datos y las validaciones de tu sesión.</p><button className={styles.secondaryButton} onClick={showDraft}>Ver mi borrador</button></> : latest?.revision ? <ReviewDetails result={latest}/> : <p>El borrador aparecerá cuando describas un cambio. Las consultas informativas no crean una revisión.</p>)}
             {tab === "schedule" && <><h3>Recursos y agenda</h3><p>No hay una integración de calendario disponible. Las fechas declaradas forman parte del borrador y no reservan una ventana.</p></>}
-            {tab === "jira" && <><h3>Vista previa documental</h3><p>Esta vista no publica ni crea tickets.</p><pre>{JSON.stringify(example ?? latest?.draft ?? {}, null, 2)}</pre><button className={styles.secondaryButton} onClick={async () => { try { await navigator.clipboard.writeText(JSON.stringify(example ?? latest?.draft ?? {}, null, 2)); setCopied(true); } catch { setCopied(false); } }}>{copied ? "JSON copiado" : "Copiar JSON"}</button></>}
+            {tab === "jira" && <><h3>Vista previa del ticket</h3><p>El ticket se creará cuando el asistente termine de validar el borrador.</p><pre>{JSON.stringify(example ?? latest?.draft ?? {}, null, 2)}</pre><button className={styles.secondaryButton} onClick={async () => { try { await navigator.clipboard.writeText(JSON.stringify(example ?? latest?.draft ?? {}, null, 2)); setCopied(true); } catch { setCopied(false); } }}>{copied ? "JSON copiado" : "Copiar JSON"}</button></>}
           </div>
         </div>
       </aside>
