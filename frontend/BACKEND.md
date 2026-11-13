@@ -12,6 +12,11 @@ La aplicación mantiene una conversación real por sesión. Los ejemplos de tick
 son vistas de demostración y no cambian el borrador. `reviewed` indica una revisión
 documental, no una autorización ni la ejecución del pase.
 
+La vista previa de una revisión vigente permite publicar con
+`POST /api/chat/revisions/{revision}/publish`, conservando la cookie de sesión.
+La respuesta contiene la clave y el enlace Jira; una publicación confirmada se
+recupera al consultar de nuevo la revisión. Publicar no ejecuta el cambio.
+
 Las credenciales se configuran en el backend. En Railway, el navegador autentica
 al usuario `demo` mediante HTTP Basic. No crear `.env.local` con credenciales ni
 publicar valores sensibles mediante `NEXT_PUBLIC_*`.

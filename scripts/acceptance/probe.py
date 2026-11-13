@@ -126,6 +126,30 @@ def main(phase: str) -> None:
             )
             EVIDENCE.write_text(json.dumps(evidence))
             double.post("/control", json={"atlassian": False}).raise_for_status()
+        elif phase == "publication":
+            first = app.post("/api/chat", json={"message": "Quiero hacer un pase a producción de mi microservicio."}).raise_for_status().json()
+            assert first["questions"] == ["¿Qué microservicio vas a pasar y qué versión quieres publicar?"]
+            assert first["preview"] is None
+            second = app.post("/api/chat", json={"message": "Pedidos, versión 1.9.0. Corrige la duplicación de pedidos."}).raise_for_status().json()
+            preview = second["preview"]
+            assert preview["title"] == "Pase a producción de Pedidos 1.9.0"
+            assert preview["pending"] == ["ventana", "responsable", "repositorio", "pruebas", "reversión"]
+            assert "Corrige la duplicación de pedidos." in preview["description"]
+            revision = second["revision"]
+            result = app.post(f"/api/chat/revisions/{revision}/publish")
+            assert result.status_code == 201, result.text
+            assert result.json() == {"key": "SCRUM-999", "url": "https://grupo-visai.atlassian.net/browse/SCRUM-999"}
+            fields = double.get("/captured").raise_for_status().json()["issues"][0]["fields"]
+            assert fields["project"] == {"key": "SCRUM"} and fields["issuetype"] == {"id": "10003"}
+            assert fields["summary"] == preview["title"]
+            nodes = fields["description"]["content"][0]["content"]
+            assert "".join("\n" if n["type"] == "hardBreak" else n["text"] for n in nodes) == preview["description"]
+            assert app.post(f"/api/chat/revisions/{revision}/publish").status_code == 200
+            assert len(double.get("/captured").json()["issues"]) == 1
+            assert app.get("/api/chat").json()["publication"] == result.json()
+            evidence = json.loads(EVIDENCE.read_text())
+            evidence.update(publication_cookie=app.cookies.get("ocd_session"), publication=result.json())
+            EVIDENCE.write_text(json.dumps(evidence))
         else:
             evidence = json.loads(EVIDENCE.read_text())
             app.cookies.set("ocd_session", evidence["cookie"], path="/api/chat")
@@ -151,6 +175,11 @@ def main(phase: str) -> None:
                 double.post("/control", json={"openai": True}).raise_for_status()
                 EVIDENCE.write_text(json.dumps(evidence | {"last_reviewed": result}))
             elif phase == "resume":
+                with httpx.Client(base_url="http://localhost:8000", timeout=15) as published:
+                    published.cookies.set("ocd_session", evidence["publication_cookie"], path="/api/chat")
+                    assert published.get("/api/chat").json()["publication"] == evidence["publication"]
+                    assert published.post("/api/chat/revisions/2/publish").status_code == 200
+                    assert len(double.get("/captured").json()["issues"]) == 1
                 assert app.get("/api/chat").json()["revision"] == 4
                 assert app.get("/api/chat/revisions/3").json() == evidence["last_reviewed"]
                 result = (
