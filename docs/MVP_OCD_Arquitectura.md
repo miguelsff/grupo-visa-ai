@@ -1,11 +1,12 @@
 # Arquitectura MVP OCD — Compose y Railway
 
-Versión 0.6. Fecha: 13 de noviembre de 2026. Estado T1–T4.
+Versión 0.7. Fecha: 13 de noviembre de 2026. Estado T1–T4 y publicación local de demostración.
 
 ## 1. Alcance y estado
 
 La solución prepara un borrador OCD, solicita datos desconocidos y ejecuta
-V-01/02/03 con fuentes y versiones. No crea tickets Jira ni ejecuta infraestructura.
+V-01/02/03 con fuentes y versiones. La revisión vigente puede publicarse por
+acción explícita como Tarea Jira en SCRUM. No ejecuta infraestructura.
 En la red privada de Railway se verificó la carga de 83 puntos y la coincidencia
 de las 24 citas y 19 referencias de una consulta. El entorno incorpora aplicación,
 ingesta, Qdrant y MongoDB, con cuatro volúmenes persistentes.
@@ -23,7 +24,8 @@ conserva las propuestas anteriores de creación Jira y Railway.
 | Aceptación integrada | T4: Qdrant real y REST dobles; evidencia en `docs/verificacion_t4.md`. |
 | Servicios externos autenticados | Lectura REST de Confluence y Jira, embeddings y Responses API verificados en Compose local. |
 | Procedencia y relevancia | Las citas de una consulta coinciden con Qdrant. La evaluación general de relevancia sigue pendiente. |
-| Creación Jira y ejecución de cambios de infraestructura desde el agente | Fuera del alcance del MVP. |
+| Publicación Jira | Implementada para vista previa vigente, sesión propietaria y destino SCRUM/Tarea (10003); la escritura real requiere verificación independiente. |
+| Ejecución de cambios de infraestructura | Fuera del alcance. |
 
 T4 identificó y corrigió la diferencia entre las condiciones publicadas por T2
 y las firmas de reglas/fixtures del consumidor T3. La aceptación usa el índice
@@ -50,8 +52,12 @@ no publica 6333/6334. La red permite llamadas salientes. Node.js 24 interviene s
 en compilación; Python 3.14 ejecuta ambos proyectos independientes, con sus bloqueos.
 HTTPX evita un SDK Qdrant adicional. Backend e ingesta no importan código entre sí.
 
-El backend no descarga Atlassian ni ejecuta ingesta al arrancar. Compose entrega las
-credenciales Atlassian exclusivamente a ingesta. La API `/api/integrations` describe
+El backend no descarga Atlassian ni ejecuta ingesta al arrancar. Ingesta usa
+`ATLASSIAN_EMAIL` y `ATLASSIAN_API_TOKEN` para lectura; app usa `JIRA_EMAIL` y
+`JIRA_API_TOKEN` para escritura. Compose puede recurrir a las credenciales de lectura
+si las variables Jira se omiten. `JIRA_BASE_URL` debe ser `https://grupo-visai.atlassian.net`,
+`JIRA_PROJECT_KEY` debe ser `SCRUM` y `JIRA_ISSUE_TYPE_ID` debe ser `10003`.
+La API `/api/integrations` describe
 solo configuración del backend: los estados Jira/Confluence no inspeccionan ingesta,
 no prueban conectividad y no deben interpretarse como estado de su carga.
 `/api/health` verifica SQLite y estáticos sin llamadas externas ni datos de negocio.
@@ -104,6 +110,7 @@ impide consulta/chat del corpus publicado si Qdrant y OpenAI siguen disponibles.
    más recientes y permite retirar explícitamente categorías. No ejecuta red dentro de escrituras SQLite.
 5. Para revisar un borrador, el agente recupera conocimiento de Qdrant y Python ejecuta V-01, V-02 y V-03. El agente arma la respuesta con lo declarado por el solicitante y la evidencia disponible. Una consulta sin respaldo recibe una respuesta de información insuficiente.
 6. La API devuelve `answer` en el contrato habitual. Los turnos informativos conservan la revisión del borrador. Los cambios al borrador y sus validaciones se conservan en SQLite.
+7. Para un pase a producción con servicio y versión, sin errores, se guarda una vista previa con datos pendientes. El usuario puede publicar la revisión vigente mediante `POST /api/chat/revisions/{revision}/publish`. El backend envía título y descripción en ADF a Jira, guarda clave y enlace y reconcilia resultados inciertos sin repetir el POST.
 
 El único proceso backend serializa mensajes de una misma sesión; sesiones distintas
 pueden progresar de forma independiente. Lotes extraídos solapados se filtran por
@@ -161,6 +168,8 @@ docker compose --profile test run --build --rm tests ruff check --no-cache app t
 
 La prueba automatizada T4 usa Qdrant real y servidores de prueba para Atlassian y OpenAI.
 La prueba posterior utilizó las API externas reales para la carga manual y un turno de chat HTTP.
+Esa evidencia acredita lectura e inferencia, no creación real de tickets. La escritura
+debe probarse con un servidor Jira simulado; una prueba simulada no acredita permisos reales.
 La interfaz usa `POST /api/chat` para enviar mensajes y `GET /api/chat` para
 recuperar la última revisión al abrir la página. La observación del cron de las 03:00 de Lima sigue pendiente.
 
