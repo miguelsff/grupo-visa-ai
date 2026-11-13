@@ -22,7 +22,7 @@ Consulta la [evidencia y sus límites](docs/verificacion_t4.md#ingesta-real-y-ve
 La búsqueda HTTP usa Qdrant; SQLite conserva saludos, sesiones, mensajes y revisiones.
 La carga FTS5 queda como código legado sin uso en rutas. El frontend conserva saludo/búsqueda;
 el chat se opera por HTTP. No describir una interfaz de chat como disponible.
-El alcance local termina con el borrador validado, sin crear tickets. Railway queda aplazado.
+El alcance local termina con el borrador validado, sin crear tickets. En Railway se verificaron los tres servicios, la ingesta y las citas en la red privada.
 Antes de extender capacidades, verifica estos estados en el código.
 
 ## Arquitectura y responsabilidades
@@ -96,7 +96,7 @@ Estas reglas se aplican a las integraciones implementadas y sus extensiones:
 - Conserva la base en `/data/ocd.sqlite3`, mediante `DATABASE_PATH` y un volumen persistente.
 - Inicializa el esquema después de montar el volumen, sin eliminar los registros existentes.
 - Usa transacciones cortas. Ejecuta las llamadas externas fuera de las transacciones de escritura.
-- Mantén un backend modular con un worker Uvicorn; Qdrant e ingesta son servicios locales independientes. Railway requiere una revisión posterior.
+- Mantén un backend modular con un worker Uvicorn. Qdrant e ingesta son servicios independientes en Compose y usan la red privada en Railway.
 - Conserva los volúmenes `sqlite_data` y `qdrant_data` al recrear la aplicación local. Qdrant no publica puertos al host.
 - No ejecutes `docker compose down -v` para tareas habituales de desarrollo o verificación.
 - Antes de cambiar el esquema, crea una copia consistente de SQLite y verifica su restauración.

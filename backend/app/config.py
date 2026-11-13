@@ -1,7 +1,7 @@
 """Configuración del backend mediante variables de entorno."""
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Self
 
@@ -21,8 +21,12 @@ class Settings:
     embedding_model: str = "text-embedding-3-small"
     embedding_dimensions: int = 1536
     external_timeout: float = 30.0
+    on_railway: bool = False
+    demo_password: str = field(default="", repr=False)
 
     def __post_init__(self) -> None:
+        if (self.on_railway or self.demo_password) and not self.demo_password.strip():
+            raise ValueError("Configura OCD_DEMO_PASSWORD para el acceso de demostración.")
         if self.embedding_model != "text-embedding-3-small" or self.embedding_dimensions != 1536:
             raise ValueError("El contrato OCD requiere text-embedding-3-small y 1536 dimensiones.")
         if self.external_timeout <= 0:
@@ -44,4 +48,6 @@ class Settings:
             embedding_model=os.environ.get("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"),
             embedding_dimensions=int(os.environ.get("OPENAI_EMBEDDING_DIMENSIONS", "1536")),
             external_timeout=float(os.environ.get("EXTERNAL_TIMEOUT_SECONDS", "30")),
+            on_railway="RAILWAY_ENVIRONMENT_ID" in os.environ,
+            demo_password=os.environ.get("OCD_DEMO_PASSWORD", ""),
         )

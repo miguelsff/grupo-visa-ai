@@ -19,6 +19,7 @@ para construir las imágenes. Copia `.env.example` a `.env`. Configura:
 | Variable | Uso |
 | --- | --- |
 | `APP_PORT` | Puerto local publicado solo en `127.0.0.1`; por defecto 8000. |
+| `OCD_DEMO_PASSWORD` | Contraseña del usuario `demo` de `app`. Obligatoria en Railway y opcional en Compose local. |
 | `OPENAI_API_KEY` | Embeddings de ingesta/consulta e inferencia del backend. |
 | `OPENAI_MODEL` | Modelo de conversación; decisión actual `gpt-6-luna`. |
 | `ATLASSIAN_BASE_URL` | Origen HTTPS autorizado: `https://grupo-visai.atlassian.net`. |
@@ -56,6 +57,12 @@ No usar `down -v` en el proyecto de aplicación. Qdrant no publica puertos al ho
 conexiones externas ni que exista una generación publicada.
 
 ## Chat en dos turnos HTTP
+
+En Railway, abre `/docs` en el dominio HTTPS de `app` e inicia sesión con el
+usuario `demo` y la contraseña de `OCD_DEMO_PASSWORD`. Usa `POST /api/chat` para
+hacer una pregunta. En un cliente HTTP configura autenticación Basic y conserva
+la cookie `ocd_session` entre turnos para continuar el mismo borrador.
+`GET /api/health` permite comprobar la disponibilidad sin credenciales.
 
 Ejemplo PowerShell. El modelo interpreta lenguaje natural; los datos desconocidos
 permanecen pendientes. Conservar la misma cookie para continuar la sesión:
@@ -122,8 +129,8 @@ Las 26 reglas son sintéticas; los veinte tickets son ejemplos sin autoridad nor
 `CUMPLE`, `FALTA_INFORMACION`, `ERROR` y `NO_VERIFICABLE` expresan comprobaciones
 documentales, no permisos efectivos ni ejecución real. La búsqueda semántica usa
 cinco resultados de apoyo; la recuperación normativa pagina todas las reglas y campos aplicables.
-La calidad real del modelo y embeddings, el acceso REST autenticado, Railway y la
-seguridad de exposición pública quedan pendientes. No hay herramientas de creación Jira.
+En la red privada de Railway se verificaron los tres servicios, la ingesta de
+83 puntos y las citas de una consulta. La evaluación general de relevancia sigue pendiente.
 
 ## Verificación reproducible
 

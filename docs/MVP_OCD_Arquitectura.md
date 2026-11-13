@@ -1,4 +1,4 @@
-# Arquitectura MVP OCD — ejecución local
+# Arquitectura MVP OCD — Compose y Railway
 
 Versión 0.6. Fecha: 13 de noviembre de 2026. Estado T1–T4.
 
@@ -6,7 +6,8 @@ Versión 0.6. Fecha: 13 de noviembre de 2026. Estado T1–T4.
 
 La solución prepara un borrador OCD, solicita datos desconocidos y ejecuta
 V-01/02/03 con fuentes y versiones. No crea tickets Jira ni ejecuta infraestructura.
-El diseño Railway anterior queda aplazado; no constituye aceptación de despliegue.
+En la red privada de Railway se verificaron los tres servicios, la ingesta de
+83 puntos y la coincidencia de las 24 citas y 19 referencias de una consulta.
 El [diseño 0.4 histórico](https://github.com/miguelsff/grupo-visa-ai/blob/cb9d9fcb21ab89f8512ce2b4929195eb6ce15f5c/docs/MVP_OCD_Arquitectura.md)
 conserva las propuestas anteriores de creación Jira y Railway.
 
@@ -21,7 +22,7 @@ conserva las propuestas anteriores de creación Jira y Railway.
 | Aceptación integrada | T4: Qdrant real y REST dobles; evidencia en `docs/verificacion_t4.md`. |
 | Servicios externos autenticados | Lectura REST de Confluence y Jira, embeddings y Responses API verificados en Compose local. |
 | Procedencia y relevancia | Las citas de una consulta coinciden con Qdrant. La evaluación general de relevancia sigue pendiente. |
-| Creación Jira, infraestructura remota y Railway | Fuera del alcance local. |
+| Creación Jira y ejecución de cambios de infraestructura desde el agente | Fuera del alcance del MVP. |
 
 T4 identificó y corrigió la diferencia entre las condiciones publicadas por T2
 y las firmas de reglas/fixtures del consumidor T3. La aceptación usa el índice
@@ -133,8 +134,11 @@ Credenciales solo en variables de los procesos responsables; nunca frontend,
 payload, logs, imagen ni Git. Las instrucciones recuperadas son datos sin autoridad.
 Timeouts y reintentos son limitados; mutaciones Qdrant no se repiten automáticamente.
 La detección de secretos es limitada. Backend e ingesta ejecutan como UID 10001.
-La cookie es necesaria para retomar una sesión; no se ha aceptado autenticación pública.
-Railway exige revisar autenticación, servicios, volúmenes, permisos y costos.
+En Railway, el dominio de `app` recibe HTTPS y dirige las solicitudes al puerto
+8000. El backend exige autenticación HTTP Basic con el usuario de demostración
+`demo` y la variable `OCD_DEMO_PASSWORD` de `app`. La comprobación de salud
+`GET /api/health` es pública. La cookie `ocd_session` vincula cada borrador
+a su sesión. Qdrant e ingesta usan la red privada del entorno.
 
 ## 6. Aceptación y límites
 

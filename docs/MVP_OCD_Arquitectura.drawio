@@ -29,7 +29,7 @@
         <mxCell id="ctx3" value="SDK oficial" style="edgeStyle=orthogonalEdgeStyle;html=0;endArrow=block;fontSize=14;exitX=1;exitY=0.75;" edge="1" parent="1" source="system" target="ai">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="ctx-note" value="El agente prepara el borrador, cita las fuentes y solicita los datos pendientes.&#10;El amarillo identifica los servicios externos. Railway sigue aplazado." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
+        <mxCell id="ctx-note" value="El amarillo identifica los servicios externos.&#10;En Railway, app exige autenticación HTTP Basic para el chat. Qdrant e ingesta usan la red privada." style="text;html=0;align=left;fontSize=18;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="650" width="1200" height="100" />
         </mxCell>
       </root>

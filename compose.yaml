@@ -18,6 +18,7 @@ services:
       DATABASE_PATH: /data/ocd.sqlite3
       KNOWLEDGE_DIR: /app/knowledge
       FRONTEND_DIR: /app/static
+      OCD_DEMO_PASSWORD: ${OCD_DEMO_PASSWORD:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6-luna}
     volumes:

@@ -15,6 +15,7 @@ from app.agent.chat import ChatService, KnowledgeReader
 from app.agent.models import ChatResponse, ServiceUnavailable
 from app.agent.service import say_hello
 from app.agent.store import ChatStore
+from app.auth import require_demo_login
 from app.config import Settings
 from app.database import Database
 from app.integrations.openai import OpenAIIntegration, Orchestrator
@@ -57,6 +58,8 @@ def create_app(
             client.close()
 
     application = FastAPI(title="Grupo VISA AI · OCD local", version="0.3.0", lifespan=lifespan)
+    if configuration.demo_password:
+        require_demo_login(application, configuration.demo_password)
 
     @application.exception_handler(sqlite3.Error)
     async def database_error(request: Request, error: sqlite3.Error) -> JSONResponse:
@@ -65,6 +68,7 @@ def create_app(
             status_code=503, content={"detail": "La base local no está disponible."}
         )
 
+    @application.head("/api/health", response_model=HealthResponse, include_in_schema=False)
     @application.get("/api/health", response_model=HealthResponse)
     def health() -> HealthResponse | JSONResponse:
         database.available()
@@ -113,7 +117,7 @@ def create_app(
                 token,
                 httponly=True,
                 samesite="strict",
-                secure=request.url.scheme == "https",
+                secure=configuration.on_railway or request.url.scheme == "https",
                 path="/api/chat",
             )
         return response
