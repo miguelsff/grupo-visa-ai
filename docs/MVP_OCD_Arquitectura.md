@@ -6,19 +6,20 @@ Versión 0.6. Fecha: 13 de noviembre de 2026. Estado T1–T4.
 
 La solución prepara un borrador OCD, solicita datos desconocidos y ejecuta
 V-01/02/03 con fuentes y versiones. No crea tickets Jira ni ejecuta infraestructura.
-En la red privada de Railway se verificaron los tres servicios, la ingesta de
-83 puntos y la coincidencia de las 24 citas y 19 referencias de una consulta.
+En la red privada de Railway se verificó la carga de 83 puntos y la coincidencia
+de las 24 citas y 19 referencias de una consulta. El entorno incorpora aplicación,
+ingesta, Qdrant y MongoDB, con cuatro volúmenes persistentes.
 El [diseño 0.4 histórico](https://github.com/miguelsff/grupo-visa-ai/blob/cb9d9fcb21ab89f8512ce2b4929195eb6ce15f5c/docs/MVP_OCD_Arquitectura.md)
 conserva las propuestas anteriores de creación Jira y Railway.
 
 | Capacidad | Estado en el código |
 | --- | --- |
-| Next.js estático, FastAPI y saludo SQLite | Implementado; interfaz de saludo y búsqueda conservada. |
+| Next.js estático y FastAPI | NexoOPS muestra conversación y búsqueda de procedimientos, con un borrador real por sesión. Los tickets de ejemplo y la agenda son demostraciones. |
 | Cinco copias Markdown y cargador FTS5 | Legado sin uso en rutas HTTP de conocimiento. |
 | Qdrant interno y contrato v1 | Implementado T1; persistencia histórica documentada por separado. |
 | CLI, HTTPX Atlassian, embeddings y publicación atómica | Implementado T2. |
 | Supercronic 03:00 America/Lima y bloqueo compartido | Implementado T2; disparo probado con horario temporal. |
-| Responses API, herramientas, preguntas, sesiones y V-01/02/03 | Implementado T3; acceso al chat por HTTP. |
+| Responses API, herramientas, preguntas, sesiones y V-01/02/03 | Implementado T3; acceso al chat por HTTP y desde la interfaz estática. |
 | Aceptación integrada | T4: Qdrant real y REST dobles; evidencia en `docs/verificacion_t4.md`. |
 | Servicios externos autenticados | Lectura REST de Confluence y Jira, embeddings y Responses API verificados en Compose local. |
 | Procedencia y relevancia | Las citas de una consulta coinciden con Qdrant. La evaluación general de relevancia sigue pendiente. |
@@ -160,7 +161,8 @@ docker compose --profile test run --build --rm tests ruff check --no-cache app t
 
 La prueba automatizada T4 usa Qdrant real y servidores de prueba para Atlassian y OpenAI.
 La prueba posterior utilizó las API externas reales para la carga manual y un turno de chat HTTP.
-Siguen pendientes la aceptación de una interfaz de chat y la observación del cron de las 03:00 de Lima.
+La interfaz usa `POST /api/chat` para enviar mensajes y `GET /api/chat` para
+recuperar la última revisión al abrir la página. La observación del cron de las 03:00 de Lima sigue pendiente.
 
 ## Referencias
 
