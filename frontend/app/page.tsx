@@ -49,9 +49,7 @@ export default function Home() {
     const controller = new AbortController();
     getChat(controller.signal).then(result => {
       if (!controller.signal.aborted && result.revision > 0) setTurns([]);
-    }).catch(() => {
-      if (!controller.signal.aborted) setError("No se pudo recuperar la última revisión. Recarga la página para intentarlo de nuevo.");
-    }).finally(() => { if (!controller.signal.aborted) setRestoring(false); });
+    }).catch(() => undefined).finally(() => { if (!controller.signal.aborted) setRestoring(false); });
     return () => controller.abort();
   }, []);
 
